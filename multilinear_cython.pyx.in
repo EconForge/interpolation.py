@@ -1,0 +1,141 @@
+number_types = ['float', 'double']
+d_max = 4
+use_open_mp = True
+
+
+
+code = """
+from libc.math cimport fmin, fmax, floor
+
+cimport numpy as np
+import numpy as np
+
+"""
+
+template_1 = """
+
+def multilinear_interpolation_{{number}}(np.ndarray[np.{{number}}_t, ndim=1] smin, np.ndarray[np.{{number}}_t, ndim=1] smax, np.ndarray[np.int_t, ndim=1] orders, np.ndarray[np.{{number}}_t, ndim=2] values, np.ndarray[np.{{number}}_t, ndim=2] s):
+
+    cdef int d = np.size(s,0)
+    cdef int n_s = np.size(s,1)
+    cdef int n_v = np.size(values,0)
+
+    cdef np.ndarray[np.{{number}}_t, ndim=2] result = np.zeros((n_v,n_s))
+    cdef np.ndarray[np.{{number}}_t, ndim=1] vals
+    cdef np.ndarray[np.{{number}}_t, ndim=1] res
+
+    for i in range(n_v):
+        vals = values[i,:]
+        res = result[i,:]
+        if False:
+            pass
+        {{for k in range(1,max_d)}}
+        elif d=={{k}}:
+            multilinear_interpolation_1d_{{number}}(smin, smax, orders, vals, n_s, s, res)
+        {{endfor}}
+    return result
+
+
+"""
+template_2 = """
+
+cdef multilinear_interpolation_{{d}}d_{{number}}(np.ndarray[np.{{number}}_t, ndim=1] a_smin, np.ndarray[np.{{number}}_t, ndim=1] a_smax,
+                                  np.ndarray[np.int_t, ndim=1] orders, np.ndarray[np.{{number}}_t, ndim=1] a_V,
+                                  int n_s, np.ndarray[np.{{number}}_t, ndim=2] a_s, np.ndarray[np.{{number}}_t, ndim=1] a_output):
+
+    cdef int d = {{d}}
+
+    cdef {{number}}* smin = <{{number}}*> a_smin.data
+    cdef {{number}}* smax = <{{number}}*> a_smax.data
+    cdef {{number}}* V = <{{number}}*> a_V.data
+    cdef {{number}}* s = <{{number}}*> a_s.data
+    cdef {{number}}* output = <{{number}}*> a_output.data
+
+    cdef int i
+ 
+
+    {{for k in range(d)}}
+    cdef {{number}} lam_{{k}}, s_{{k}}, sn_{{k}}, snt_{{k}}
+    {{endfor}}
+    
+    {{for k in range(d)}}
+    cdef int order_{{k}} = orders[{{k}}]
+    {{endfor}}
+
+    {{for k in range(d-1)}}
+    cdef M_{{k}} = {{ str.join('*',['order_{}'.format(l) for l in range(d-k-1)])  }}
+    {{endfor}}
+
+    {{for inds in product(*([(0,1)]*d))}}
+    cdef {{number}} v_{{index(inds)}}
+    {{endfor}}
+
+    {{if use_open_mp}}
+    #pragma omp parallel for
+    {{endif}}
+    for i in range(n_s):
+
+        # (s_1, ..., s_d) : evaluation point
+        {{for k in range(d)}}
+        s_{{k}} = s[ {{k}}*n_s + i ]
+        {{endfor}}
+
+        # (sn_1, ..., sn_d) : normalized evaluation point (in [0,1] inside the grid)
+        {{for k in range(d)}}
+        sn_{{k}} = (s_{{k}}-smin[{{k}}])/(smax[{{k}}]-smin[{{k}}])
+        {{endfor}}
+
+        # q_k : index of the interval "containing" s_k
+        {{for k in range(d)}}
+        q_{{k}} = max( min( <int>(sn_{{k}} *(order_{{k}}-1)), (order_{{k}}-1) ), 0 )
+        {{endfor}}
+
+        # lam_k : barycentric coordinate in interval k
+        {{for k in range(d)}}
+        lam_{{k}} = sn_{{k}}*(order_{{k}}-1) - q_{{k}}
+        {{endfor}}
+
+        # v_ij: values on vertices of hypercube "containing" the point
+        {{for inds in product(*([(0,1)]*d))}}
+        v_{{index(inds)}} = V[{{rindex(inds)}}]
+        {{endfor}}
+
+        # interpolated/extrapolated value
+        output[i] = {{formula}}
+
+
+"""
+
+import tempita
+from itertools import product 
+
+
+index = lambda inds: str.join('',  [str(e) for e in inds] )
+
+def rindex(binds):    
+    M = ['M_{}*'.format(i) for i in range(len(binds)-1)] + ['']
+    N = ['(q_{}{})'.format(n,'+1'*i) for n,i in enumerate(binds)]
+    return str.join(' + ',  [ str.join('', e) for e in zip(M,N) ])
+
+def make_formula(d,ind,mm):
+    if len(ind) == d:
+        return 'v_{}'.format(index(ind))
+    else:
+        j = len(ind)
+        ind1 = ind + (0,)
+        ind2 = ind + (1,)
+        s = "(1-lam_{j})*({a}) + (lam_{j})*({b})".format(j=j,a=make_formula(d,ind1,mm), b=make_formula(d,ind2,mm))
+        return s
+
+
+for number_type in number_types:
+    code += tempita.sub(template_1, max_d=d_max, number=number_type) 
+
+for number_type in number_types:
+    for d in range(1, d_max+1):
+        code += tempita.sub( template_2, d=d, number=number_type, use_open_mp=use_open_mp,index=index, rindex=rindex, product=product, formula=make_formula(d,tuple([]),None) )
+
+with file('multilinear_cython.pyx','w') as f:
+    f.write(code)
+
+
