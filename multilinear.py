@@ -4,7 +4,6 @@ import numpy
 import numpy as np
 
 try:
-    tchouk
     from multilinear_cython import multilinear_interpolation_double, multilinear_interpolation_float
     print("Using compiled linear interpolator")
 except Exception as e:
