@@ -1,4 +1,10 @@
+from __future__ import division
+
 from numpy import array, zeros, floor, cumprod, column_stack, reshape
+
+
+from itertools import product
+import numpy as np
 
 def multilinear_interpolation( smin, smax, orders, x, y):
 
@@ -34,7 +40,7 @@ def multilinear_interpolation( smin, smax, orders, x, y):
 
     [b,g] = index_lookup( x, qq, orders )
 
-    z = b + recursive_evaluation(d,tuple([]),mm[:,numpy.newaxis,:], g)
+    z = b + recursive_evaluation(d,tuple([]),mm[:,np.newaxis,:], g)
 
     return z
 

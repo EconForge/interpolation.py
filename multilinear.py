@@ -1,21 +1,23 @@
 from __future__ import division
-from itertools import product
 
 import numpy
+import numpy as np
 
 try:
-    from dolo.numeric.interpolation.multilinear_cython import multilinear_interpolation_double, multilinear_interpolation_float
+    tchouk
+    from multilinear_cython import multilinear_interpolation_double, multilinear_interpolation_float
     print("Using compiled linear interpolator")
 except Exception as e:
-    from dolo.numeric.interpolation.multilinear_python import multilinear_interpolation as multilinear_interpolation_float
-    from dolo.numeric.interpolation.multilinear_python import multilinear_interpolation as multilinear_interpolation_double
+    from multilinear_python import multilinear_interpolation as multilinear_interpolation_float
+    from multilinear_python import multilinear_interpolation as multilinear_interpolation_double
     print('Failing back on python implementation')
 
 def mlinspace(smin,smax,orders):
-    return np.row_stack( np.meshgrid(
-        *[numpy.linspace(smin[i],smax[i],orders[i]) for i in range(len(orders))],
-        indexing='ij'
-    )
+    if len(orders) == 1:
+        return np.atleast_2d( np.linspace(smin,smax,orders) )
+    else:
+        meshes = np.meshgrid( *[numpy.linspace(smin[i],smax[i],orders[i]) for i in range(len(orders))], indexing='ij' )
+        return np.row_stack( [l.flatten() for l in meshes])
 
 class MultilinearInterpolator:
     '''Multilinear interpolation
@@ -73,12 +75,7 @@ class MultilinearInterpolator:
     @property
     def grid(self):
         if self.__grid__ is None:
-            self.__grid__ = np.row_stack(
-                                np.meshgrid(
-                                    *[numpy.linspace(smin[i],smax[i],orders[i]) for i in range(d)],
-                                    indexing='ij'
-                                )
-                            )
+            self.__grid__ = mlinspace(self.smin, self.smax, self.orders)
         return self.__grid__
 
     def set_values(self,values):

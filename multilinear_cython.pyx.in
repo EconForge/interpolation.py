@@ -31,7 +31,7 @@ def multilinear_interpolation_{{number}}(np.ndarray[np.{{number}}_t, ndim=1] smi
             pass
         {{for k in range(1,max_d)}}
         elif d=={{k}}:
-            multilinear_interpolation_1d_{{number}}(smin, smax, orders, vals, n_s, s, res)
+            multilinear_interpolation_{{k}}d_{{number}}(smin, smax, orders, vals, n_s, s, res)
         {{endfor}}
     return result
 
@@ -63,7 +63,7 @@ cdef multilinear_interpolation_{{d}}d_{{number}}(np.ndarray[np.{{number}}_t, ndi
     {{endfor}}
 
     {{for k in range(d-1)}}
-    cdef M_{{k}} = {{ str.join('*',['order_{}'.format(l) for l in range(d-k-1)])  }}
+    cdef M_{{k}} = {{ str.join('*',['order_{}'.format(l) for l in range(k+1,d)])  }}
     {{endfor}}
 
     {{for inds in product(*([(0,1)]*d))}}
