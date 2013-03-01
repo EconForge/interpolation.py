@@ -2,18 +2,19 @@ from __future__ import division
 
 import numpy
 import numpy as np
-
-try:
-    from multilinear_cython import multilinear_interpolation_double, multilinear_interpolation_float
-    print("Using compiled linear interpolator")
-except Exception as e:
-    from multilinear_python import multilinear_interpolation as multilinear_interpolation_float
-    from multilinear_python import multilinear_interpolation as multilinear_interpolation_double
-    print('Failing back on python implementation')
+from multilinear_cython import multilinear_interpolation
+#
+# try:
+#     print("Using compiled linear interpolator")
+# except Exception as e:
+#     from multilinear_python import multilinear_interpolation as multilinear_interpolation_float
+#     from multilinear_python import multilinear_interpolation as multilinear_interpolation_double
+#     print('Failing back on python implementation')
 
 def mlinspace(smin,smax,orders):
     if len(orders) == 1:
-        return np.atleast_2d( np.linspace(smin,smax,orders) )
+        res = np.atleast_2d( np.linspace(np.array(smin),np.array(smax),np.array(orders)) )
+        return res.copy() ## workaround for strange bug
     else:
         meshes = np.meshgrid( *[numpy.linspace(smin[i],smax[i],orders[i]) for i in range(len(orders))], indexing='ij' )
         return np.row_stack( [l.flatten() for l in meshes])
@@ -81,10 +82,7 @@ class MultilinearInterpolator:
         self.values = values
 
     def interpolate(self,s):
-        if self.dtype == numpy.double:
-            a = multilinear_interpolation_double(self.smin,self.smax,self.orders,self.values,s)
-        elif self.dtype == numpy.float:
-            a = multilinear_interpolation_single(self.smin,self.smax,self.orders,self.values,s)
+        a = multilinear_interpolation(self.smin,self.smax,self.orders,self.values,s)
         return a
 
     def __call__(self,s):

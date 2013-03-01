@@ -71,7 +71,7 @@ def index_lookup(a, q, dims):
     cdims  = (cumprod(dims[::-1]))
     cdims = cdims[::-1]
 
-    q = array(q,dtype=numpy.int)
+    q = array(q,dtype=np.int)
 
     lin_q = q[d-1,:]
 
