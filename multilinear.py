@@ -2,12 +2,13 @@ from __future__ import division
 
 import numpy
 import numpy as np
+
 from multilinear_cython import multilinear_interpolation
 #
 # try:
 #     print("Using compiled linear interpolator")
 # except Exception as e:
-#     from multilinear_python import multilinear_interpolation as multilinear_interpolation_float
+#from multilinear_python import multilinear_interpolation
 #     from multilinear_python import multilinear_interpolation as multilinear_interpolation_double
 #     print('Failing back on python implementation')
 
@@ -63,7 +64,7 @@ class MultilinearInterpolator:
 
     __grid__ = None
 
-    def __init__(self, smin, smax, orders, values=None, dtype=numpy.double):
+    def __init__(self, smin, smax, orders, values=None, dtype=numpy.float64):
         self.smin = numpy.array( smin, dtype=dtype )
         self.smax = numpy.array( smax, dtype=dtype )
         self.orders = numpy.array( orders, dtype=numpy.int )
@@ -79,9 +80,10 @@ class MultilinearInterpolator:
         return self.__grid__
 
     def set_values(self,values):
-        self.values = values
+        self.values = numpy.ascontiguousarray(values,dtype=self.dtype)
 
     def interpolate(self,s):
+        s = numpy.ascontiguousarray(s, dtype=self.dtype)
         a = multilinear_interpolation(self.smin,self.smax,self.orders,self.values,s)
         return a
 

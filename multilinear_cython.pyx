@@ -20,7 +20,12 @@ def multilinear_interpolation(floating[:] smin, floating[:] smax, long[:] orders
     cdef int n_s = np.size(s,1)
     cdef int n_v = np.size(values,0)
 
-    cdef floating[:,::1] result = np.zeros((n_v,n_s))
+    if floating is float:
+        dtype = np.single
+    else:
+        dtype = np.double
+
+    cdef floating[:,::1] result = np.zeros((n_v,n_s), dtype=dtype)
     cdef floating[:] vals
     cdef floating[:] res
 
@@ -41,7 +46,7 @@ def multilinear_interpolation(floating[:] smin, floating[:] smax, long[:] orders
         else:
             raise Exception("Can't interpolate in dimension strictly greater than 5")
 
-    return np.array(result)
+    return np.array(result,dtype=dtype)
 
 @cython.boundscheck(False)
 @cython.cdivision(True)

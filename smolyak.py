@@ -9,7 +9,7 @@ Let define the state space :math:`[-1,1]^2` and the interpolation object.
 
 .. code-block:: python
 
-    from dolo.numeric.smolyak import SmolyakGrid
+    from dolo.numeric.interpolation import SmolyakGrid
     import numpy
 
 
@@ -143,7 +143,7 @@ def smolyak_grids(d,l):
 class SmolyakBasic(object):
     '''Smolyak interpolation on [-1,1]^d'''
 
-    def __init__(self,d,l):
+    def __init__(self,d,l, dtype=None):
 
         self.d = d
         self.l = l
@@ -287,7 +287,7 @@ class SmolyakGrid(SmolyakBasic):
 
     '''Smolyak interpolation'''
 
-    def __init__(self, smin, smax, l, axes=None):
+    def __init__(self, smin, smax, l, axes=None, dtype=None):
         """
         @param bounds: matrix of bounds
         @param l:

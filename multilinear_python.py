@@ -17,6 +17,8 @@ def multilinear_interpolation( smin, smax, orders, x, y):
     :return: Mxd array : interpolated values
     '''
 
+    dtype = x.dtype
+
     d = len(orders)
 
     n_x, N = x.shape
@@ -24,8 +26,8 @@ def multilinear_interpolation( smin, smax, orders, x, y):
 
     assert(d == n_s)
 
-    qq = zeros( (d,M) )
-    mm = zeros( (d,M) )
+    qq = zeros( (d,M), dtype=dtype )
+    mm = zeros( (d,M), dtype=dtype )
 
     for i in range(n_s):
         s = (y[i,:]-smin[i])/(smax[i]-smin[i])
@@ -63,6 +65,8 @@ def index_lookup(a, q, dims):
     :return: 2**k array (nx*2*...*2)
     '''
 
+    dtype = a.dtype
+
     M = q.shape[1]
     n_x = a.shape[0]
 
@@ -86,7 +90,7 @@ def index_lookup(a, q, dims):
 
     b = a[:,lin_q]
 
-    g = zeros( (cart_prod.shape[1], n_x, M) )
+    g = zeros( (cart_prod.shape[1], n_x, M), dtype=dtype )
 
     for i in range(cart_prod.shape[1]):
         t = a[:,lin_q + lin_cp[i]] - b
