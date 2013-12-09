@@ -170,6 +170,12 @@ class SmolyakBasic(object):
         self.bounds = numpy.row_stack([(0,1)]*d)
 
     def __call__(self,s):
+
+        is s.ndim == 1:
+            res = self.__call__( numpy.atleast_2d(s).T )
+            return res.ravel()
+
+
         return self.interpolate(s)
 
     def interpolate(self, s, with_derivative=True, with_theta_deriv=False, with_X_deriv=False):

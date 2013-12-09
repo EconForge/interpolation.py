@@ -103,6 +103,11 @@ class MultivariateSplines:
         return self.__grid__
 
     def __call__(self, s):
+        
+        is s.ndim == 1:
+            res = self.__call__( numpy.atleast_2d(s).T )
+            return res.ravel()
+
         return self.interpolate(s)
 
        
