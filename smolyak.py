@@ -270,17 +270,17 @@ class SmolyakBasic(object):
         import matplotlib.pyplot as plt
         grid = self.smolyak_points
         if grid.shape[1] == 2:
-            xs = grid[:, 0]
-            ys = grid[:, 1]
+            xs = grid[0,:]
+            ys = grid[1,:]
             fig = plt.figure()
             ax = fig.add_subplot(111)
             ax.scatter(xs, ys)
             ax.grid(True, linestyle='--',color='0.75')
             plt.show()
         elif grid.shape[1] == 3:
-            xs = grid[:, 0]
-            ys = grid[:, 1]
-            zs = grid[:, 2]
+            xs = grid[0,:]
+            ys = grid[1,:]
+            zs = grid[2,:]
             fig = plt.figure()
             ax = fig.add_subplot(111, projection='3d')
             ax.scatter(xs, ys, zs)
@@ -289,7 +289,7 @@ class SmolyakBasic(object):
         else:
             raise ValueError('Can only plot 2 or 3 dimensional problems')
 
-class SmolyakGrid(SmolyakBasic):
+class SmolyakGridRows(SmolyakBasic):
 
     '''Smolyak interpolation'''
 
@@ -305,7 +305,7 @@ class SmolyakGrid(SmolyakBasic):
 
         d = bounds.shape[1]
 
-        super(SmolyakGrid, self).__init__( d, l)
+        super(SmolyakGridRows, self).__init__( d, l)
 
         self.bounds = bounds
         self.smin = numpy.array(smin)
@@ -343,8 +343,9 @@ class SmolyakGrid(SmolyakBasic):
         return numpy.dot(Pinv,y-c)
 
     def interpolate(self, y, with_derivative=False, with_theta_deriv=False, with_X_deriv=False):
+
         x = self.B(y)  # Transform back to [0,1]
-        res = super(SmolyakGrid, self).interpolate( x, with_derivative=with_derivative, with_theta_deriv=with_theta_deriv, with_X_deriv=with_X_deriv)  # Call super class' (SmolyakGrid) interpolate func
+        res = super(SmolyakGridRows, self).interpolate( x, with_derivative=with_derivative, with_theta_deriv=with_theta_deriv, with_X_deriv=with_X_deriv)  # Call super class' (SmolyakGrid) interpolate func
         if with_derivative or with_theta_deriv or with_X_deriv:
             dder = res[1]
             dder = numpy.tensordot(dder, self.Pinv, axes=(1,0)).swapaxes(1,2)
@@ -367,19 +368,19 @@ class SmolyakGrid(SmolyakBasic):
     def plot_grid(self):
         import matplotlib.pyplot as plt
         grid = self.grid
-        if grid.shape[0] == 2:
-            xs = grid[0, :]
-            ys = grid[1, :]
+        if grid.shape[1] == 2:
+            xs = grid[:, 0]
+            ys = grid[:, 1]
             fig = plt.figure()
             ax = fig.add_subplot(111)
             ax.scatter(xs, ys)
             ax.grid(True, linestyle='--',color='0.75')
             plt.show()
-        elif grid.shape[0] == 3:
+        elif grid.shape[1] == 3:
             from mpl_toolkits.mplot3d import Axes3D
-            xs = grid[0, :]
-            ys = grid[1, :]
-            zs = grid[2, :]
+            xs = grid[:, 0]
+            ys = grid[:, 1]
+            zs = grid[:, 2]
             fig = plt.figure()
             ax = fig.add_subplot(111, projection='3d')
             ax.scatter(xs, ys, zs)
@@ -388,9 +389,40 @@ class SmolyakGrid(SmolyakBasic):
         else:
             raise ValueError('Can only plot 2 or 3 dimensional problems')
 
+
+class SmolyakGrid(SmolyakGridRows):
+
+    def __init__(self, smin, smax, l, axes=None, dtype=None):
+
+        super(SmolyakGrid, self).__init__( smin, smax, l, axes=None, dtype=None)
+
+        self.grid = numpy.ascontiguousarray(self.grid.T)
+
+
+    def set_values(self, x):
+
+        super(SmolyakGrid, self).set_values(x.T)
+
+    def __call__(self, y):
+
+        res = self.interpolate(y)
+        return res
+
+    #
+    def interpolate(self, y):
+
+        if y.ndim == 1:
+            y = numpy.atleast_2d(y)
+            res = self.interpolate(y)
+            return res.ravel()
+
+        res = super(SmolyakGrid, self).interpolate(y.T).T
+        return res
+
+
 if __name__ == '__main__':
 
-    from numpy import row_stack, array
+    from numpy import column_stack, array
 
     smin = [-2,-1]
     smax = [0.5,2]
@@ -399,12 +431,14 @@ if __name__ == '__main__':
     sg2 = SmolyakGrid(smin,smax,3)
 
 #    print(sg.u_grid)
-    grid = sg.u_grid
+    grid = sg.grid
+    grid2 = sg2.grid
 
-    grid2 = sg2.u_grid
+    print(grid2.shape)
 
-    values = row_stack( [grid[0,:] * (1-grid[1,:])/2.0, grid[1], grid[0]] )
-#    print(values)
+    values = column_stack( [grid[:,0] * (1-grid[:,1])/2.0, grid[:,1], grid[:,0]] )
+    print("Values")
+    print(values.shape)
 
     sg.set_values(values)
 
@@ -422,7 +456,7 @@ if __name__ == '__main__':
     def fun(x):
 
         sg.set_values(x.reshape(sh))
-        res = sg.interpolate(grid2, with_derivative=False)
+        res = sg.interpolate(grid2)
         return res
 #
 #    def fun(theta):

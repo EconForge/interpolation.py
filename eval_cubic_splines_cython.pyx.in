@@ -1,0 +1,126 @@
+from __future__ import division
+
+import numpy as np
+from cython import double, float
+
+ctypedef fused floating:
+    float
+    double
+
+A44d = np.array([
+   [-1.0/6.0,  3.0/6.0, -3.0/6.0, 1.0/6.0],
+   [ 3.0/6.0, -6.0/6.0,  0.0/6.0, 4.0/6.0],
+   [-3.0/6.0,  3.0/6.0,  3.0/6.0, 1.0/6.0],
+   [ 1.0/6.0,  0.0/6.0,  0.0/6.0, 0.0/6.0]
+])
+
+dA44d = np.zeros((4,4))
+for i in range(1,4):
+    dA44d[:,i] = A44d[:,i-1]*(4-i)
+
+
+d2A44d = np.zeros((4,4))
+for i in range(1,4):
+    d2A44d[:,i] = dA44d[:,i-1]*(4-i)
+
+
+import cython
+from libc.math cimport floor
+from cython.parallel import parallel, prange
+from cython import nogil
+
+
+{{for d in range(1,max_order+1)}}
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+def vec_eval_cubic_multi_spline_{{d}}( floating[:] smin, floating[:] smax, long[:] orders,  floating[:,{{str.join(',',[':']*(d-1)+['::1'])}}] coefs, floating[:,::1] svec, floating[:,::1] vals):
+
+
+    {{for i in range(d)}}
+    cdef int M{{i}} = orders[{{i}}+1]
+    cdef floating start{{i}} = smin[{{i}}]
+    cdef floating dinv{{i}} = (orders[{{i}}]-1.0)/(smax[{{i}}]-smin[{{i}}])
+    {{endfor}}
+
+    if floating is double:
+        dtype = np.float64
+    else:
+        dtype = np.float32
+
+    cdef int N = svec.shape[0]
+    cdef int n
+
+    cdef int n_x = coefs.shape[0]
+    cdef int k
+
+
+    cdef floating[:,::1] Ad = np.array(A44d, dtype=dtype)
+    cdef floating[:,::1] dAd = np.array(dA44d, dtype=dtype)
+
+    cdef int {{    str.join(', ',['i{}'.format(i) for i in range(d)])   }}
+    cdef floating {{    str.join(', ',['x{}'.format(i) for i in range(d)])   }}
+    cdef floating {{    str.join(', ',['u{}'.format(i) for i in range(d)])   }}
+    cdef floating {{    str.join(', ',['t{}'.format(i) for i in range(d)])   }}
+    cdef floating {{    str.join(', ',['extrap{}'.format(i) for i in range(d)])   }}
+
+    cdef floating {{    str.join(', ',['Phi{}_{}'.format(i,j) for i in range(d) for j in range(4)])   }}
+    cdef floating {{    str.join(', ',['tp{}_{}'.format(i,j) for i in range(d) for j in range(4)])   }}
+
+    #cdef floating [{{str.join(',',[':']*(d-1)+['::1'])}}] C = coefs
+    #cdef floating [:] vals = np.zeros(N, dtype=dtype)
+
+    cdef floating tpx_0, tpx_1, tpx_2, tpx_3
+    cdef floating tpy_0, tpy_1, tpy_2, tpy_3
+
+    with nogil, parallel():
+
+        for n in prange(N):
+
+            {{for i in range(d)}}
+            x{{i}} = svec[n,{{i}}]
+            {{endfor}}
+
+
+            {{for i in range(d)}}
+            u{{i}} = (x{{i}} - start{{i}})*dinv{{i}}
+            i{{i}} = <int> u{{i}}
+            i{{i}} = max( min(i{{i}},M{{i}}-2), 0 )
+            t{{i}} = u{{i}}-i{{i}}
+            {{endfor}}
+
+
+            # {{for i in range(d)}}
+            # extrap{{i}} = 0 if (t{{i}} < 0 or t{{i}} >= 1) else 1
+            # {{endfor}}
+
+            {{for i in range(d)}}
+            tp{{i}}_0 = t{{i}}*t{{i}}*t{{i}};  tp{{i}}_1 = t{{i}}*t{{i}};  tp{{i}}_2 = t{{i}};  tp{{i}}_3 = 1.0;
+            {{endfor}}
+
+
+            {{for i in range(d)}}
+
+            if t{{i}} < 0:
+                Phi{{i}}_0 = dAd[0,3]*t{{i}} + Ad[0,3]
+                Phi{{i}}_1 = dAd[1,3]*t{{i}} + Ad[1,3]
+                Phi{{i}}_2 = dAd[2,3]*t{{i}} + Ad[2,3]
+                Phi{{i}}_3 = dAd[3,3]*t{{i}} + Ad[3,3]
+            elif t{{i}} > 1:
+                Phi{{i}}_0 = (3*Ad[0,0] + 2*Ad[0,1] + Ad[0,2])*(t{{i}}-1) + (Ad[0,0]+Ad[0,1]+Ad[0,2]+Ad[0,3])
+                Phi{{i}}_1 = (3*Ad[1,0] + 2*Ad[1,1] + Ad[1,2])*(t{{i}}-1) + (Ad[1,0]+Ad[1,1]+Ad[1,2]+Ad[1,3])
+                Phi{{i}}_2 = (3*Ad[2,0] + 2*Ad[2,1] + Ad[2,2])*(t{{i}}-1) + (Ad[2,0]+Ad[2,1]+Ad[2,2]+Ad[2,3])
+                Phi{{i}}_3 = (3*Ad[3,0] + 2*Ad[3,1] + Ad[3,2])*(t{{i}}-1) + (Ad[3,0]+Ad[3,1]+Ad[3,2]+Ad[3,3])
+            else:
+                Phi{{i}}_0 = (Ad[0,0]*tp{{i}}_0 + Ad[0,1]*tp{{i}}_1 + Ad[0,2]*tp{{i}}_2 + Ad[0,3]*tp{{i}}_3)
+                Phi{{i}}_1 = (Ad[1,0]*tp{{i}}_0 + Ad[1,1]*tp{{i}}_1 + Ad[1,2]*tp{{i}}_2 + Ad[1,3]*tp{{i}}_3)
+                Phi{{i}}_2 = (Ad[2,0]*tp{{i}}_0 + Ad[2,1]*tp{{i}}_1 + Ad[2,2]*tp{{i}}_2 + Ad[2,3]*tp{{i}}_3)
+                Phi{{i}}_3 = (Ad[3,0]*tp{{i}}_0 + Ad[3,1]*tp{{i}}_1 + Ad[3,2]*tp{{i}}_2 + Ad[3,3]*tp{{i}}_3)
+            {{endfor}}
+
+            for k in range(n_x):
+                vals[n, k] = {{values[d]}}
+
+
+{{endfor}}

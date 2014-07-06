@@ -4,47 +4,12 @@ import numpy as np
 from cython import double, float
 
 ctypedef fused floating:
-    float 
+    float
     double
 
 
 
 from splines_filter import filter_data
-
-class USpline:
-
-    def __init__(self, smin, smax, orders, data, dtype=np.double):
-        smin = np.array(smin,dtype=dtype)
-        smax = np.array(smax,dtype=dtype)
-        orders = np.array(orders,dtype=np.int)
-        self.smin = smin
-        self.smax = smax
-        self.orders = orders
-        self.d = len(smin)
-        self.delta = (smax-smin)/(orders-1)
-        self.delta_inv = 1.0/self.delta
-        data = np.ascontiguousarray(data, dtype=np.double)   # filter should accept floats
-        coefs = filter_data( np.array(self.delta_inv, dtype=np.double), data)
-        self.coefs = np.ascontiguousarray( coefs, dtype=dtype )
-
-
-class MUSpline:
-
-    def __init__(self, smin, smax, orders, data):
-
-        smin = np.array(smin,dtype=np.double)
-        smax = np.array(smax,dtype=np.double)
-        orders = np.array(orders,dtype=np.int)
-        self.smin = smin
-        self.smax = smax
-        self.orders = orders
-        self.d = len(smin)
-        self.delta = (smax-smin)/(orders-1)
-        self.delta_inv = 1.0/self.delta
-        self.n_m = data.shape[0]
-        coefs = np.concatenate( [filter_data(self.delta_inv, data[i,...]) for i in range(self.n_m) ] )
-        self.coefs = coefs.reshape( (self.n_m, -1) )
-
 
 
 A44d = np.array([
@@ -54,19 +19,16 @@ A44d = np.array([
    [ 1.0/6.0,  0.0/6.0,  0.0/6.0, 0.0/6.0]
 ])
 
-dA44d = np.array([
-   [ 0.0, -0.5,  1.0, -0.5],
-   [ 0.0,  1.5, -2.0,  0.0],
-   [ 0.0, -1.5,  1.0,  0.5],
-   [ 0.0,  0.5,  0.0,  0.0]
-])
+dAd = np.zeros((4,4))
+for i in range(1,4):
+    dAd[:,i] = Ad[:,i-1]*(4-i)
 
-d2A44d = np.array([
-   [ 0.0, 0.0, -1.0,  1.0],
-   [ 0.0, 0.0,  3.0, -2.0],
-   [ 0.0, 0.0, -3.0,  1.0],
-   [ 0.0, 0.0,  1.0,  0.0]
-])
+
+d2Ad = np.zeros((4,4))
+for i in range(1,4):
+    d2Ad[:,i] = dAd[:,i-1]*(4-i)
+
+
 
 
 import cython
@@ -99,7 +61,7 @@ def eval_MUBspline( smin, smax, orders, coefs, svec, diff=False):
 def eval_UBspline( smin, smax, orders, coefs, svec, diff=False):
 
     order = coefs.ndim
-    # check that coefs and svec have consistent dimensions 
+    # check that coefs and svec have consistent dimensions
 
     if order not in range(1,{{max_order}}+1):
         raise Exception('Evaluation of {}-d splines not implemented')
@@ -126,20 +88,20 @@ def eval_UBspline( smin, smax, orders, coefs, svec, diff=False):
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cdef eval_UBspline_{{d}}( floating[:] smin, floating[:] smax, long[:] orders,  floating[{{str.join(',',[':']*(d-1)+['::1'])}}] coefs, floating[:,::1] svec):
-        
-        
+cdef vec_eval_cubic_multi_spline_{{d}}( floating[:] smin, floating[:] smax, long[:] orders,  floating[{{str.join(',',[':']*(d-1)+['::1'])}}] coefs, floating[:,::1] svec):
+
+
     {{for i in range(d)}}
     cdef int M{{i}} = orders[{{i}}]
     cdef floating start{{i}} = smin[{{i}}]
     cdef floating dinv{{i}} = (orders[{{i}}]-1.0)/(smax[{{i}}]-smin[{{i}}])
     {{endfor}}
-                    
+
     if floating is double:
         dtype = np.float64
     else:
         dtype = np.float32
-        
+
     cdef floating val
 
     cdef int N = svec.shape[1]
@@ -154,7 +116,7 @@ cdef eval_UBspline_{{d}}( floating[:] smin, floating[:] smax, long[:] orders,  f
     cdef floating {{    str.join(', ',['u{}'.format(i) for i in range(d)])   }}
     cdef floating {{    str.join(', ',['t{}'.format(i) for i in range(d)])   }}
     cdef floating {{    str.join(', ',['extrap{}'.format(i) for i in range(d)])   }}
-    
+
     cdef floating {{    str.join(', ',['Phi{}_{}'.format(i,j) for i in range(d) for j in range(4)])   }}
     cdef floating {{    str.join(', ',['tp{}_{}'.format(i,j) for i in range(d) for j in range(4)])   }}
 
@@ -172,7 +134,7 @@ cdef eval_UBspline_{{d}}( floating[:] smin, floating[:] smax, long[:] orders,  f
             x{{i}} = svec[{{i}},n]
             {{endfor}}
 
-            
+
             {{for i in range(d)}}
             u{{i}} = (x{{i}} - start{{i}})*dinv{{i}}
             i{{i}} = <int> u{{i}}
@@ -221,13 +183,13 @@ cdef eval_UBspline_{{d}}( floating[:] smin, floating[:] smax, long[:] orders,  f
 @cython.boundscheck(False)
 @cython.wraparound(False)
 cdef eval_UBspline_{{d}}_g( smin, smax, orders, coefs, double[:,::1] svec):
-        
-        
+
+
     {{for i in range(d)}}
     cdef double start{{i}} = smin[{{i}}]
     cdef double dinv{{i}} = (orders[{{i}}]-1.0)/(smax[{{i}}]-smin[{{i}}])
     {{endfor}}
-                    
+
 
     cdef double val
 
@@ -243,7 +205,7 @@ cdef eval_UBspline_{{d}}_g( smin, smax, orders, coefs, double[:,::1] svec):
     cdef double {{    str.join(', ',['u{}'.format(i) for i in range(d)])   }}
     cdef double {{    str.join(', ',['t{}'.format(i) for i in range(d)])   }}
     cdef double {{    str.join(', ',['extrap{}'.format(i) for i in range(d)])   }}
-    
+
     cdef double {{    str.join(', ',['Phi{}_{}'.format(i,j) for i in range(d) for j in range(4)])   }}
     cdef double {{    str.join(', ',['dPhi{}_{}'.format(i,j) for i in range(d) for j in range(4)])   }}
     cdef double {{    str.join(', ',['tp{}_{}'.format(i,j) for i in range(d) for j in range(4)])   }}
@@ -264,7 +226,7 @@ cdef eval_UBspline_{{d}}_g( smin, smax, orders, coefs, double[:,::1] svec):
             x{{i}} = svec[{{i}},n]
             {{endfor}}
 
-            
+
             {{for i in range(d)}}
             u{{i}} = (x{{i}} - start{{i}})*dinv{{i}}
             i{{i}} = <int> u{{i}}
@@ -298,7 +260,7 @@ cdef eval_UBspline_{{d}}_g( smin, smax, orders, coefs, double[:,::1] svec):
             vals[n] = {{values[d]}}
 
             {{for i in range(d)}}
-            dvals[{{i}},n] = {{dvalues[d][i]}} 
+            dvals[{{i}},n] = {{dvalues[d][i]}}
             {{endfor}}
 
     return [vals,dvals]
