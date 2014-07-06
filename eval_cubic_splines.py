@@ -29,10 +29,10 @@ def eval_cubic_multi_spline_d(a, b, orders, mcoefs, point, values, dvalues):
     pass
 
  try:
-
     from eval_cubic_splines_cython import vec_eval_cubic_multi_spline_1, vec_eval_cubic_multi_spline_2
     from eval_cubic_splines_cython import vec_eval_cubic_multi_spline_3, vec_eval_cubic_multi_spline_4
-except:
+
+except Exception:
     from eval_cubic_splines_numba import vec_eval_cubic_multi_spline_1, vec_eval_cubic_multi_spline_2
     from eval_cubic_splines_numba import vec_eval_cubic_multi_spline_3, vec_eval_cubic_multi_spline_4
 
