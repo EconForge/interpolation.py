@@ -1,0 +1,189 @@
+from __future__ import print_function
+
+
+import numpy
+
+# try:
+#     from eval_cubic_splines_cython import *
+#
+# except Exception:
+from eval_cubic_multi_splines_numba import *
+from eval_cubic_splines_numba import *
+
+
+## the functions in this file work for any dimension (d<=4)
+## they can optionnally allocate memory for the result
+
+def eval_cubic_spline(a, b, orders, coefs, point):
+
+    a = numpy.array(a,dtype=float)
+    b = numpy.array(b,dtype=float)
+    orders = numpy.array(orders,dtype=int)
+
+    d = len(a)
+
+    if d == 1:
+        t = eval_cubic_spline_1(a, b, orders, coefs, point)
+
+    elif d == 2:
+        t = eval_cubic_spline_2(a, b, orders, coefs, point)
+
+    elif d == 3:
+        t = eval_cubic_spline_3(a, b, orders, coefs, point)
+
+    elif d == 4:
+        t = eval_cubic_spline_4(a, b, orders, coefs, point)
+
+    return t
+
+
+# def eval_cubic_spline_d(a, b, orders, coefs, point, value, dvalue):
+
+
+    # pass
+
+
+def vec_eval_cubic_spline(a, b, orders, coefs, points, values=None):
+
+    a = numpy.array(a,dtype=float)
+    b = numpy.array(b,dtype=float)
+    orders = numpy.array(orders,dtype=int)
+
+    d = a.shape[0]
+
+    if values is None:
+        N = points.shape[0]
+        values = numpy.empty(N)
+
+    if d == 1:
+        vec_eval_cubic_spline_1(a, b, orders, coefs, points, values)
+    elif d == 2:
+        vec_eval_cubic_spline_2(a, b, orders, coefs, points, values)
+    elif d == 3:
+        vec_eval_cubic_spline_3(a, b, orders, coefs, points, values)
+    elif d == 4:
+        vec_eval_cubic_spline_4(a, b, orders, coefs, points, values)
+
+    return values
+
+
+
+
+# def eval_cubic_multi_spline_d(a, b, orders, mcoefs, point, values, dvalues):
+#
+#     pass
+
+def eval_cubic_multi_spline(a, b, orders, mcoefs, point, values=None):
+    """Evaluates multi-splines on a series of points.
+
+    Parameters:
+    -----------
+    a : array of size d (float)
+        Lower bounds of the cartesian grid.
+    b : array of size d (float)
+        Upper bounds of the cartesian grid.
+    orders : array of size d (int)
+        Number of nodes along each dimension.
+    mcoefs : array of dimension d+1, and size (p, n1, ..., nd)
+        Filtered coefficients. For i in 1:(mcoefs.shape[0]), mcoefs[i,...] contains
+        the coefficients of splines number i.
+    points : array of size N x d
+        List of points where the splines must be interpolated.
+    values (optional) :  array of size (N x p)
+        If not None, contains the result.
+
+
+
+    Returns
+    -------
+    values : array of size (N x p)
+        Interpolated values. values[i,j] contains spline n-j evaluated at point points[i,:].
+    """
+
+    a = numpy.array(a,dtype=float)
+    b = numpy.array(b,dtype=float)
+    orders = numpy.array(orders,dtype=int)
+
+    d = a.shape[0]
+
+    if values is None:
+
+        N = points.shape[0]
+        n_sp = mcoefs.shape[0]
+        values = numpy.empty((N, n_sp))
+
+    if d == 1:
+        vec_eval_cubic_multi_spline_1(a, b, orders, mcoefs, points, values)
+
+    elif d == 2:
+        vec_eval_cubic_multi_spline_2(a, b, orders, mcoefs, points, values)
+
+    elif d == 3:
+        vec_eval_cubic_multi_spline_3(a, b, orders, mcoefs, points, values)
+
+    elif d == 4:
+        vec_eval_cubic_multi_spline_4(a, b, orders, mcoefs, points, values)
+
+
+    return values
+
+def vec_eval_cubic_multi_spline(a, b, orders, mcoefs, points, values=None):
+    """Evaluates multi-splines on a series of points.
+
+    Parameters:
+    -----------
+    a : array of size d (float)
+        Lower bounds of the cartesian grid.
+    b : array of size d (float)
+        Upper bounds of the cartesian grid.
+    orders : array of size d (int)
+        Number of nodes along each dimension.
+    mcoefs : array of dimension d+1, and size (p, n1, ..., nd)
+        Filtered coefficients. For i in 1:(mcoefs.shape[0]), mcoefs[i,...] contains
+        the coefficients of splines number i.
+    points : array of size N x d
+        List of points where the splines must be interpolated.
+    values (optional) :  array of size (N x p)
+        If not None, contains the result.
+
+
+
+    Returns
+    -------
+    values : array of size (N x p)
+        Interpolated values. values[i,j] contains spline n-j evaluated at point points[i,:].
+    """
+
+    a = numpy.array(a,dtype=float)
+    b = numpy.array(b,dtype=float)
+    orders = numpy.array(orders,dtype=int)
+
+    d = a.shape[0]
+
+    if values is None:
+
+        N = points.shape[0]
+        n_sp = mcoefs.shape[0]
+        values = numpy.empty((N, n_sp))
+
+    if d == 1:
+        vec_eval_cubic_multi_spline_1(a, b, orders, mcoefs, points, values)
+
+    elif d == 2:
+        vec_eval_cubic_multi_spline_2(a, b, orders, mcoefs, points, values)
+
+    elif d == 3:
+        vec_eval_cubic_multi_spline_3(a, b, orders, mcoefs, points, values)
+
+    elif d == 4:
+        vec_eval_cubic_multi_spline_4(a, b, orders, mcoefs, points, values)
+
+
+    return values
+
+
+
+#
+# def vec_eval_cubic_multi_spline_d(a, b, orders, mcoefs, points, values=None, dvalues=None):
+#
+#     pass

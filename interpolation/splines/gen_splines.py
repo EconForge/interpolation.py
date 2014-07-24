@@ -2,19 +2,20 @@ import argparse
 
 parser = argparse.ArgumentParser(description='Process spline templates.')
 parser.add_argument('-o','--max_order', type=int, default=4)
-parser.add_argument('-m','--multispline', type=bool, default=True)
+parser.add_argument('-m','--multispline', type=bool, default=False)
 
 parser.add_argument('template',type=str, nargs='?')
 parser.add_argument('output',type=str, nargs='?')
 
 args = parser.parse_args()
 
-
 ftemplate = args.template
 fout = args.output
 
 multispline = (args.multispline)
 max_order = args.max_order
+
+print(multispline)
 
 def print_expr(symbs, inds=[]):
     if len(symbs) == 0:
