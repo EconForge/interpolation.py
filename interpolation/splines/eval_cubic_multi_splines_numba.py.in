@@ -40,7 +40,7 @@ def vec_eval_cubic_multi_spline_{{d}}(a, b, orders, mcoefs, points, values):
     for n in range(N):
         point = points[n, :]
         val = values[n, :]
-        eval_cubic_multi_spline_{{d}}(a, b, orders, mcoefs, point, val, Ad, dAd)
+        eval_cubic_multi_spline_{{d}}(a, b, orders, mcoefs, point, val)
 
 
 {{endfor}}
@@ -48,7 +48,7 @@ def vec_eval_cubic_multi_spline_{{d}}(a, b, orders, mcoefs, points, values):
 
 {{for d in range(1,max_order+1)}}
 @njit
-def eval_cubic_multi_spline_{{d}}(smin, smax, orders, coefs, point, vals, Ad, dAd):
+def eval_cubic_multi_spline_{{d}}(smin, smax, orders, coefs, point, vals):
 
     n_vals = vals.shape[0]
 
@@ -108,7 +108,7 @@ def eval_cubic_multi_spline_{{d}}(smin, smax, orders, coefs, point, vals, Ad, dA
 
 {{for d in range(1,max_order+1)}}
 @njit
-def eval_cubic_spline_{{d}}(smin, smax, orders, coefs, point, val, Ad, dAd):
+def eval_cubic_spline_{{d}}(smin, smax, orders, coefs, point, val):
 
     n_vals = vals.shape[0]
 

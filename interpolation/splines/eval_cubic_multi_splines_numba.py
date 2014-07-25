@@ -38,7 +38,7 @@ def vec_eval_cubic_multi_spline_1(a, b, orders, mcoefs, points, values):
     for n in range(N):
         point = points[n, :]
         val = values[n, :]
-        eval_cubic_multi_spline_1(a, b, orders, mcoefs, point, val, Ad, dAd)
+        eval_cubic_multi_spline_1(a, b, orders, mcoefs, point, val)
 
 @njit
 def vec_eval_cubic_multi_spline_2(a, b, orders, mcoefs, points, values):
@@ -48,7 +48,7 @@ def vec_eval_cubic_multi_spline_2(a, b, orders, mcoefs, points, values):
     for n in range(N):
         point = points[n, :]
         val = values[n, :]
-        eval_cubic_multi_spline_2(a, b, orders, mcoefs, point, val, Ad, dAd)
+        eval_cubic_multi_spline_2(a, b, orders, mcoefs, point, val)
 
 @njit
 def vec_eval_cubic_multi_spline_3(a, b, orders, mcoefs, points, values):
@@ -58,7 +58,7 @@ def vec_eval_cubic_multi_spline_3(a, b, orders, mcoefs, points, values):
     for n in range(N):
         point = points[n, :]
         val = values[n, :]
-        eval_cubic_multi_spline_3(a, b, orders, mcoefs, point, val, Ad, dAd)
+        eval_cubic_multi_spline_3(a, b, orders, mcoefs, point, val)
 
 @njit
 def vec_eval_cubic_multi_spline_4(a, b, orders, mcoefs, points, values):
@@ -68,10 +68,10 @@ def vec_eval_cubic_multi_spline_4(a, b, orders, mcoefs, points, values):
     for n in range(N):
         point = points[n, :]
         val = values[n, :]
-        eval_cubic_multi_spline_4(a, b, orders, mcoefs, point, val, Ad, dAd)
+        eval_cubic_multi_spline_4(a, b, orders, mcoefs, point, val)
 
 @njit
-def eval_cubic_multi_spline_1(smin, smax, orders, coefs, point, vals, Ad, dAd):
+def eval_cubic_multi_spline_1(smin, smax, orders, coefs, point, vals):
 
     n_vals = vals.shape[0]
 
@@ -109,7 +109,7 @@ def eval_cubic_multi_spline_1(smin, smax, orders, coefs, point, vals, Ad, dAd):
         vals[k] = Phi0_0*(coefs[k,i0+0]) + Phi0_1*(coefs[k,i0+1]) + Phi0_2*(coefs[k,i0+2]) + Phi0_3*(coefs[k,i0+3])
 
 @njit
-def eval_cubic_multi_spline_2(smin, smax, orders, coefs, point, vals, Ad, dAd):
+def eval_cubic_multi_spline_2(smin, smax, orders, coefs, point, vals):
 
     n_vals = vals.shape[0]
 
@@ -176,7 +176,7 @@ def eval_cubic_multi_spline_2(smin, smax, orders, coefs, point, vals, Ad, dAd):
         vals[k] = Phi0_0*(Phi1_0*(coefs[k,i0+0,i1+0]) + Phi1_1*(coefs[k,i0+0,i1+1]) + Phi1_2*(coefs[k,i0+0,i1+2]) + Phi1_3*(coefs[k,i0+0,i1+3])) + Phi0_1*(Phi1_0*(coefs[k,i0+1,i1+0]) + Phi1_1*(coefs[k,i0+1,i1+1]) + Phi1_2*(coefs[k,i0+1,i1+2]) + Phi1_3*(coefs[k,i0+1,i1+3])) + Phi0_2*(Phi1_0*(coefs[k,i0+2,i1+0]) + Phi1_1*(coefs[k,i0+2,i1+1]) + Phi1_2*(coefs[k,i0+2,i1+2]) + Phi1_3*(coefs[k,i0+2,i1+3])) + Phi0_3*(Phi1_0*(coefs[k,i0+3,i1+0]) + Phi1_1*(coefs[k,i0+3,i1+1]) + Phi1_2*(coefs[k,i0+3,i1+2]) + Phi1_3*(coefs[k,i0+3,i1+3]))
 
 @njit
-def eval_cubic_multi_spline_3(smin, smax, orders, coefs, point, vals, Ad, dAd):
+def eval_cubic_multi_spline_3(smin, smax, orders, coefs, point, vals):
 
     n_vals = vals.shape[0]
 
@@ -272,7 +272,7 @@ def eval_cubic_multi_spline_3(smin, smax, orders, coefs, point, vals, Ad, dAd):
         vals[k] = Phi0_0*(Phi1_0*(Phi2_0*(coefs[k,i0+0,i1+0,i2+0]) + Phi2_1*(coefs[k,i0+0,i1+0,i2+1]) + Phi2_2*(coefs[k,i0+0,i1+0,i2+2]) + Phi2_3*(coefs[k,i0+0,i1+0,i2+3])) + Phi1_1*(Phi2_0*(coefs[k,i0+0,i1+1,i2+0]) + Phi2_1*(coefs[k,i0+0,i1+1,i2+1]) + Phi2_2*(coefs[k,i0+0,i1+1,i2+2]) + Phi2_3*(coefs[k,i0+0,i1+1,i2+3])) + Phi1_2*(Phi2_0*(coefs[k,i0+0,i1+2,i2+0]) + Phi2_1*(coefs[k,i0+0,i1+2,i2+1]) + Phi2_2*(coefs[k,i0+0,i1+2,i2+2]) + Phi2_3*(coefs[k,i0+0,i1+2,i2+3])) + Phi1_3*(Phi2_0*(coefs[k,i0+0,i1+3,i2+0]) + Phi2_1*(coefs[k,i0+0,i1+3,i2+1]) + Phi2_2*(coefs[k,i0+0,i1+3,i2+2]) + Phi2_3*(coefs[k,i0+0,i1+3,i2+3]))) + Phi0_1*(Phi1_0*(Phi2_0*(coefs[k,i0+1,i1+0,i2+0]) + Phi2_1*(coefs[k,i0+1,i1+0,i2+1]) + Phi2_2*(coefs[k,i0+1,i1+0,i2+2]) + Phi2_3*(coefs[k,i0+1,i1+0,i2+3])) + Phi1_1*(Phi2_0*(coefs[k,i0+1,i1+1,i2+0]) + Phi2_1*(coefs[k,i0+1,i1+1,i2+1]) + Phi2_2*(coefs[k,i0+1,i1+1,i2+2]) + Phi2_3*(coefs[k,i0+1,i1+1,i2+3])) + Phi1_2*(Phi2_0*(coefs[k,i0+1,i1+2,i2+0]) + Phi2_1*(coefs[k,i0+1,i1+2,i2+1]) + Phi2_2*(coefs[k,i0+1,i1+2,i2+2]) + Phi2_3*(coefs[k,i0+1,i1+2,i2+3])) + Phi1_3*(Phi2_0*(coefs[k,i0+1,i1+3,i2+0]) + Phi2_1*(coefs[k,i0+1,i1+3,i2+1]) + Phi2_2*(coefs[k,i0+1,i1+3,i2+2]) + Phi2_3*(coefs[k,i0+1,i1+3,i2+3]))) + Phi0_2*(Phi1_0*(Phi2_0*(coefs[k,i0+2,i1+0,i2+0]) + Phi2_1*(coefs[k,i0+2,i1+0,i2+1]) + Phi2_2*(coefs[k,i0+2,i1+0,i2+2]) + Phi2_3*(coefs[k,i0+2,i1+0,i2+3])) + Phi1_1*(Phi2_0*(coefs[k,i0+2,i1+1,i2+0]) + Phi2_1*(coefs[k,i0+2,i1+1,i2+1]) + Phi2_2*(coefs[k,i0+2,i1+1,i2+2]) + Phi2_3*(coefs[k,i0+2,i1+1,i2+3])) + Phi1_2*(Phi2_0*(coefs[k,i0+2,i1+2,i2+0]) + Phi2_1*(coefs[k,i0+2,i1+2,i2+1]) + Phi2_2*(coefs[k,i0+2,i1+2,i2+2]) + Phi2_3*(coefs[k,i0+2,i1+2,i2+3])) + Phi1_3*(Phi2_0*(coefs[k,i0+2,i1+3,i2+0]) + Phi2_1*(coefs[k,i0+2,i1+3,i2+1]) + Phi2_2*(coefs[k,i0+2,i1+3,i2+2]) + Phi2_3*(coefs[k,i0+2,i1+3,i2+3]))) + Phi0_3*(Phi1_0*(Phi2_0*(coefs[k,i0+3,i1+0,i2+0]) + Phi2_1*(coefs[k,i0+3,i1+0,i2+1]) + Phi2_2*(coefs[k,i0+3,i1+0,i2+2]) + Phi2_3*(coefs[k,i0+3,i1+0,i2+3])) + Phi1_1*(Phi2_0*(coefs[k,i0+3,i1+1,i2+0]) + Phi2_1*(coefs[k,i0+3,i1+1,i2+1]) + Phi2_2*(coefs[k,i0+3,i1+1,i2+2]) + Phi2_3*(coefs[k,i0+3,i1+1,i2+3])) + Phi1_2*(Phi2_0*(coefs[k,i0+3,i1+2,i2+0]) + Phi2_1*(coefs[k,i0+3,i1+2,i2+1]) + Phi2_2*(coefs[k,i0+3,i1+2,i2+2]) + Phi2_3*(coefs[k,i0+3,i1+2,i2+3])) + Phi1_3*(Phi2_0*(coefs[k,i0+3,i1+3,i2+0]) + Phi2_1*(coefs[k,i0+3,i1+3,i2+1]) + Phi2_2*(coefs[k,i0+3,i1+3,i2+2]) + Phi2_3*(coefs[k,i0+3,i1+3,i2+3])))
 
 @njit
-def eval_cubic_multi_spline_4(smin, smax, orders, coefs, point, vals, Ad, dAd):
+def eval_cubic_multi_spline_4(smin, smax, orders, coefs, point, vals):
 
     n_vals = vals.shape[0]
 
@@ -397,7 +397,7 @@ def eval_cubic_multi_spline_4(smin, smax, orders, coefs, point, vals, Ad, dAd):
         vals[k] = Phi0_0*(Phi1_0*(Phi2_0*(Phi3_0*(coefs[k,i0+0,i1+0,i2+0,i3+0]) + Phi3_1*(coefs[k,i0+0,i1+0,i2+0,i3+1]) + Phi3_2*(coefs[k,i0+0,i1+0,i2+0,i3+2]) + Phi3_3*(coefs[k,i0+0,i1+0,i2+0,i3+3])) + Phi2_1*(Phi3_0*(coefs[k,i0+0,i1+0,i2+1,i3+0]) + Phi3_1*(coefs[k,i0+0,i1+0,i2+1,i3+1]) + Phi3_2*(coefs[k,i0+0,i1+0,i2+1,i3+2]) + Phi3_3*(coefs[k,i0+0,i1+0,i2+1,i3+3])) + Phi2_2*(Phi3_0*(coefs[k,i0+0,i1+0,i2+2,i3+0]) + Phi3_1*(coefs[k,i0+0,i1+0,i2+2,i3+1]) + Phi3_2*(coefs[k,i0+0,i1+0,i2+2,i3+2]) + Phi3_3*(coefs[k,i0+0,i1+0,i2+2,i3+3])) + Phi2_3*(Phi3_0*(coefs[k,i0+0,i1+0,i2+3,i3+0]) + Phi3_1*(coefs[k,i0+0,i1+0,i2+3,i3+1]) + Phi3_2*(coefs[k,i0+0,i1+0,i2+3,i3+2]) + Phi3_3*(coefs[k,i0+0,i1+0,i2+3,i3+3]))) + Phi1_1*(Phi2_0*(Phi3_0*(coefs[k,i0+0,i1+1,i2+0,i3+0]) + Phi3_1*(coefs[k,i0+0,i1+1,i2+0,i3+1]) + Phi3_2*(coefs[k,i0+0,i1+1,i2+0,i3+2]) + Phi3_3*(coefs[k,i0+0,i1+1,i2+0,i3+3])) + Phi2_1*(Phi3_0*(coefs[k,i0+0,i1+1,i2+1,i3+0]) + Phi3_1*(coefs[k,i0+0,i1+1,i2+1,i3+1]) + Phi3_2*(coefs[k,i0+0,i1+1,i2+1,i3+2]) + Phi3_3*(coefs[k,i0+0,i1+1,i2+1,i3+3])) + Phi2_2*(Phi3_0*(coefs[k,i0+0,i1+1,i2+2,i3+0]) + Phi3_1*(coefs[k,i0+0,i1+1,i2+2,i3+1]) + Phi3_2*(coefs[k,i0+0,i1+1,i2+2,i3+2]) + Phi3_3*(coefs[k,i0+0,i1+1,i2+2,i3+3])) + Phi2_3*(Phi3_0*(coefs[k,i0+0,i1+1,i2+3,i3+0]) + Phi3_1*(coefs[k,i0+0,i1+1,i2+3,i3+1]) + Phi3_2*(coefs[k,i0+0,i1+1,i2+3,i3+2]) + Phi3_3*(coefs[k,i0+0,i1+1,i2+3,i3+3]))) + Phi1_2*(Phi2_0*(Phi3_0*(coefs[k,i0+0,i1+2,i2+0,i3+0]) + Phi3_1*(coefs[k,i0+0,i1+2,i2+0,i3+1]) + Phi3_2*(coefs[k,i0+0,i1+2,i2+0,i3+2]) + Phi3_3*(coefs[k,i0+0,i1+2,i2+0,i3+3])) + Phi2_1*(Phi3_0*(coefs[k,i0+0,i1+2,i2+1,i3+0]) + Phi3_1*(coefs[k,i0+0,i1+2,i2+1,i3+1]) + Phi3_2*(coefs[k,i0+0,i1+2,i2+1,i3+2]) + Phi3_3*(coefs[k,i0+0,i1+2,i2+1,i3+3])) + Phi2_2*(Phi3_0*(coefs[k,i0+0,i1+2,i2+2,i3+0]) + Phi3_1*(coefs[k,i0+0,i1+2,i2+2,i3+1]) + Phi3_2*(coefs[k,i0+0,i1+2,i2+2,i3+2]) + Phi3_3*(coefs[k,i0+0,i1+2,i2+2,i3+3])) + Phi2_3*(Phi3_0*(coefs[k,i0+0,i1+2,i2+3,i3+0]) + Phi3_1*(coefs[k,i0+0,i1+2,i2+3,i3+1]) + Phi3_2*(coefs[k,i0+0,i1+2,i2+3,i3+2]) + Phi3_3*(coefs[k,i0+0,i1+2,i2+3,i3+3]))) + Phi1_3*(Phi2_0*(Phi3_0*(coefs[k,i0+0,i1+3,i2+0,i3+0]) + Phi3_1*(coefs[k,i0+0,i1+3,i2+0,i3+1]) + Phi3_2*(coefs[k,i0+0,i1+3,i2+0,i3+2]) + Phi3_3*(coefs[k,i0+0,i1+3,i2+0,i3+3])) + Phi2_1*(Phi3_0*(coefs[k,i0+0,i1+3,i2+1,i3+0]) + Phi3_1*(coefs[k,i0+0,i1+3,i2+1,i3+1]) + Phi3_2*(coefs[k,i0+0,i1+3,i2+1,i3+2]) + Phi3_3*(coefs[k,i0+0,i1+3,i2+1,i3+3])) + Phi2_2*(Phi3_0*(coefs[k,i0+0,i1+3,i2+2,i3+0]) + Phi3_1*(coefs[k,i0+0,i1+3,i2+2,i3+1]) + Phi3_2*(coefs[k,i0+0,i1+3,i2+2,i3+2]) + Phi3_3*(coefs[k,i0+0,i1+3,i2+2,i3+3])) + Phi2_3*(Phi3_0*(coefs[k,i0+0,i1+3,i2+3,i3+0]) + Phi3_1*(coefs[k,i0+0,i1+3,i2+3,i3+1]) + Phi3_2*(coefs[k,i0+0,i1+3,i2+3,i3+2]) + Phi3_3*(coefs[k,i0+0,i1+3,i2+3,i3+3])))) + Phi0_1*(Phi1_0*(Phi2_0*(Phi3_0*(coefs[k,i0+1,i1+0,i2+0,i3+0]) + Phi3_1*(coefs[k,i0+1,i1+0,i2+0,i3+1]) + Phi3_2*(coefs[k,i0+1,i1+0,i2+0,i3+2]) + Phi3_3*(coefs[k,i0+1,i1+0,i2+0,i3+3])) + Phi2_1*(Phi3_0*(coefs[k,i0+1,i1+0,i2+1,i3+0]) + Phi3_1*(coefs[k,i0+1,i1+0,i2+1,i3+1]) + Phi3_2*(coefs[k,i0+1,i1+0,i2+1,i3+2]) + Phi3_3*(coefs[k,i0+1,i1+0,i2+1,i3+3])) + Phi2_2*(Phi3_0*(coefs[k,i0+1,i1+0,i2+2,i3+0]) + Phi3_1*(coefs[k,i0+1,i1+0,i2+2,i3+1]) + Phi3_2*(coefs[k,i0+1,i1+0,i2+2,i3+2]) + Phi3_3*(coefs[k,i0+1,i1+0,i2+2,i3+3])) + Phi2_3*(Phi3_0*(coefs[k,i0+1,i1+0,i2+3,i3+0]) + Phi3_1*(coefs[k,i0+1,i1+0,i2+3,i3+1]) + Phi3_2*(coefs[k,i0+1,i1+0,i2+3,i3+2]) + Phi3_3*(coefs[k,i0+1,i1+0,i2+3,i3+3]))) + Phi1_1*(Phi2_0*(Phi3_0*(coefs[k,i0+1,i1+1,i2+0,i3+0]) + Phi3_1*(coefs[k,i0+1,i1+1,i2+0,i3+1]) + Phi3_2*(coefs[k,i0+1,i1+1,i2+0,i3+2]) + Phi3_3*(coefs[k,i0+1,i1+1,i2+0,i3+3])) + Phi2_1*(Phi3_0*(coefs[k,i0+1,i1+1,i2+1,i3+0]) + Phi3_1*(coefs[k,i0+1,i1+1,i2+1,i3+1]) + Phi3_2*(coefs[k,i0+1,i1+1,i2+1,i3+2]) + Phi3_3*(coefs[k,i0+1,i1+1,i2+1,i3+3])) + Phi2_2*(Phi3_0*(coefs[k,i0+1,i1+1,i2+2,i3+0]) + Phi3_1*(coefs[k,i0+1,i1+1,i2+2,i3+1]) + Phi3_2*(coefs[k,i0+1,i1+1,i2+2,i3+2]) + Phi3_3*(coefs[k,i0+1,i1+1,i2+2,i3+3])) + Phi2_3*(Phi3_0*(coefs[k,i0+1,i1+1,i2+3,i3+0]) + Phi3_1*(coefs[k,i0+1,i1+1,i2+3,i3+1]) + Phi3_2*(coefs[k,i0+1,i1+1,i2+3,i3+2]) + Phi3_3*(coefs[k,i0+1,i1+1,i2+3,i3+3]))) + Phi1_2*(Phi2_0*(Phi3_0*(coefs[k,i0+1,i1+2,i2+0,i3+0]) + Phi3_1*(coefs[k,i0+1,i1+2,i2+0,i3+1]) + Phi3_2*(coefs[k,i0+1,i1+2,i2+0,i3+2]) + Phi3_3*(coefs[k,i0+1,i1+2,i2+0,i3+3])) + Phi2_1*(Phi3_0*(coefs[k,i0+1,i1+2,i2+1,i3+0]) + Phi3_1*(coefs[k,i0+1,i1+2,i2+1,i3+1]) + Phi3_2*(coefs[k,i0+1,i1+2,i2+1,i3+2]) + Phi3_3*(coefs[k,i0+1,i1+2,i2+1,i3+3])) + Phi2_2*(Phi3_0*(coefs[k,i0+1,i1+2,i2+2,i3+0]) + Phi3_1*(coefs[k,i0+1,i1+2,i2+2,i3+1]) + Phi3_2*(coefs[k,i0+1,i1+2,i2+2,i3+2]) + Phi3_3*(coefs[k,i0+1,i1+2,i2+2,i3+3])) + Phi2_3*(Phi3_0*(coefs[k,i0+1,i1+2,i2+3,i3+0]) + Phi3_1*(coefs[k,i0+1,i1+2,i2+3,i3+1]) + Phi3_2*(coefs[k,i0+1,i1+2,i2+3,i3+2]) + Phi3_3*(coefs[k,i0+1,i1+2,i2+3,i3+3]))) + Phi1_3*(Phi2_0*(Phi3_0*(coefs[k,i0+1,i1+3,i2+0,i3+0]) + Phi3_1*(coefs[k,i0+1,i1+3,i2+0,i3+1]) + Phi3_2*(coefs[k,i0+1,i1+3,i2+0,i3+2]) + Phi3_3*(coefs[k,i0+1,i1+3,i2+0,i3+3])) + Phi2_1*(Phi3_0*(coefs[k,i0+1,i1+3,i2+1,i3+0]) + Phi3_1*(coefs[k,i0+1,i1+3,i2+1,i3+1]) + Phi3_2*(coefs[k,i0+1,i1+3,i2+1,i3+2]) + Phi3_3*(coefs[k,i0+1,i1+3,i2+1,i3+3])) + Phi2_2*(Phi3_0*(coefs[k,i0+1,i1+3,i2+2,i3+0]) + Phi3_1*(coefs[k,i0+1,i1+3,i2+2,i3+1]) + Phi3_2*(coefs[k,i0+1,i1+3,i2+2,i3+2]) + Phi3_3*(coefs[k,i0+1,i1+3,i2+2,i3+3])) + Phi2_3*(Phi3_0*(coefs[k,i0+1,i1+3,i2+3,i3+0]) + Phi3_1*(coefs[k,i0+1,i1+3,i2+3,i3+1]) + Phi3_2*(coefs[k,i0+1,i1+3,i2+3,i3+2]) + Phi3_3*(coefs[k,i0+1,i1+3,i2+3,i3+3])))) + Phi0_2*(Phi1_0*(Phi2_0*(Phi3_0*(coefs[k,i0+2,i1+0,i2+0,i3+0]) + Phi3_1*(coefs[k,i0+2,i1+0,i2+0,i3+1]) + Phi3_2*(coefs[k,i0+2,i1+0,i2+0,i3+2]) + Phi3_3*(coefs[k,i0+2,i1+0,i2+0,i3+3])) + Phi2_1*(Phi3_0*(coefs[k,i0+2,i1+0,i2+1,i3+0]) + Phi3_1*(coefs[k,i0+2,i1+0,i2+1,i3+1]) + Phi3_2*(coefs[k,i0+2,i1+0,i2+1,i3+2]) + Phi3_3*(coefs[k,i0+2,i1+0,i2+1,i3+3])) + Phi2_2*(Phi3_0*(coefs[k,i0+2,i1+0,i2+2,i3+0]) + Phi3_1*(coefs[k,i0+2,i1+0,i2+2,i3+1]) + Phi3_2*(coefs[k,i0+2,i1+0,i2+2,i3+2]) + Phi3_3*(coefs[k,i0+2,i1+0,i2+2,i3+3])) + Phi2_3*(Phi3_0*(coefs[k,i0+2,i1+0,i2+3,i3+0]) + Phi3_1*(coefs[k,i0+2,i1+0,i2+3,i3+1]) + Phi3_2*(coefs[k,i0+2,i1+0,i2+3,i3+2]) + Phi3_3*(coefs[k,i0+2,i1+0,i2+3,i3+3]))) + Phi1_1*(Phi2_0*(Phi3_0*(coefs[k,i0+2,i1+1,i2+0,i3+0]) + Phi3_1*(coefs[k,i0+2,i1+1,i2+0,i3+1]) + Phi3_2*(coefs[k,i0+2,i1+1,i2+0,i3+2]) + Phi3_3*(coefs[k,i0+2,i1+1,i2+0,i3+3])) + Phi2_1*(Phi3_0*(coefs[k,i0+2,i1+1,i2+1,i3+0]) + Phi3_1*(coefs[k,i0+2,i1+1,i2+1,i3+1]) + Phi3_2*(coefs[k,i0+2,i1+1,i2+1,i3+2]) + Phi3_3*(coefs[k,i0+2,i1+1,i2+1,i3+3])) + Phi2_2*(Phi3_0*(coefs[k,i0+2,i1+1,i2+2,i3+0]) + Phi3_1*(coefs[k,i0+2,i1+1,i2+2,i3+1]) + Phi3_2*(coefs[k,i0+2,i1+1,i2+2,i3+2]) + Phi3_3*(coefs[k,i0+2,i1+1,i2+2,i3+3])) + Phi2_3*(Phi3_0*(coefs[k,i0+2,i1+1,i2+3,i3+0]) + Phi3_1*(coefs[k,i0+2,i1+1,i2+3,i3+1]) + Phi3_2*(coefs[k,i0+2,i1+1,i2+3,i3+2]) + Phi3_3*(coefs[k,i0+2,i1+1,i2+3,i3+3]))) + Phi1_2*(Phi2_0*(Phi3_0*(coefs[k,i0+2,i1+2,i2+0,i3+0]) + Phi3_1*(coefs[k,i0+2,i1+2,i2+0,i3+1]) + Phi3_2*(coefs[k,i0+2,i1+2,i2+0,i3+2]) + Phi3_3*(coefs[k,i0+2,i1+2,i2+0,i3+3])) + Phi2_1*(Phi3_0*(coefs[k,i0+2,i1+2,i2+1,i3+0]) + Phi3_1*(coefs[k,i0+2,i1+2,i2+1,i3+1]) + Phi3_2*(coefs[k,i0+2,i1+2,i2+1,i3+2]) + Phi3_3*(coefs[k,i0+2,i1+2,i2+1,i3+3])) + Phi2_2*(Phi3_0*(coefs[k,i0+2,i1+2,i2+2,i3+0]) + Phi3_1*(coefs[k,i0+2,i1+2,i2+2,i3+1]) + Phi3_2*(coefs[k,i0+2,i1+2,i2+2,i3+2]) + Phi3_3*(coefs[k,i0+2,i1+2,i2+2,i3+3])) + Phi2_3*(Phi3_0*(coefs[k,i0+2,i1+2,i2+3,i3+0]) + Phi3_1*(coefs[k,i0+2,i1+2,i2+3,i3+1]) + Phi3_2*(coefs[k,i0+2,i1+2,i2+3,i3+2]) + Phi3_3*(coefs[k,i0+2,i1+2,i2+3,i3+3]))) + Phi1_3*(Phi2_0*(Phi3_0*(coefs[k,i0+2,i1+3,i2+0,i3+0]) + Phi3_1*(coefs[k,i0+2,i1+3,i2+0,i3+1]) + Phi3_2*(coefs[k,i0+2,i1+3,i2+0,i3+2]) + Phi3_3*(coefs[k,i0+2,i1+3,i2+0,i3+3])) + Phi2_1*(Phi3_0*(coefs[k,i0+2,i1+3,i2+1,i3+0]) + Phi3_1*(coefs[k,i0+2,i1+3,i2+1,i3+1]) + Phi3_2*(coefs[k,i0+2,i1+3,i2+1,i3+2]) + Phi3_3*(coefs[k,i0+2,i1+3,i2+1,i3+3])) + Phi2_2*(Phi3_0*(coefs[k,i0+2,i1+3,i2+2,i3+0]) + Phi3_1*(coefs[k,i0+2,i1+3,i2+2,i3+1]) + Phi3_2*(coefs[k,i0+2,i1+3,i2+2,i3+2]) + Phi3_3*(coefs[k,i0+2,i1+3,i2+2,i3+3])) + Phi2_3*(Phi3_0*(coefs[k,i0+2,i1+3,i2+3,i3+0]) + Phi3_1*(coefs[k,i0+2,i1+3,i2+3,i3+1]) + Phi3_2*(coefs[k,i0+2,i1+3,i2+3,i3+2]) + Phi3_3*(coefs[k,i0+2,i1+3,i2+3,i3+3])))) + Phi0_3*(Phi1_0*(Phi2_0*(Phi3_0*(coefs[k,i0+3,i1+0,i2+0,i3+0]) + Phi3_1*(coefs[k,i0+3,i1+0,i2+0,i3+1]) + Phi3_2*(coefs[k,i0+3,i1+0,i2+0,i3+2]) + Phi3_3*(coefs[k,i0+3,i1+0,i2+0,i3+3])) + Phi2_1*(Phi3_0*(coefs[k,i0+3,i1+0,i2+1,i3+0]) + Phi3_1*(coefs[k,i0+3,i1+0,i2+1,i3+1]) + Phi3_2*(coefs[k,i0+3,i1+0,i2+1,i3+2]) + Phi3_3*(coefs[k,i0+3,i1+0,i2+1,i3+3])) + Phi2_2*(Phi3_0*(coefs[k,i0+3,i1+0,i2+2,i3+0]) + Phi3_1*(coefs[k,i0+3,i1+0,i2+2,i3+1]) + Phi3_2*(coefs[k,i0+3,i1+0,i2+2,i3+2]) + Phi3_3*(coefs[k,i0+3,i1+0,i2+2,i3+3])) + Phi2_3*(Phi3_0*(coefs[k,i0+3,i1+0,i2+3,i3+0]) + Phi3_1*(coefs[k,i0+3,i1+0,i2+3,i3+1]) + Phi3_2*(coefs[k,i0+3,i1+0,i2+3,i3+2]) + Phi3_3*(coefs[k,i0+3,i1+0,i2+3,i3+3]))) + Phi1_1*(Phi2_0*(Phi3_0*(coefs[k,i0+3,i1+1,i2+0,i3+0]) + Phi3_1*(coefs[k,i0+3,i1+1,i2+0,i3+1]) + Phi3_2*(coefs[k,i0+3,i1+1,i2+0,i3+2]) + Phi3_3*(coefs[k,i0+3,i1+1,i2+0,i3+3])) + Phi2_1*(Phi3_0*(coefs[k,i0+3,i1+1,i2+1,i3+0]) + Phi3_1*(coefs[k,i0+3,i1+1,i2+1,i3+1]) + Phi3_2*(coefs[k,i0+3,i1+1,i2+1,i3+2]) + Phi3_3*(coefs[k,i0+3,i1+1,i2+1,i3+3])) + Phi2_2*(Phi3_0*(coefs[k,i0+3,i1+1,i2+2,i3+0]) + Phi3_1*(coefs[k,i0+3,i1+1,i2+2,i3+1]) + Phi3_2*(coefs[k,i0+3,i1+1,i2+2,i3+2]) + Phi3_3*(coefs[k,i0+3,i1+1,i2+2,i3+3])) + Phi2_3*(Phi3_0*(coefs[k,i0+3,i1+1,i2+3,i3+0]) + Phi3_1*(coefs[k,i0+3,i1+1,i2+3,i3+1]) + Phi3_2*(coefs[k,i0+3,i1+1,i2+3,i3+2]) + Phi3_3*(coefs[k,i0+3,i1+1,i2+3,i3+3]))) + Phi1_2*(Phi2_0*(Phi3_0*(coefs[k,i0+3,i1+2,i2+0,i3+0]) + Phi3_1*(coefs[k,i0+3,i1+2,i2+0,i3+1]) + Phi3_2*(coefs[k,i0+3,i1+2,i2+0,i3+2]) + Phi3_3*(coefs[k,i0+3,i1+2,i2+0,i3+3])) + Phi2_1*(Phi3_0*(coefs[k,i0+3,i1+2,i2+1,i3+0]) + Phi3_1*(coefs[k,i0+3,i1+2,i2+1,i3+1]) + Phi3_2*(coefs[k,i0+3,i1+2,i2+1,i3+2]) + Phi3_3*(coefs[k,i0+3,i1+2,i2+1,i3+3])) + Phi2_2*(Phi3_0*(coefs[k,i0+3,i1+2,i2+2,i3+0]) + Phi3_1*(coefs[k,i0+3,i1+2,i2+2,i3+1]) + Phi3_2*(coefs[k,i0+3,i1+2,i2+2,i3+2]) + Phi3_3*(coefs[k,i0+3,i1+2,i2+2,i3+3])) + Phi2_3*(Phi3_0*(coefs[k,i0+3,i1+2,i2+3,i3+0]) + Phi3_1*(coefs[k,i0+3,i1+2,i2+3,i3+1]) + Phi3_2*(coefs[k,i0+3,i1+2,i2+3,i3+2]) + Phi3_3*(coefs[k,i0+3,i1+2,i2+3,i3+3]))) + Phi1_3*(Phi2_0*(Phi3_0*(coefs[k,i0+3,i1+3,i2+0,i3+0]) + Phi3_1*(coefs[k,i0+3,i1+3,i2+0,i3+1]) + Phi3_2*(coefs[k,i0+3,i1+3,i2+0,i3+2]) + Phi3_3*(coefs[k,i0+3,i1+3,i2+0,i3+3])) + Phi2_1*(Phi3_0*(coefs[k,i0+3,i1+3,i2+1,i3+0]) + Phi3_1*(coefs[k,i0+3,i1+3,i2+1,i3+1]) + Phi3_2*(coefs[k,i0+3,i1+3,i2+1,i3+2]) + Phi3_3*(coefs[k,i0+3,i1+3,i2+1,i3+3])) + Phi2_2*(Phi3_0*(coefs[k,i0+3,i1+3,i2+2,i3+0]) + Phi3_1*(coefs[k,i0+3,i1+3,i2+2,i3+1]) + Phi3_2*(coefs[k,i0+3,i1+3,i2+2,i3+2]) + Phi3_3*(coefs[k,i0+3,i1+3,i2+2,i3+3])) + Phi2_3*(Phi3_0*(coefs[k,i0+3,i1+3,i2+3,i3+0]) + Phi3_1*(coefs[k,i0+3,i1+3,i2+3,i3+1]) + Phi3_2*(coefs[k,i0+3,i1+3,i2+3,i3+2]) + Phi3_3*(coefs[k,i0+3,i1+3,i2+3,i3+3]))))
 
 @njit
-def eval_cubic_spline_1(smin, smax, orders, coefs, point, val, Ad, dAd):
+def eval_cubic_spline_1(smin, smax, orders, coefs, point, val):
 
     n_vals = vals.shape[0]
 
@@ -435,7 +435,7 @@ def eval_cubic_spline_1(smin, smax, orders, coefs, point, val, Ad, dAd):
 
 
 @njit
-def eval_cubic_spline_2(smin, smax, orders, coefs, point, val, Ad, dAd):
+def eval_cubic_spline_2(smin, smax, orders, coefs, point, val):
 
     n_vals = vals.shape[0]
 
@@ -502,7 +502,7 @@ def eval_cubic_spline_2(smin, smax, orders, coefs, point, val, Ad, dAd):
 
 
 @njit
-def eval_cubic_spline_3(smin, smax, orders, coefs, point, val, Ad, dAd):
+def eval_cubic_spline_3(smin, smax, orders, coefs, point, val):
 
     n_vals = vals.shape[0]
 
@@ -598,7 +598,7 @@ def eval_cubic_spline_3(smin, smax, orders, coefs, point, val, Ad, dAd):
 
 
 @njit
-def eval_cubic_spline_4(smin, smax, orders, coefs, point, val, Ad, dAd):
+def eval_cubic_spline_4(smin, smax, orders, coefs, point, val):
 
     n_vals = vals.shape[0]
 
