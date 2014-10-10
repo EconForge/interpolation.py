@@ -29,9 +29,7 @@ from itertools import product, combinations_with_replacement
 from itertools import chain
 import numpy as np
 from scipy.linalg import lu
-import matplotlib.pyplot as plt
 import pandas as pd
-from mpl_toolkits.mplot3d import Axes3D
 from util import *
 
 ## --------------- ##
@@ -462,6 +460,7 @@ def build_grid(d, mu, inds=None):
         # inds.append(el)
         points.extend(list(product(*temp)))
 
+    # TODO  do we need a pandas grid here?
     grid = pd.lib.to_object_array_tuples(points).astype(float)
 
     return grid
@@ -835,6 +834,10 @@ class SmolyakGrid(object):
         None
 
         """
+
+        import matplotlib.pyplot as plt
+        from mpl_toolkits.mplot3d import Axes3D
+
         grid = self.grid
         if grid.shape[1] == 2:
             xs = grid[:, 0]
