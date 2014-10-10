@@ -17,7 +17,7 @@ setup(
     url='https://github.com/econforge/interpolation.py',
 
     # Author details
-    author='Pablo Winant',
+    author='Chase Coleman, Pablo Winant and Spencer Lyon',
     author_email='pablo.winant@gmail.com',
 
     # Choose your license
