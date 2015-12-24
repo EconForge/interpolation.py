@@ -1,1 +1,1 @@
-from splines import CubicSpline, MultiCubicSpline
+from .splines import CubicSpline, MultiCubicSpline

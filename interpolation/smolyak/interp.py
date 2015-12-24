@@ -7,7 +7,7 @@ soon.
 from __future__ import division
 import numpy as np
 import numpy.linalg as la
-from grid import build_B
+from .grid import build_B
 
 __all__ = ['find_theta', 'SmolyakInterp']
 

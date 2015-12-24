@@ -7,8 +7,8 @@ import numpy
 #     from eval_cubic_splines_cython import *
 #
 # except Exception:
-from eval_cubic_multi_splines_numba import *
-from eval_cubic_splines_numba import *
+from .eval_cubic_multi_splines_numba import *
+from .eval_cubic_splines_numba import *
 
 
 ## the functions in this file work for any dimension (d<=4)

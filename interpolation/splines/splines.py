@@ -3,7 +3,7 @@
 import numpy
 import numpy as np
 
-from misc import mlinspace
+from .misc import mlinspace
 
 
 class CubicSpline:
@@ -59,7 +59,7 @@ class CubicSpline:
 
         values = np.array(values, dtype=float)
 
-        from filter_cubic_splines import filter_coeffs
+        from .filter_cubic_splines import filter_coeffs
 
         if not np.all( np.isfinite(values)):
             raise Exception('Trying to interpolate non-finite values')
@@ -91,7 +91,7 @@ class CubicSpline:
 
         import time
 
-        from eval_cubic_splines import vec_eval_cubic_spline, eval_cubic_spline
+        from .eval_cubic_splines import vec_eval_cubic_spline, eval_cubic_spline
 
         if not np.all( np.isfinite(points)):
             raise Exception('Spline interpolator evaluated at non-finite points.')
@@ -158,7 +158,7 @@ class MultiCubicSpline:
 
         values = np.array(values, dtype=float)
 
-        from filter_cubic_splines import filter_coeffs
+        from .filter_cubic_splines import filter_coeffs
 
         if not np.all( np.isfinite(values)):
             raise Exception('Trying to interpolate non-finite values')
@@ -193,7 +193,7 @@ class MultiCubicSpline:
 
         import time
 
-        from eval_cubic_splines import vec_eval_cubic_multi_spline
+        from .eval_cubic_splines import vec_eval_cubic_multi_spline
 
         if points.ndim == 1:
             raise Exception('Expected 2d array. Received {}d array'.format(points.ndim))
