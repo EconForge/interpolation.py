@@ -22,10 +22,9 @@ install:
   # Useful for debugging any issues with conda
   - conda info -a
 
-  - deps='pip nose numba numpy cython scipy pandas'
+  - deps='pip nose numba numpy cython'
   - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION $deps
   - source activate test-environment
-  - pip install pp --allow-external pp --allow-unverified pp
   - python setup.py install
 
 
