@@ -1,10 +1,11 @@
 from __future__ import division
 
 import numpy as np
-
 import time
-
 from numba import jit, njit
+
+# used by njitted routines (frozen)
+basis = np.array([1.0 / 6.0, 2.0 / 3.0, 1.0 / 6.0, 0.0])
 
 
 @njit
@@ -53,10 +54,9 @@ def solve_deriv_interp_1d(bands, coefs):
     coefs[0] = bands[0, 3] - bands[0, 1] * coefs[1] - bands[0, 2] * coefs[2]
 
 
-@jit
-def find_coefs_1d(delta_inv, M, data, coefs):
 
-    basis = np.array([1.0 / 6.0, 2.0 / 3.0, 1.0 / 6.0, 0.0])
+@njit
+def find_coefs_1d(delta_inv, M, data, coefs):
 
     bands = np.zeros((M + 2, 4))
 
@@ -88,7 +88,7 @@ def find_coefs_1d(delta_inv, M, data, coefs):
     solve_deriv_interp_1d(bands, coefs)
 
 
-@jit
+@njit
 def filter_coeffs_1d(dinv, data):
 
     M = data.shape[0]
@@ -100,7 +100,7 @@ def filter_coeffs_1d(dinv, data):
     return coefs
 
 
-@jit
+@njit
 def filter_coeffs_2d(dinv, data):
 
     Mx = data.shape[0]
@@ -124,7 +124,7 @@ def filter_coeffs_2d(dinv, data):
     return coefs
 
 
-@jit
+@njit
 def filter_coeffs_3d(dinv, data):
 
     Mx = data.shape[0]
@@ -137,7 +137,6 @@ def filter_coeffs_3d(dinv, data):
 
     coefs = np.zeros((Nx, Ny, Nz))
 
-    # First, solve in the X-direction
     for iy in range(My):
         for iz in range(Mz):
             find_coefs_1d(dinv[0], Mx, data[:, iy, iz], coefs[:, iy, iz])
@@ -155,7 +154,7 @@ def filter_coeffs_3d(dinv, data):
     return coefs
 
 
-@jit
+@njit
 def filter_coeffs_4d(dinv, data):
 
     Mx = data.shape[0]
@@ -228,3 +227,25 @@ def filter_mdata(smin, smax, orders, data):
         coefs[i, ...] = filter_coeffs(smin, smax, orders, data[i, ...])
 
     return coefs
+
+
+
+if __name__ == "__main__":
+    
+    import numpy
+    dinv = numpy.ones(3, dtype=float)*0.5
+    coeffs_0 = numpy.random.random([10,10,10])
+    coeffs_1 = numpy.random.random([100,100,100])
+
+    print(coeffs_0[:2,:2,:2])
+    import time
+
+    t1 = time.time()
+    filter_coeffs_3d(dinv, coeffs_0)
+
+    t2 = time.time()
+    filter_coeffs_3d(dinv, coeffs_1)
+    t3 = time.time()
+
+    print('Elapsed : {}'.format(t2-t1))
+    print('Elapsed : {}'.format(t3-t2))
