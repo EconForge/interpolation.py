@@ -25,7 +25,7 @@ class CubicSpline:
             Upper bounds of the cartesian grid.
         orders : array of size d (int)
             Number of nodes along each dimension (=(n1,...,nd) )
-        values : (optional) array isomorphic to size (n1 x ... x nd)
+        values : (optional, (n1 x ... x nd) array)
             Values on the nodes of the function to interpolate.
 
         Returns
@@ -82,7 +82,7 @@ class CubicSpline:
         Parameters
         ----------
         points : (array-like) list of point where the spline is evaluated.
-        values : (optional) container inplace compuation
+        values : (optional) container for inplace computation
 
         Returns
         -------
@@ -138,7 +138,7 @@ class MultiCubicSpline:
     __n_splines__ = None
 
     def __init__(self, a, b, orders, values=None):
-        """Creates a cubic spline interpolator for many functions on a regular cartesian grid."""
+        """Creates a cubic multi-spline interpolator for many functions on a regular cartesian grid."""
 
 
         self.d = len(a)

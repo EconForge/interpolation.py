@@ -5,7 +5,7 @@ b = array([1,1], dtype=float)
 orders = array([50,50], dtype=int)
 
 
-from ...cartesian import mlinspace
+from interpolation.cartesian import mlinspace
 
 gg = mlinspace(a,b,orders)
 
