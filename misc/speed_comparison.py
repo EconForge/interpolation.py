@@ -25,3 +25,5 @@ vec_eval_cubic_spline_3(a,b,orders,C,X,res)
 t2 = time.time()
 
 print("Elapsed: {}".format(t2-t1))
+
+from compiled import vec_eval_cubic_spline_3 as rr
