@@ -2,7 +2,7 @@ from interpolation.splines.eval_cubic_numba import vec_eval_cubic_spline_3
 from interpolation.splines.filter_cubic import filter_coeffs
 from interpolation.splines.multilinear_numba import multilinear_interpolation
 
-from dolo.numeric.misc import mlinspace
+from interpolation.splines.misc import mlinspace
 
 import numpy
 

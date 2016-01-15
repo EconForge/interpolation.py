@@ -33,11 +33,11 @@ def test_cuda():
 
     from numba import cuda
 
-    from interpolation.splines.eval_cubic_cuda import vec_eval_cubic_spline_2
+    from interpolation.splines.eval_cubic_cuda import vec_eval_cubic_spline_2, Ad, dAd
     jitted = cuda.jit(vec_eval_cubic_spline_2)
 
     out = zeros(N)
-    jitted[(N,1,1)](a,b,orders,cc,points,out)
+    jitted[(N,1)](a,b,orders,cc,points,out,Ad,dAd)
 
     # compare
     from interpolation.splines.eval_cubic import vec_eval_cubic_spline
@@ -54,7 +54,7 @@ def test_cuda():
 
     out = zeros((N,3))
     dout = zeros((N,2,3)) # (n,i,j) i-th derivative of the j-th spline at the n-th point
-    jitted_G[(N,1,1)](a,b,orders,ccc,points,out,dout)
+    jitted_G[(N,1)](a,b,orders,ccc,points,out,dout, Ad,dAd)
 
     # compare
     from interpolation.splines.eval_cubic import vec_eval_cubic_splines_G

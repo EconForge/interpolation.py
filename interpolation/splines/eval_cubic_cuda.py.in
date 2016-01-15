@@ -32,7 +32,7 @@ for i in range(1,4):
 from numba import cuda
 
 {{for d in range(1,max_order+1)}}
-def vec_eval_cubic_spline_{{d}}(a, b, orders, coefs, points, out):
+def vec_eval_cubic_spline_{{d}}(a, b, orders, coefs, points, out,Ad,dAd):
 
     d = a.shape[0]
     N = points.shape[0]
@@ -93,7 +93,7 @@ def vec_eval_cubic_spline_{{d}}(a, b, orders, coefs, points, out):
 
 
 {{for d in range(1,max_order+1)}}
-def vec_eval_cubic_splines_{{d}}(a, b, orders, coefs, points, vals):
+def vec_eval_cubic_splines_{{d}}(a, b, orders, coefs, points, vals, Ad, dAd):
 
     n = cuda.grid(1)
 
@@ -155,7 +155,7 @@ def vec_eval_cubic_splines_{{d}}(a, b, orders, coefs, points, vals):
 
 
 {{for d in range(1,max_order+1)}}
-def vec_eval_cubic_splines_G_{{d}}(a, b, orders, coefs, points, vals, dvals):
+def vec_eval_cubic_splines_G_{{d}}(a, b, orders, coefs, points, vals, dvals, Ad, dAd):
 
     n = cuda.grid(1)
 
