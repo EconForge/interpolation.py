@@ -26,6 +26,8 @@ install:
   - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION $deps
   - source activate test-environment
   - python setup.py install
+  - export export  NUMBA_ENABLE_CUDASIM=1
+
 
 
 script:

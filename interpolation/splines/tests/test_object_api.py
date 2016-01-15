@@ -44,7 +44,7 @@ points = row_stack([[0.5, 0.5]]*N)
 
 
 
-def test_object_api(Obj):
+def ttest_object_api(Obj):
 
     cs = Obj(a,b,orders,vals)
     ii = cs(point)
@@ -58,7 +58,7 @@ def test_object_api(Obj):
     assert(tuple(iii.shape)==(N,))
 
 
-def test_object_vector_api(Obj):
+def ttest_object_vector_api(Obj):
 
     cs = Obj(a,b,orders,mvals)
 
@@ -71,7 +71,7 @@ def test_object_vector_api(Obj):
     assert(iii.ndim==2)
     assert(tuple(iii.shape)==(N,n_splines))
 
-def test_object_vector_diff_api(Obj):
+def ttest_object_vector_diff_api(Obj):
 
     cs = Obj(a,b,orders,mvals)
 
@@ -86,15 +86,15 @@ def test_object_vector_diff_api(Obj):
 def test_objects():
 
     from interpolation.splines import CubicSpline
-    # test_object_api(CubicSpline)
+    ttest_object_api(CubicSpline)
     from interpolation.splines import CubicSplines
-    # test_object_vector_api(CubicSplines)
-    test_object_vector_diff_api(CubicSplines)
+    ttest_object_vector_api(CubicSplines)
+    ttest_object_vector_diff_api(CubicSplines)
 
     from interpolation.splines.multilinear import LinearSpline
-    test_object_api(LinearSpline)
+    ttest_object_api(LinearSpline)
     from interpolation.splines.multilinear import LinearSplines
-    test_object_vector_api(LinearSplines)
+    ttest_object_vector_api(LinearSplines)
 
 
 if __name__ == '__main__':
