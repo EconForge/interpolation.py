@@ -47,12 +47,7 @@ class CubicSpline:
 
         if values is not None:
             self.set_values(values)
-    #
-    # def set_values(self, values):
-    #
-    #     assert(values.ndim <= len(self.orders))
-    #     self.set_mvalues(values.T)
-    #
+
 
     def set_values(self, values):
         '''Set values on the nodes for the function to interpolate.'''
@@ -91,7 +86,7 @@ class CubicSpline:
 
         import time
 
-        from .eval_cubic_splines import vec_eval_cubic_spline, eval_cubic_spline
+        from .eval_cubic import vec_eval_cubic_spline, eval_cubic_spline
 
         if not np.all( np.isfinite(points)):
             raise Exception('Spline interpolator evaluated at non-finite points.')
@@ -130,7 +125,7 @@ class CubicSpline:
         return self.interpolate(s)
 
 
-class MultiCubicSpline:
+class CubicSplines:
 
     __grid__ = None
     __values__ = None
@@ -147,45 +142,30 @@ class MultiCubicSpline:
         self.a = np.array(a, dtype=float)
         self.b = np.array(b, dtype=float)
         self.orders = np.array(orders, dtype=int)
-        self.__coeffs__ = None
+        self.__mcoeffs__ = None
         if values is not None:
             self.set_values(values)
 
-
-    def set_values(self, values):
+    def set_values(self, mvalues):
         """Change values on the nodes of the functions to approximate."""
 
+        mvalues = np.array(mvalues, dtype=float)
+        n_sp = mvalues.shape[-1]
 
-        values = np.array(values, dtype=float)
+        mvalues = mvalues.reshape( list(self.orders)+[n_sp])
 
-        from .filter_cubic_splines import filter_coeffs
-
-        if not np.all( np.isfinite(values)):
+        if not np.all( np.isfinite(mvalues)):
             raise Exception('Trying to interpolate non-finite values')
 
+        from .filter_cubic_splines import filter_mcoeffs
+
+
         # number of splines
-        n_sp = values.shape[0]
-
-        if self.__n_splines__ is None:
-            self.__n_splines = n_sp
-        else:
-            assert(n_sp == self.__n_splines__)
-
-        sh = [n_sp] + self.orders.tolist()
-        sh2 = [ e+2 for e in self.orders]
-
-        values = values.reshape(sh)
-
-        self.__values__ = values
-
-        if self.__coeffs__ is None:
-            self.__coeffs__ = numpy.zeros( [n_sp] + sh2)
-
-        # this should be done without temporary memory allocation
-        for i in range(n_sp):
-            data = values[i,...]
-            self.__coeffs__[i,...] = filter_coeffs(self.a, self.b, self.orders,data)
-
+        print("ORders")
+        print(self.orders)
+        print(mvalues.shape)
+        self.__mcoeffs__ = filter_mcoeffs(self.a, self.b, self.orders, mvalues)
+        self.__mvalues__ = mvalues
 
 
     def interpolate(self, points, with_derivatives=False):
@@ -193,7 +173,7 @@ class MultiCubicSpline:
 
         import time
 
-        from .eval_cubic_splines import vec_eval_cubic_multi_spline
+        from .eval_cubic import vec_eval_cubic_splines
 
         if points.ndim == 1:
             raise Exception('Expected 2d array. Received {}d array'.format(points.ndim))
@@ -202,15 +182,14 @@ class MultiCubicSpline:
         if not np.all( np.isfinite(points)):
             raise Exception('Spline interpolator evaluated at non-finite points.')
 
-        n_sp = self.__coeffs__.shape[0]
+        n_sp = self.__mcoeffs__.shape[-1]
 
         N = points.shape[0]
         d = points.shape[1]
 
         if not with_derivatives:
             values = np.empty((N,n_sp), dtype=float)
-            vec_eval_cubic_multi_spline(self.a, self.b, self.orders, self.__coeffs__, points, values)
-
+            vec_eval_cubic_splines(self.a, self.b, self.orders, self.__mcoeffs__, points, values)
             return values
         else:
             raise Exception("Not implemented.")
@@ -243,8 +222,3 @@ class MultiCubicSpline:
             return res.ravel()
 
         return self.interpolate(s)
-
-
-# Aliases
-
-MultivariateSplines = MultiCubicSpline

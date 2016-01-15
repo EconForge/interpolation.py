@@ -15,40 +15,51 @@ fout = args.output
 multispline = (args.multispline)
 max_order = args.max_order
 
-print(multispline)
 
-def print_expr(symbs, inds=[]):
+def print_expr(symbs, inds=[], multispline=False):
     if len(symbs) == 0:
         if multispline:
-            return 'coefs[k,{}]'.format(str.join(',',['i{}+{}'.format(i,k) for i,k in enumerate(inds)]))
+            return 'coefs[{},k]'.format(str.join(',',['i{}+{}'.format(i,k) for i,k in enumerate(inds)]))
         else:
             return 'coefs[{}]'.format(str.join(',',['i{}+{}'.format(i,k) for i,k in enumerate(inds)]))
     else:
         h = symbs[0]
         q = symbs[1:]
-        exprs = [  '{}_{}*({})'.format(h,i,print_expr(q,inds + [i])) for i in range(4)]
+        exprs = [  '{}_{}*({})'.format(h,i,print_expr(q,inds + [i], multispline=multispline)) for i in range(4)]
         return str.join( ' + ', exprs )
 
-values = []
-dvalues = []
-for order in range(max_order+1):
-    expr = print_expr( ['Phi{}'.format(i) for i in range(order)] )
-    values.append( expr )
-    dv = []
-    for i in range(order):
-        args =  ['Phi{}'.format(h) for h in range(order)]
-        args[i] = 'dPhi{}'.format(i)
-        dexpr = print_expr( args )
-        dv.append(dexpr)
-    dvalues.append(dv)
+    # values = []
+    # dvalues = []
+    # for order in range(max_order+1):
+    #     expr = print_expr( ['Phi{}'.format(i) for i in range(order)] )
+    #     values.append( expr )
+    #     dv = []
+    #     for i in range(order):
+    #         args =  ['Phi{}'.format(h) for h in range(order)]
+    #         args[i] = 'dPhi{}'.format(i)
+    #         dexpr = print_expr( args )
+    #         dv.append(dexpr)
+    #     dvalues.append(dv)
+
+
+def get_values(order, multispline=False):
+        values = []
+        expr = print_expr( ['Phi{}'.format(i) for i in range(order)], multispline=multispline )
+        return expr
+
+def get_dvalues(order, i, multispline=False):
+    args =  ['Phi{}'.format(h) for h in range(order)]
+    args[i] = 'dPhi{}'.format(i)
+    dexpr = print_expr( args, multispline=multispline )
+
 
 import tempita
 
-with file(ftemplate) as f:
+with open(ftemplate) as f:
     txt = f.read()
 
-s = tempita.sub(txt,values=values,dvalues=dvalues,max_order=max_order)
+s = tempita.sub(txt,values=get_values,dvalues=get_dvalues,max_order=max_order)
 
-with file(fout,'w') as f:
+with open(fout,'w') as f:
     f.write(s)
 #print(s)

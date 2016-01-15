@@ -203,6 +203,15 @@ def filter_coeffs(smin, smax, orders, data):
     data = data.reshape(orders)
     return filter_data(dinv, data)
 
+def filter_mcoeffs(smin, smax, orders, data):
+
+    order = len(smin)
+    n_splines = data.shape[-1]
+    coefs = np.zeros(tuple([i + 2 for i in orders])+(n_splines,) )
+    for i in range(n_splines):
+        coefs[...,i] = filter_coeffs(smin, smax, orders, data[..., i])
+    return coefs
+
 
 def filter_data(dinv, data):
     if len(dinv) == 1:
@@ -216,22 +225,11 @@ def filter_data(dinv, data):
 #
 
 
-def filter_mdata(smin, smax, orders, data):
-
-    order = len(smin)
-
-    n_splines = data.shape[0]
-
-    coefs = np.zeros((n_splines,) + tuple([i + 2 for i in orders]))
-    for i in range(n_splines):
-        coefs[i, ...] = filter_coeffs(smin, smax, orders, data[i, ...])
-
-    return coefs
 
 
 
 if __name__ == "__main__":
-    
+
     import numpy
     dinv = numpy.ones(3, dtype=float)*0.5
     coeffs_0 = numpy.random.random([10,10,10])

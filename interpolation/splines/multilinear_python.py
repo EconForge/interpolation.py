@@ -1,3 +1,7 @@
+### THIS FILE IS OBSOLETE
+# ONLY FOR TEST PURPOSES
+
+
 from __future__ import division
 
 from numpy import array, zeros, floor, cumprod, column_stack, reshape
@@ -16,6 +20,21 @@ def multilinear_interpolation( smin, smax, orders, x, y):
     :param y: Mxd array : points where to interpolate
     :return: Mxd array : interpolated values
     '''
+    print("Call")
+    print(smin.shape)
+    print(smax.shape)
+    print(orders.shape)
+    print(x.shape)
+    print(y.shape)
+    # compatibility fixes
+    orders = np.array(orders, int)
+    n_x = x.shape[-1]
+    n_s = y.shape[-1]
+
+    x = x.reshape((orders.prod(),n_x))
+    x = x.T
+
+    y = y.T
 
     dtype = x.dtype
 
@@ -44,7 +63,8 @@ def multilinear_interpolation( smin, smax, orders, x, y):
 
     z = b + recursive_evaluation(d,tuple([]),mm[:,np.newaxis,:], g)
 
-    return z
+    # return z
+    return z.T
 
 def recursive_evaluation(d,ind,mm,g):
     if len(ind) == d:

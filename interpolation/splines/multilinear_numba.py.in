@@ -1,0 +1,79 @@
+import numpy as np
+from numba import njit
+
+def vec_multilinear_interpolation(smin, smax, orders, values, s, out=None):
+
+    d = smin.shape[0]
+    N = s.shape[0]
+    n_sp = values.shape[-1]
+
+    if out is None:
+        out = np.zeros((N,n_sp))
+
+    for i in range(n_sp):
+        multilinear_interpolation(smin, smax, orders, values[...,i], s, out[:,i])
+
+    return out
+
+def multilinear_interpolation(smin, smax, orders, values, s, out=None):
+
+    d = smin.shape[0]
+    N = s.shape[0]
+
+    if out is None:
+        out = np.zeros(N)
+
+    if False:
+        pass
+    {{for k in range(1,max_d)}}
+    elif d=={{k}}:
+        multilinear_interpolation_{{k}}d(smin, smax, orders, values, s, out)
+    {{endfor}}
+    else:
+        raise Exception("Can't interpolate in dimension strictly greater than {{max_d}}")
+
+    return out
+
+{{for d in range(1,max_d+1)}}
+
+@njit
+def multilinear_interpolation_{{d}}d(smin, smax, orders, V, s, output):
+
+    d = {{d}}
+    N = s.shape[0]
+
+    {{for k in range(d)}}
+    order_{{k}} = orders[{{k}}]
+    {{endfor}}
+
+    for n in range(N):
+
+            # (s_1, ..., s_d) : evaluation point
+            {{for k in range(d)}}
+            s_{{k}} = s[ n, {{k}} ]
+            {{endfor}}
+
+            # (sn_1, ..., sn_d) : normalized evaluation point (in [0,1] inside the grid)
+            {{for k in range(d)}}
+            sn_{{k}} = (s_{{k}}-smin[{{k}}])/(smax[{{k}}]-smin[{{k}}])
+            {{endfor}}
+
+            # q_k : index of the interval "containing" s_k
+            {{for k in range(d)}}
+            q_{{k}} = max( min( int(sn_{{k}} *(order_{{k}}-1)), (order_{{k}}-2) ), 0 )
+            {{endfor}}
+
+            # lam_k : barycentric coordinate in interval k
+            {{for k in range(d)}}
+            lam_{{k}} = sn_{{k}}*(order_{{k}}-1) - q_{{k}}
+            {{endfor}}
+
+            # v_ij: values on vertices of hypercube "containing" the point
+            {{for inds in product(*([(0,1)]*d))}}
+            v_{{index(inds)}} = V[{{rindex(inds)}}]
+            {{endfor}}
+
+            # interpolated/extrapolated value
+            output[n] = {{formulas[d]}}
+
+{{endfor}}

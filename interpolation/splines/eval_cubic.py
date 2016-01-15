@@ -7,8 +7,7 @@ import numpy
 #     from eval_cubic_splines_cython import *
 #
 # except Exception:
-from .eval_cubic_multi_splines_numba import *
-from .eval_cubic_splines_numba import *
+from .eval_cubic_numba import *
 
 
 ## the functions in this file work for any dimension (d<=4)
@@ -115,7 +114,7 @@ def vec_eval_cubic_spline(a, b, orders, coefs, points, values=None):
 #
 #     pass
 
-def eval_cubic_multi_spline(a, b, orders, mcoefs, point, values=None):
+def eval_cubic_splines(a, b, orders, mcoefs, point, values=None):
     """Evaluates multi-splines at one point.
 
     Parameters:
@@ -151,21 +150,21 @@ def eval_cubic_multi_spline(a, b, orders, mcoefs, point, values=None):
         values = numpy.empty(n_sp)
 
     if d == 1:
-        eval_cubic_multi_spline_1(a, b, orders, mcoefs, point, values)
+        eval_cubic_splines_1(a, b, orders, mcoefs, point, values)
 
     elif d == 2:
-        eval_cubic_multi_spline_2(a, b, orders, mcoefs, point, values)
+        eval_cubic_splines_2(a, b, orders, mcoefs, point, values)
 
     elif d == 3:
-        eval_cubic_multi_spline_3(a, b, orders, mcoefs, point, values)
+        eval_cubic_splines_3(a, b, orders, mcoefs, point, values)
 
     elif d == 4:
-        eval_cubic_multi_spline_4(a, b, orders, mcoefs, point, values)
+        eval_cubic_splines_4(a, b, orders, mcoefs, point, values)
 
 
     return values
 
-def vec_eval_cubic_multi_spline(a, b, orders, mcoefs, points, values=None):
+def vec_eval_cubic_splines(a, b, orders, mcoefs, points, values=None):
     """Evaluates multi-splines on a series of points.
 
     Parameters:
@@ -203,23 +202,16 @@ def vec_eval_cubic_multi_spline(a, b, orders, mcoefs, points, values=None):
         values = numpy.empty((N, n_sp))
 
     if d == 1:
-        vec_eval_cubic_multi_spline_1(a, b, orders, mcoefs, points, values)
+        vec_eval_cubic_splines_1(a, b, orders, mcoefs, points, values)
 
     elif d == 2:
-        vec_eval_cubic_multi_spline_2(a, b, orders, mcoefs, points, values)
+        vec_eval_cubic_splines_2(a, b, orders, mcoefs, points, values)
 
     elif d == 3:
-        vec_eval_cubic_multi_spline_3(a, b, orders, mcoefs, points, values)
+        vec_eval_cubic_splines_3(a, b, orders, mcoefs, points, values)
 
     elif d == 4:
-        vec_eval_cubic_multi_spline_4(a, b, orders, mcoefs, points, values)
+        vec_eval_cubic_splines_4(a, b, orders, mcoefs, points, values)
 
 
     return values
-
-
-
-#
-# def vec_eval_cubic_multi_spline_d(a, b, orders, mcoefs, points, values=None, dvalues=None):
-#
-#     pass
