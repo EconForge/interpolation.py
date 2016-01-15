@@ -51,7 +51,7 @@ def get_dvalues(order, i, multispline=False):
     args =  ['Phi{}'.format(h) for h in range(order)]
     args[i] = 'dPhi{}'.format(i)
     dexpr = print_expr( args, multispline=multispline )
-
+    return dexpr
 
 import tempita
 

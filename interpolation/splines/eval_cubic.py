@@ -215,3 +215,36 @@ def vec_eval_cubic_splines(a, b, orders, mcoefs, points, values=None):
 
 
     return values
+
+
+
+def vec_eval_cubic_splines_G(a, b, orders, mcoefs, points, values=None, dvalues=None):
+
+    a = numpy.array(a,dtype=float)
+    b = numpy.array(b,dtype=float)
+    orders = numpy.array(orders,dtype=int)
+
+    d = a.shape[0]
+    N = points.shape[0]
+    n_sp = mcoefs.shape[0]
+
+    if values is None:
+        values = numpy.empty((N, n_sp))
+
+    if dvalues is None:
+        dvalues = numpy.empty((N,d,n_sp))
+
+    if d == 1:
+        vec_eval_cubic_splines_G_1(a, b, orders, mcoefs, points, values, dvalues)
+
+    elif d == 2:
+        vec_eval_cubic_splines_G_2(a, b, orders, mcoefs, points, values, dvalues)
+
+    elif d == 3:
+        vec_eval_cubic_splines_G_3(a, b, orders, mcoefs, points, values, dvalues)
+
+    elif d == 4:
+        vec_eval_cubic_splines_G_4(a, b, orders, mcoefs, points, values, dvalues)
+
+
+    return [values, dvalues]

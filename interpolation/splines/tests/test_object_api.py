@@ -71,12 +71,25 @@ def test_object_vector_api(Obj):
     assert(iii.ndim==2)
     assert(tuple(iii.shape)==(N,n_splines))
 
+def test_object_vector_diff_api(Obj):
+
+    cs = Obj(a,b,orders,mvals)
+
+    # ii = cs(point, diff=True)
+    iii, d_iii = cs.interpolate(points, diff=True)
+
+    n_splines = mvals.shape[1]
+    assert(iii.ndim==2)
+    assert(tuple(iii.shape)==(N,n_splines))
+    assert(tuple(d_iii.shape)==(N,d,n_splines))
+
 def test_objects():
 
     from interpolation.splines import CubicSpline
-    test_object_api(CubicSpline)
+    # test_object_api(CubicSpline)
     from interpolation.splines import CubicSplines
-    test_object_vector_api(CubicSplines)
+    # test_object_vector_api(CubicSplines)
+    test_object_vector_diff_api(CubicSplines)
 
     from interpolation.splines.multilinear import LinearSpline
     test_object_api(LinearSpline)

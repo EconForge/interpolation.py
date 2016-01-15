@@ -168,12 +168,10 @@ class CubicSplines:
         self.__mvalues__ = mvalues
 
 
-    def interpolate(self, points, with_derivatives=False):
+    def interpolate(self, points, diff=False):
         """Interpolate splines at manu points."""
 
         import time
-
-        from .eval_cubic import vec_eval_cubic_splines
 
         if points.ndim == 1:
             raise Exception('Expected 2d array. Received {}d array'.format(points.ndim))
@@ -187,12 +185,17 @@ class CubicSplines:
         N = points.shape[0]
         d = points.shape[1]
 
-        if not with_derivatives:
+        if not diff:
+            from .eval_cubic import vec_eval_cubic_splines
             values = np.empty((N,n_sp), dtype=float)
             vec_eval_cubic_splines(self.a, self.b, self.orders, self.__mcoeffs__, points, values)
             return values
         else:
-            raise Exception("Not implemented.")
+            from .eval_cubic import vec_eval_cubic_splines_G
+            values = np.empty((N,n_sp), dtype=float)
+            dvalues = np.empty((N,d,n_sp), dtype=float)
+            vec_eval_cubic_splines_G(self.a, self.b, self.orders, self.__mcoeffs__, points, values, dvalues)
+            return [values, dvalues]
 
 
     @property
