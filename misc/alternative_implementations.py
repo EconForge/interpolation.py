@@ -1,3 +1,29 @@
+'''
+Run 'python alternative_implementations.py`  (no external dependences).
+We compare several variants of the code to interpolate cubic splines based on the automatically generated one. They are all included below.
+    
+    - eval_cubic_spline_3 and eval_cubic_spline_3: the first interpolates at one point and the second repeatedly calls it
+    - vec_eval_cubic_spline_3_inlined: everything is copied in the loop manually
+    - vec_eval_cubic_spline_3_inlined_columns: same as above (but points are ordered differently)
+    - kernel and vec_eval_cubic_spline_3_kernel: the kernel is called repeatedly (it takes all arrays and an index)
+    - vec_eval_cubic_spline_3_lesswork: fully inlined version which does not rescale and does not interpolate (for comparisons with interpolations.jl)
+
+The benchmark test consists in interpolating random coefficients from a 50x50x50 grid on N=10^6 points. Here are the results:
+
+
+Repeated calls:                       0.24852252006530762
+Manually inlined (points in rows):    0.123809814453125
+Manually inlined (points in columns): 0.12022709846496582
+cuda-like kernel:                     0.22097206115722656
+No extrap / no rescale:               0.0850365161895752
+Cythonized (not shown):               0.11784672737121582 
+
+It seems that inlining is not efficient in this case or that it doesn't get enabled.
+The performance without extrapolation/rescaling are very similar to those of interpolations.jl which also uses llvm. The penalty cost of those operations seem hard to interpret. (rescaling seems pretty trivial and extrapolation doesn't seem to cost anything).
+The Cython version (in eval_cubic_spines_cython.pyx run from main.py) is only slightly faster than numba's.
+
+'''
+
 from numba import njit
 from math import floor
 from numpy import array, zeros
@@ -340,21 +366,21 @@ def vec_eval_cubic_spline_3_inlined_lesswork(orders, coefs, points, values, Ad, 
 
     N = points.shape[0]
     M0 = orders[0]
-    start0 = a[0]
-    dinv0 = (orders[0]-1.0)/(b[0]-a[0])
+#    start0 = a[0]
+#    dinv0 = (orders[0]-1.0)/(b[0]-a[0])
     M1 = orders[1]
-    start1 = a[1]
-    dinv1 = (orders[1]-1.0)/(b[1]-a[1])
+#    start1 = a[1]
+#    dinv1 = (orders[1]-1.0)/(b[1]-a[1])
     M2 = orders[2]
-    start2 = a[2]
-    dinv2 = (orders[2]-1.0)/(b[2]-a[2])
+#    start2 = a[2]
+#    dinv2 = (orders[2]-1.0)/(b[2]-a[2])
 
 
     for n in range(N):
 
-        u0 = points[n,0]*1.0
-        u1 = points[n,1]*1.0
-        u2 = points[n,2]*1.0
+        u0 = points[n,0]
+        u1 = points[n,1]
+        u2 = points[n,2]
 
         i0 = int( floor( u0 ) )
         i0 = max( min(i0,M0-2), 0 )
@@ -512,9 +538,11 @@ if __name__ == '__main__':
     points_c = points.T.copy() # each column is a vector
     vals = np.zeros(N)
 
-    print(points.max().max())    
-    print(points.min().min())    
+    print("Interpolation comparison (d={}, K={}, N={})" .format(d,K,N))
+
+
     import time
+
     vec_eval_cubic_spline_3        (a,b,orders,coeffs,points,vals)  # warmup
     vec_eval_cubic_spline_3_inlined(a,b,orders,coeffs,points,vals)  # warmup
     vec_eval_cubic_spline_3_inlined_columns(a,b,orders,coeffs,points_c,vals)  # warmup
@@ -537,6 +565,5 @@ if __name__ == '__main__':
     print("inlined (points in columns): {}".format(t4-t3))
     print("kernel: {}".format(t5-t4))
     print("less work: {}".format(t6-t5))
-    print(vals[:10,0])
 
 
