@@ -1,4 +1,4 @@
-from interpolation.splines.eval_cubic_splines_numba import vec_eval_cubic_spline_3
+from interpolation.splines.eval_cubic_numba import vec_eval_cubic_spline_3
 from interpolation.splines.filter_cubic import filter_coeffs
 from interpolation.splines.multilinear_numba import multilinear_interpolation
 
@@ -42,3 +42,4 @@ print("Linear: {}".format(t3-t2))
 
 
 print(abs(res-res2).max())
+
