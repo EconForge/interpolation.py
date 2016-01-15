@@ -1,5 +1,5 @@
 from interpolation.splines.eval_cubic_splines_numba import vec_eval_cubic_spline_3
-from interpolation.splines.filter_cubic_splines import filter_coeffs
+from interpolation.splines.filter_cubic import filter_coeffs
 from interpolation.splines.multilinear_numba import multilinear_interpolation
 
 from dolo.numeric.misc import mlinspace

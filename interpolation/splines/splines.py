@@ -54,7 +54,7 @@ class CubicSpline:
 
         values = np.array(values, dtype=float)
 
-        from .filter_cubic_splines import filter_coeffs
+        from .filter_cubic import filter_coeffs
 
         if not np.all( np.isfinite(values)):
             raise Exception('Trying to interpolate non-finite values')
@@ -157,7 +157,7 @@ class CubicSplines:
         if not np.all( np.isfinite(mvalues)):
             raise Exception('Trying to interpolate non-finite values')
 
-        from .filter_cubic_splines import filter_mcoeffs
+        from .filter_cubic import filter_mcoeffs
 
 
         # number of splines

@@ -39,7 +39,7 @@ points = row_stack([[0.5, 0.5]]*N)
 
 def test_cubic_spline():
 
-    from interpolation.splines.filter_cubic_splines import filter_coeffs
+    from interpolation.splines.filter_cubic import filter_coeffs
     from interpolation.splines.eval_cubic import eval_cubic_spline, vec_eval_cubic_spline
 
     cc = filter_coeffs(a,b,orders,vals)
@@ -53,7 +53,7 @@ def test_cubic_spline():
 
 def test_cubic_multi_spline():
 
-    from interpolation.splines.filter_cubic_splines import filter_mcoeffs
+    from interpolation.splines.filter_cubic import filter_mcoeffs
     from interpolation.splines.eval_cubic import eval_cubic_splines, vec_eval_cubic_splines
 
     cc = filter_mcoeffs(a,b,orders,mvals)

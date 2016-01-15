@@ -20,7 +20,7 @@ f = lambda vec: sqrt(vec.sum(axis=1))
 # single valued function to interpolate
 vals = f(grid)
 
-from interpolation.splines.filter_cubic_splines import filter_coeffs
+from interpolation.splines.filter_cubic import filter_coeffs
 cc = filter_coeffs(a,b,orders,vals)
 
 
