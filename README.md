@@ -1,6 +1,6 @@
-# Optimized interpolation routines in Python
+# Optimized interpolation routines in Python / numba
 
-This library provides fast interpolation routines (with Numba and optional Cython)
+This library provides fast numba-accelerated interpolation routines
 for the following cases:
 
 ## multilinear and cubic splines in any dimension
@@ -24,7 +24,11 @@ Other available features are:
 - linear extrapolation
 - computation of derivatives
 - interpolate many functions at once (multi-splines or vector valued splines)
-- evaluation on the GPU, with a few adjustments
+Experimental
+- evaluation on the GPU (with numba.cuda)
+- parallel evaluation (with guvectorize)
+In the near features:
+- JIT classes for all interpolation objects
 
 
 
