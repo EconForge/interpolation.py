@@ -19,11 +19,10 @@ install:
   - hash -r
   - conda config --set always_yes yes --set changeps1 no
   - conda update -q conda
-  - conda update numba # to get support for JIT classes
   # Useful for debugging any issues with conda
   - conda info -a
 
-  - deps='pip nose numba numpy pandas cython scipy'
+  - deps='pip nose numba=0.23 numpy pandas cython scipy'
   - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION $deps
   - source activate test-environment
   - python setup.py install
