@@ -195,7 +195,6 @@ def filter_coeffs_4d(dinv, data):
 
     return coefs
 
-
 def filter_coeffs(smin, smax, orders, data):
     smin = np.array(smin, dtype=float)
     smax = np.array(smax, dtype=float)
@@ -212,7 +211,7 @@ def filter_mcoeffs(smin, smax, orders, data):
         coefs[...,i] = filter_coeffs(smin, smax, orders, data[..., i])
     return coefs
 
-
+@njit
 def filter_data(dinv, data):
     if len(dinv) == 1:
         return filter_coeffs_1d(dinv, data)
