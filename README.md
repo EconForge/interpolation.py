@@ -8,14 +8,27 @@ for the following cases:
 Here is an example in 3 dimensions:
 
 ```python
-from interpolation.splines import CubicSpline
+from interpolation.splines import LinearSpline, CubicSpline
 a = np.array([0.0,0.0,0.0])         # lower boundaries
 b = np.array([1.0,1.0,1.0])         # upper boundaries
-orders = np.array([10,10,10])       # 10 points along each dimension
+orders = np.array([50,50,50])       # 10 points along each dimension
 values = np.random.random(orders)   # values at each node of the grid
+S = np.random.random((10^6,3))    # coordinates at which to evaluate the splines
+
+# multilinear
+lin = LinearSpline(a,b,orders,values)
+V = lin(S)
+# cubic
 spline = CubicSpline(a,b,orders,values) # filter the coefficients
-S = np.random.random((100000,3))    # coordinates at which to evaluate the spline
 V = spline(S)                       # interpolates -> (100000,) array
+
+```
+
+Unfair timings: (from `misc/speed_comparison.py`)
+```
+Cubic: 0.11488723754882812
+Linear: 0.03426337242126465
+Scipy (linear): 0.6502540111541748
 ```
 
 More details are available as an example [notebook](https://github.com/EconForge/interpolation.py/blob/master/examples/cubic_splines_python.ipynb)
@@ -24,10 +37,12 @@ Other available features are:
 - linear extrapolation
 - computation of derivatives
 - interpolate many functions at once (multi-splines or vector valued splines)
+
 Experimental
 - evaluation on the GPU (with numba.cuda)
 - parallel evaluation (with guvectorize)
-In the near features:
+
+In the near future:
 - JIT classes for all interpolation objects
 
 

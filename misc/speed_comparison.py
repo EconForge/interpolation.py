@@ -41,5 +41,14 @@ print("Cubic: {}".format(t2-t1))
 print("Linear: {}".format(t3-t2))
 
 
-print(abs(res-res2).max())
+# assert(abs(res-res2).max()<1e-10)
 
+
+# scipy
+from scipy.interpolate import RegularGridInterpolator
+pp = [numpy.linspace(a[i],b[i],orders[i]) for i in range(3)]
+rgi = RegularGridInterpolator(pp, V)
+t1 = time.time()
+rgi(X)
+t2 = time.time()
+print("Scipy (linear): {}".format(t2-t1))
