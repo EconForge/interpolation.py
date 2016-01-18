@@ -26,6 +26,7 @@ V = spline(S)                       # interpolates -> (100000,) array
 
 Unfair timings: (from `misc/speed_comparison.py`)
 ```
+# interpolate 10^6 points on a 50x50x50 grid.
 Cubic: 0.11488723754882812
 Linear: 0.03426337242126465
 Scipy (linear): 0.6502540111541748
