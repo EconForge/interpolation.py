@@ -1,5 +1,7 @@
 # Optimized interpolation routines in Python / numba
 
+[![Build Status](https://travis-ci.org/EconForge/interpolation.py.svg?branch=master)](https://travis-ci.org/EconForge/interpolation.py)
+
 This library provides fast numba-accelerated interpolation routines
 for the following cases:
 
