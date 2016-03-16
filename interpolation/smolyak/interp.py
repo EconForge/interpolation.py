@@ -121,7 +121,9 @@ class SmolyakInterp(object):
         if deriv_X:
             if not interp and not deriv and not deriv_th:
                 new_B = build_B(d, sg.mu, trans_points, sg.pinds)
-            d_X = la.solve(sg.B_U, la.solve(sg.B_L, new_B.T))
+            from dprint import dprint
+            d_X = la.solve(sg.B_L.T, la.solve(sg.B_U.T, new_B.T)).T
+            # assert(abs( new_B @ la.inv(sg.B) - d_X).max() < 1e-10)
             rets.append(d_X)
 
         if len(rets) == 1:
