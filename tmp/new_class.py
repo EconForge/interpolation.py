@@ -45,11 +45,14 @@ class MultiSmolyak:
         N = s.shape[0]
 
         res = zeros((N, self.n_x))
+        l = [res]
         if deriv:
             res_s = zeros((N, self.n_x, self.d))
+            resl.append(res_s)
         if deriv_X:
             T = self.__values__.shape[0]
             res_x = zeros((N, self.n_x, T))
+            l.append(res_x)
         for i,sinterp in enumerate(self.__sinterp__):
             l = sinterp.interpolate(s, deriv=deriv,deriv_X=deriv_X)
             if not (deriv or deriv_X):
@@ -59,16 +62,19 @@ class MultiSmolyak:
             if deriv:
                 res_s[:,i,:] = l[1]
             if deriv_X:
-                res_x[:,i,:] = l[2].T
-
+                if not deriv:
+                    res_x[:,i,:] = l[1].T
+                else:
+                    res_x[:,i,:] = l[2].T
         if not (deriv or deriv_X):
             return res
-        l = [res]
-        if deriv:
-            l.append(res_s)
-        if deriv_X:
-            l.append(res_x)
-        return l
-
-
-        return res
+        else:
+            return l
+        # if not (deriv or deriv_X):
+        #     return res
+        # l = [res]
+        # if deriv:
+        #     l.append(res_s)
+        # if deriv_X:
+        #     l.append(res_x)
+        # return l
