@@ -804,6 +804,23 @@ class SmolyakGrid(object):
 
         return trans_pts
 
+    def dom2cube_diff(self):
+        """
+        Takes a point(s) and transforms it(them) into the [-1, 1]^d domain
+        """
+        # Could add some bounds checks to make sure points are in the
+        # correct domain (between low and up bounds) and if right dim
+
+        lb = self.lb
+        ub = self.ub
+
+        # centers = lb + (ub - lb)/2
+        radii_inv = 2/(ub - lb)
+
+        import numpy as np
+        M = np.diag(radii_inv)
+        return M
+
     def cube2dom(self, pts):
         """
         Takes a point(s) and transforms it(them) from domain [-1, 1]^d
