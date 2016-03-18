@@ -106,7 +106,9 @@ class SmolyakInterp(object):
 
             if interp:
                 rets.append(vals)
-            rets.append(sg.dom2cube(d_vals))
+
+            radii = 2/(sg.ub - sg.lb)
+            rets.append( d_vals*radii[None,:] )
 
         elif not deriv and interp:  # No derivs in build_B. Just do vals
             new_B = build_B(d, sg.mu, trans_points, sg.pinds)
@@ -121,7 +123,8 @@ class SmolyakInterp(object):
         if deriv_X:
             if not interp and not deriv and not deriv_th:
                 new_B = build_B(d, sg.mu, trans_points, sg.pinds)
-            d_X = la.solve(sg.B_U, la.solve(sg.B_L, new_B.T))
+            d_X = la.solve(sg.B_L.T, la.solve(sg.B_U.T, new_B.T)).T
+            # assert(abs( new_B @ la.inv(sg.B) - d_X).max() < 1e-10)
             rets.append(d_X)
 
         if len(rets) == 1:
