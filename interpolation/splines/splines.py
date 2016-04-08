@@ -161,9 +161,6 @@ class CubicSplines:
 
 
         # number of splines
-        print("ORders")
-        print(self.orders)
-        print(mvalues.shape)
         self.__mcoeffs__ = filter_mcoeffs(self.a, self.b, self.orders, mvalues)
         self.__mvalues__ = mvalues
 
