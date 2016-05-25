@@ -105,7 +105,7 @@ def multilinear_interpolation_2d(smin, smax, orders, V, s, output):
 
 from numba import njit
 
-@njit(cache=True)
+@njit(cache=False)
 def multilinear_interpolation_3d(smin, smax, orders, V, s, output):
 
     d = 3

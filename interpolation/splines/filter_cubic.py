@@ -8,7 +8,7 @@ from numba import jit, njit
 basis = np.array([1.0 / 6.0, 2.0 / 3.0, 1.0 / 6.0, 0.0])
 
 
-@njit(cache=True)
+@njit(cache=False)
 def solve_deriv_interp_1d(bands, coefs):
 
     M = coefs.shape[0] - 2
@@ -55,7 +55,7 @@ def solve_deriv_interp_1d(bands, coefs):
 
 
 
-@njit(cache=True)
+@njit(cache=False)
 def find_coefs_1d(delta_inv, M, data, coefs):
 
     bands = np.zeros((M + 2, 4))
@@ -88,7 +88,7 @@ def find_coefs_1d(delta_inv, M, data, coefs):
     solve_deriv_interp_1d(bands, coefs)
 
 
-@njit(cache=True)
+@njit(cache=False)
 def filter_coeffs_1d(dinv, data):
 
     M = data.shape[0]
@@ -100,7 +100,7 @@ def filter_coeffs_1d(dinv, data):
     return coefs
 
 
-@njit(cache=True)
+@njit(cache=False)
 def filter_coeffs_2d(dinv, data):
 
     Mx = data.shape[0]
@@ -124,7 +124,7 @@ def filter_coeffs_2d(dinv, data):
     return coefs
 
 
-@njit(cache=True)
+@njit(cache=False)
 def filter_coeffs_3d(dinv, data):
 
     Mx = data.shape[0]
@@ -154,7 +154,7 @@ def filter_coeffs_3d(dinv, data):
     return coefs
 
 
-@njit(cache=True)
+@njit(cache=False)
 def filter_coeffs_4d(dinv, data):
 
     Mx = data.shape[0]
