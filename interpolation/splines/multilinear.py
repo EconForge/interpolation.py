@@ -3,8 +3,6 @@ from __future__ import division
 import numpy
 import numpy as np
 
-from interpolation.splines.multilinear_numba import multilinear_interpolation, vec_multilinear_interpolation
-
 
 def mlinspace(smin,smax,orders):
     if len(orders) == 1:
@@ -83,6 +81,8 @@ class LinearSpline:
 
 
     def interpolate(self,s):
+
+        from .multilinear_numba import multilinear_interpolation
         s = numpy.ascontiguousarray(s, dtype=self.dtype)
         a = multilinear_interpolation(self.smin,self.smax,self.orders,self.values,s)
         return a
@@ -92,7 +92,6 @@ class LinearSpline:
         if s.ndim == 1:
             res = self.__call__( numpy.atleast_2d(s) )
             return res[0]
-
         return self.interpolate(s)
 
 
@@ -169,6 +168,8 @@ class LinearSplines:
 
 
     def interpolate(self,s):
+
+        from .multilinear_numba import vec_multilinear_interpolation
         s = numpy.ascontiguousarray(s, dtype=self.dtype)
         a = vec_multilinear_interpolation(self.smin,self.smax,self.orders,self.mvalues,s)
         return a

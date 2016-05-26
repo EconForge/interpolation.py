@@ -67,7 +67,7 @@ def mlinspace(a, b, nums, order='C'):
     return cartesian(nodes, order=order)
 
 
-@njit(cache=False)
+@njit(cache=True)
 def _repeat_1d(x, K, out):
     '''Repeats each element of a vector many times and repeats the whole result many times
 

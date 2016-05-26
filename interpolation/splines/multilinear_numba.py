@@ -1,5 +1,5 @@
 import numpy as np
-
+from numba import njit
 
 def vec_multilinear_interpolation(smin, smax, orders, values, s, out=None):
 
@@ -39,6 +39,7 @@ def multilinear_interpolation(smin, smax, orders, values, s, out=None):
     return out
 
 
+@njit(cache=True)
 def multilinear_interpolation_1d(smin, smax, orders, V, s, output):
 
     d = 1
@@ -68,6 +69,7 @@ def multilinear_interpolation_1d(smin, smax, orders, V, s, output):
             output[n] = (1-lam_0)*(v_0) + (lam_0)*(v_1)
 
 
+@njit(cache=True)
 def multilinear_interpolation_2d(smin, smax, orders, V, s, output):
 
     d = 2
@@ -103,9 +105,8 @@ def multilinear_interpolation_2d(smin, smax, orders, V, s, output):
             # interpolated/extrapolated value
             output[n] = (1-lam_0)*((1-lam_1)*(v_00) + (lam_1)*(v_01)) + (lam_0)*((1-lam_1)*(v_10) + (lam_1)*(v_11))
 
-from numba import njit
 
-@njit(cache=False)
+@njit(cache=True)
 def multilinear_interpolation_3d(smin, smax, orders, V, s, output):
 
     d = 3
@@ -151,6 +152,7 @@ def multilinear_interpolation_3d(smin, smax, orders, V, s, output):
             output[n] = (1-lam_0)*((1-lam_1)*((1-lam_2)*(v_000) + (lam_2)*(v_001)) + (lam_1)*((1-lam_2)*(v_010) + (lam_2)*(v_011))) + (lam_0)*((1-lam_1)*((1-lam_2)*(v_100) + (lam_2)*(v_101)) + (lam_1)*((1-lam_2)*(v_110) + (lam_2)*(v_111)))
 
 
+@njit(cache=True)
 def multilinear_interpolation_4d(smin, smax, orders, V, s, output):
 
     d = 4
@@ -209,6 +211,7 @@ def multilinear_interpolation_4d(smin, smax, orders, V, s, output):
             output[n] = (1-lam_0)*((1-lam_1)*((1-lam_2)*((1-lam_3)*(v_0000) + (lam_3)*(v_0001)) + (lam_2)*((1-lam_3)*(v_0010) + (lam_3)*(v_0011))) + (lam_1)*((1-lam_2)*((1-lam_3)*(v_0100) + (lam_3)*(v_0101)) + (lam_2)*((1-lam_3)*(v_0110) + (lam_3)*(v_0111)))) + (lam_0)*((1-lam_1)*((1-lam_2)*((1-lam_3)*(v_1000) + (lam_3)*(v_1001)) + (lam_2)*((1-lam_3)*(v_1010) + (lam_3)*(v_1011))) + (lam_1)*((1-lam_2)*((1-lam_3)*(v_1100) + (lam_3)*(v_1101)) + (lam_2)*((1-lam_3)*(v_1110) + (lam_3)*(v_1111))))
 
 
+@njit(cache=True)
 def multilinear_interpolation_5d(smin, smax, orders, V, s, output):
 
     d = 5
