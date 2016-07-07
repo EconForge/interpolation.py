@@ -5,36 +5,35 @@ Function approximation using complete polynomials
 @date : 2016-01-21 17:06
 
 """
-import itertools
-import math
-
 import numpy as np
+from scipy.linalg import lstsq
 from numba import jit
 
-
-def complete_inds(n, d):
-    """
-    Return all combinations of powers in an n dimensional d degree
-    complete polynomial. This will include a term for all 0th order
-    variables (i.e. a constant)
-
-    Parameters
-    ----------
-    n : int
-        The number of parameters in the polynomial
-
-    d : int
-        The degree of the complete polynomials
-
-    Returns
-    -------
-    inds : filter
-        A python filter object that contains all the indices inside a
-        generator
-
-    """
-    i = itertools.product(*[range(d + 1) for i in range(n)])
-    return filter(lambda x: sum(x) <= d, i)
+# does not list monomials in the right order
+#
+# def complete_inds(n, d):
+#     """
+#     Return all combinations of powers in an n dimensional d degree
+#     complete polynomial. This will include a term for all 0th order
+#     variables (i.e. a constant)
+#
+#     Parameters
+#     ----------
+#     n : int
+#         The number of parameters in the polynomial
+#
+#     d : int
+#         The degree of the complete polynomials
+#
+#     Returns
+#     -------
+#     inds : filter
+#         A python filter object that contains all the indices inside a
+#         generator
+#
+#     """
+#     i = itertools.product(*[range(d + 1) for i in range(n)])
+#     return filter(lambda x: sum(x) <= d, i)
 
 
 @jit(nopython=True)
@@ -275,13 +274,18 @@ def _complete_poly_impl(z, d, out):
         return
 
 
-class CompletePolynomial(object):
+class CompletePolynomial:
 
-    def __init__(self, values):
-        pass
+    def __init__(self, n, d):
+        self.n = n
+        self.d = d
 
-    def set_values(self):
-        pass
+    def fit_values(self, s, x):
+        Phi = complete_polynomial(s.T, self.d).T
+        self.Phi = Phi
+        self.coefs = np.ascontiguousarray(lstsq(Phi, x)[0])
 
-    def __call__(self, arg):
-        pass
+    def __call__(self, s):
+
+        Phi = complete_polynomial(s.T, self.d).T
+        return np.dot(Phi, self.coefs)
