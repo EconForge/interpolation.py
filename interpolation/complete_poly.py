@@ -280,10 +280,14 @@ class CompletePolynomial:
         self.n = n
         self.d = d
 
-    def fit_values(self, s, x):
+    def fit_values(self, s, x, damp=0.0):
         Phi = complete_polynomial(s.T, self.d).T
         self.Phi = Phi
-        self.coefs = np.ascontiguousarray(lstsq(Phi, x)[0])
+        if damp == 0.0:
+            self.coefs = np.ascontiguousarray(lstsq(Phi, x)[0])
+        else:
+            new_coefs = np.ascontiguousarray(lstsq(Phi, x)[0])
+            self.coefs = (1 - damp) * new_coefs + damp * self.coefs
 
     def __call__(self, s):
 
