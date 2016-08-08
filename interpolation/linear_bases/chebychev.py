@@ -128,13 +128,13 @@ if __name__ == '__main__':
     xvec = np.linspace(-0.5, 5,200)
     yvec = fun(xvec)
 
-    plt.plot(xvec,yvec)
 
 
     cb = ChebychevBasis(min=-0.5, max=5, n=5)
 
     coeffs = cb.filter(fun(cb.nodes))
 
+    from matplotlib import pyplot as plt
 
     plt.figure()
     plt.subplot(121)
@@ -160,3 +160,4 @@ if __name__ == '__main__':
     ff.shape
     coeffs = cb.filter(ff)
     coeffs.shape
+    plt.show()
