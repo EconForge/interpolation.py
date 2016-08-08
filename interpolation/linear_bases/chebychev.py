@@ -6,8 +6,6 @@ import numpy as np
 class LinearBasis:
     pass
 
-
-
 class ChebychevBasis(LinearBasis):
 
     def __init__(self, min=0, max=1.0, n=10):
@@ -46,6 +44,8 @@ class ChebychevBasis(LinearBasis):
             # scale
             dT = dT/(self.max-self.min)*2
             return dT
+        elif isinstance(orders, int) and orders >= 2:
+            raise Exception("Not implemented")
         else:
             res = [chebbase(x,m, orders=o) for o in orders]
             res = np.concatenate([r[:,None] for r in res], axis=-1)
@@ -131,9 +131,8 @@ if __name__ == '__main__':
     plt.plot(xvec,yvec)
 
 
-    cb = ChebychevBasis(-0.5, 5, 5)
+    cb = ChebychevBasis(min=-0.5, max=5, n=5)
 
-    str(cb)
     coeffs = cb.filter(fun(cb.nodes))
 
 

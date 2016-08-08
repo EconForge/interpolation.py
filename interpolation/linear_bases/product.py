@@ -1,39 +1,49 @@
-# from interpolation.linear_bases.chebychev import LinearBasis, ChebychevBasis
+from interpolation.linear_bases.chebychev import LinearBasis, ChebychevBasis
 from interpolation.cartesian import cartesian
 import numpy.linalg
+import numpy as np
 
 class TensorProduct:
 
     def __init__(self, arrays):
-        self.arrays = arrays
+        # right now, arrays is a list of vectors or matrices
+        # TODO: allow for 3d-array
+        self.arrays = [np.asarray(a) for a in arrays]
         self.d = len(arrays)
+        self.tensor_type = self.arrays[0].ndim
+        # 1: tensor product of vectors
+        # 2: vectorized tensor product
+        # 3: vectorized tensor product with derivative informations
+        if self.tensor_type==3:
+            raise Exception('Not supported yet.')
+
 
     def as_matrix(self):
         if self.d == 1:
             return self.arrays[0]
         arrays = self.arrays
-        if arrays[0].ndim == 1:
-            return arrays[0][:,None]*arrays[1][None,:]
-        else:
-            return arrays[0][:,:,None]*arrays[1][:,None,:]
+        # placeholder algo (should be optimized/generic)
+        if self.tensor_type==1:
+            if self.d == 2:
+                res = arrays[0][:,None]*arrays[1][None,:]
+            if self.d == 3:
+                res = arrays[0][:,:,None]*arrays[1][:,None,:]*arrays[1][None,:,:]
+            return res.ravel()
+        elif self.tensor_type==2:
+            if self.d == 2:
+                res = arrays[0][:,:,None]*arrays[1][:,None,:]
+            if self.d == 3:
+                res = arrays[0][:,:,:,None]*arrays[1][:,:,None,:]*arrays[1][:,None,:,:]
+            return res.reshape((res.shape[0],-1))
+        else: # self.tensor_type==3:
+            raise Exception('Not supported yet.')
 
     def __mul__(self, c):
         c = np.asarray(c)
-        assert(self.d<=2)
-        if self.d == 1:
-            return self.arrays[0] @ c
-        assert (self.d == 2)
-        arrays = self.arrays
-        N = arrays[0].shape[0]
-        # I = arrays[0].shape[1]
-        # J = arrays[1].shape[1]
-        if len(c.shape) == self.d:
-            res = np.zeros((N))
-            for n in range(N):
-                hh = arrays[0][n,:][:,None]*arrays[1][n,:][None,:]
-                val = hh *c
-                res[n] = val.sum(axis=(0,1))
-            return res
+        # placeholder algo
+        mat = self.as_matrix()
+        res = mat @ c.reshape((mat.shape[1],-1))
+        return res
 
 class TensorBase:
 
@@ -45,10 +55,12 @@ class TensorBase:
     def grid(self):
         return cartesian([b.nodes for b in self.bases])
 
-    def Phi(self, x):
+    def Phi(self, x, orders=None):
         x = np.asarray(x)
+        if orders is None:
+            orders = [None]*len(self.bases)
         return TensorProduct(
-            list( b.eval(x[..., i]) for i,b in enumerate(self.bases) )
+            list( b.eval(x[..., i], orders=orders[i]) for i,b in enumerate(self.bases) )
                 )
 
     def B(self, x):
@@ -58,6 +70,7 @@ class TensorBase:
         return str.join(" ⊗ ", [str(e) for e in self.bases])
 
     def filter(self, x, filter=True):
+        
         x = np.asarray(x)
         d = self.d
         # c = np.zeros(tuple([b.m for b in self.bases]))
@@ -95,18 +108,20 @@ class TensorBase:
 
 if __name__ == '__main__':
 
-    cb = ChebychevBasis()
+    n = 3
+    cb = ChebychevBasis(min=0,max=1,n=n)
 
     tp = TensorBase([cb, cb])
 
-    tp.B(tp.grid)
+    print( tp.B(tp.grid).shape )
 
     xvec = numpy.linspace(0,1,10)
     yvec = numpy.linspace(0,1,20)
+
     def f(x,y):
         return x**2 + y**3/(1+y)
 
-    values = f(tp.grid[:,0], tp.grid[:,1]).reshape((10,10))
+    values = f(tp.grid[:,0], tp.grid[:,1]).reshape((n,n))
 
     coeffs = tp.filter(values)
     coeffs_2 = tp.filter(values, filter=False)
@@ -126,10 +141,14 @@ if __name__ == '__main__':
     vv = Phi*coeffs
     true_vals = [f(v,v) for v in tvec]
 
-    plt.plot(tvec, vv)
-    plt.plot(tvec, true_vals)
 
-    assert( abs( vv - true_vals ).max() < 1e-6 )
+    # take derivative w.r.t. various coordinates
+    Phi_0 = tp.Phi(s,orders=[1,0,0]).as_matrix()
+    Phi_1 = tp.Phi(s,orders=[0,1,0]).as_matrix()
+    Phi_2 = tp.Phi(s,orders=[0,0,1]).as_matrix()
+
+    # does not work yet: should compute all necessary derivatives
+    # Phi_diff = tp.Phi(s, orders=[[0,1],[0,1],[0,1]])
 
 
     # multivalued functions
@@ -138,3 +157,10 @@ if __name__ == '__main__':
     ccoeffs = tp.filter(vvalues)
     abs(ccoeffs[:,:,0] - coeffs).max()<1e-8
     abs(ccoeffs[:,:,1] - coeffs).max()<1e-8
+
+    # assert( abs( vv - true_vals ).max() < 1e-6 )
+    from matplotlib import pyplot as plt
+    plt.plot(tvec, vv)
+    plt.plot(tvec, true_vals)
+    # plt.plot(tvec, true_vals-vv)
+    plt.show()
