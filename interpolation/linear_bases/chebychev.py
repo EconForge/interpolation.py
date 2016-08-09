@@ -14,8 +14,7 @@ class ChebychevBasis(LinearBasis):
         self.m = n      # number of basis functions
         self.Phi = self.eval(self.nodes)
 
-    def __call__(self, *args, **kwargs):
-        return self.eval(*args, **kwargs)
+
 
     def __str__(self):
         return "ChebychevBasis(min={}, max={}, n={})".format(self.min, self.max, self.n)
