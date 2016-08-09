@@ -70,7 +70,7 @@ class TensorBase:
         return str.join(" ⊗ ", [str(e) for e in self.bases])
 
     def filter(self, x, filter=True):
-        
+
         x = np.asarray(x)
         d = self.d
         # c = np.zeros(tuple([b.m for b in self.bases]))
@@ -87,12 +87,13 @@ class TensorBase:
             for n in range(self.bases[0].m):
                 c[n,:] = b.filter(c[n,:])
             # filter columns now
+            b = self.bases[0]
             for n in range(self.bases[1].m):
                 c[:,n] = b.filter(c[:,n])
             return c
 
         else:
-            B = tp.B(tp.grid)
+            B = self.B(self.grid)
             B = B.reshape((B.shape[0],-1))
             from numpy.linalg import solve
             xx = x.reshape((B.shape[-1],-1))
@@ -108,10 +109,15 @@ class TensorBase:
 
 if __name__ == '__main__':
 
-    n = 3
-    cb = ChebychevBasis(min=0,max=1,n=n)
+    n = 10
+    n_1 = 10
+    n_2 = 20
+    from interpolation.linear_bases.linear import UniformLinearSpline
+    from interpolation.linear_bases.chebychev import ChebychevBasis
+    cb = ChebychevBasis(min=0,max=1,n=n_1)
+    lb = UniformLinearSpline(min=0,max=1,n=n_2)
 
-    tp = TensorBase([cb, cb])
+    tp = TensorBase([cb, lb])
 
     print( tp.B(tp.grid).shape )
 
@@ -121,14 +127,28 @@ if __name__ == '__main__':
     def f(x,y):
         return x**2 + y**3/(1+y)
 
-    values = f(tp.grid[:,0], tp.grid[:,1]).reshape((n,n))
+    values = f(tp.grid[:,0], tp.grid[:,1]).reshape((n_1,n_2))
 
     coeffs = tp.filter(values)
     coeffs_2 = tp.filter(values, filter=False)
 
+
+    values.shape
+
+    plt.plot(values[:,0])
+
+    plt.plot(tp.bases[1].filter(values[:,0]))
+
+    c = tp.bases[1].filter(values[:,0])
+    Phi = tp.bases[1].eval(tp.bases[0].nodes)
+
+
+
     assert(abs(coeffs-coeffs_2).max()<1e-8)
 
-
+    coeffs
+    coeffs_2
+    coeffs - coeffs_2
 
 
 

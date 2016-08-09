@@ -2,9 +2,8 @@ import numpy.linalg
 from typing import List
 
 import numpy as np
+from interpolation.linear_bases.basis import LinearBasis
 
-class LinearBasis:
-    pass
 
 class ChebychevBasis(LinearBasis):
 
@@ -26,7 +25,7 @@ class ChebychevBasis(LinearBasis):
         m = self.m
         x = np.asarray(x)
         if x.ndim == 0:
-            return self.eval(x[None], x, orders=orders)[0, ...]
+            return self.eval(x[None], orders=orders)[0]
         N = x.shape[0]
         # rescale x
         x = -1 + (x-self.min)/(self.max-self.min)*2
