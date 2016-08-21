@@ -32,7 +32,7 @@ for i in range(1,4):
 
 # SLOWER
 #
-# 
+#
 # @njit(cache=True)
 # def vec_eval_cubic_spline_1(a, b, orders, coefs, points, values):
 #

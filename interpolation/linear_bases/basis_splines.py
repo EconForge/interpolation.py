@@ -16,10 +16,12 @@ def B(p, u, i, x):
 
 
 from pylab import *
+%matplotlib inline
 
-xvec = linspace(-5, 5, 11)
+xvec = linspace(0, 1, 11)**2
 
-tvec = linspace(-5, 5, 1000)
+tvec = linspace(0, 8, 1000)
+# tvec = linspace(-5, 5, 1000)
 
 yvec = array([B0(xvec, 5, x) for x in tvec])
 y2vec = array([B(2, xvec, 5, x) for x in tvec])
@@ -34,10 +36,23 @@ print(B(3, xvec, 5, 4))
 
 
 plot(xvec, xvec * 0, 'o-')
-
 plot(tvec, yvec)
 plot(tvec, y2vec)
 plot(tvec, y3vec)
 
 
 show()
+
+
+
+xvec_1 = array([0,1,2,3,5])
+xvec_2 = array([0,1,2,6,7])
+
+y_vec_1 = array([B(2, xvec_1, 0, x) for x in tvec])
+y_vec_2 = array([B(2, xvec_2, 0, x) for x in tvec])
+
+
+plot(tvec, y_vec_1)
+plot(tvec, y_vec_2)
+
+plt.grid()

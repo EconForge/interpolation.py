@@ -1,8 +1,10 @@
 from interpolation.linear_bases.basis import LinearBasis
 from interpolation.linear_bases.util import lookup
 import scipy.sparse as spa
+import numpy as np
 
-class SplineParams(LinearBasis):
+
+class CubicSplineBasis(LinearBasis):
 
     def __init__(self, nodes, evennum=0, k=3):
 
@@ -51,11 +53,11 @@ class SplineParams(LinearBasis):
 
     @property
     def knots(self):
-        breaks, k = self.nodes, self.k
-        a = breaks[0]  # 20
-        b = breaks[-1]  # 21
+        nodes, k = self.nodes, self.k
+        a = nodes[0]  # 20
+        b = nodes[-1]  # 21
         n = self.m
-        x = np.cumsum(np.concatenate((np.full(k, a), breaks, np.full(k, b))))  # 23
+        x = np.cumsum(np.concatenate((np.full(k, a), nodes, np.full(k, b))))  # 23
         x = (x[k:n+k] - x[:n]) / k  # 24
         x[0] = a  # 25
         x[-1] = b  # 26
@@ -153,37 +155,12 @@ class SplineParams(LinearBasis):
         from numpy.linalg import solve
         Phi = self.eval(self.knots)
         xx = np.concatenate([[1],x,[1]])
-        # return Phi, xx
         return solve(Phi, xx)
 
-if __name__ == '__main__':
 
-    import numpy as np
+class UniformCubicSplineBasis(CubicSplineBasis):
 
-    sp = SplineParams(np.linspace(0,1,10))
+    def __init__(self, a, b, num, evennum=0, k=3):
 
-    sp.n
-    sp.k
-
-    len(sp.nodes)
-    len(sp.knots)
-
-    x = np.linspace(-0.1, 1.1, 100)
-
-    B = sp.eval(x,orders=[0,0])
-
-    from matplotlib import pyplot as plt
-    %matplotlib inline
-
-    for i in range(B.shape[1]):
-        plt.plot(x, B[:,i])
-
-
-    x = np.random.random(10)
-
-    Phi, c = sp.filter(x)
-
-    from numpy.linalg import solve
-    Phi.shape
-    c.shape
-    solve(Phi,c)
+        nodes = np.linspace(a, b, num)
+        super().__init__(nodes, evennum=evennum, k=k)

@@ -1,8 +1,10 @@
+import time
+
+
 from interpolation.linear_bases.chebychev import ChebychevBasis
 from interpolation.linear_bases.linear import UniformLinearSpline
 from interpolation.linear_bases.product import TensorBase
 
-import numpy as np
 
 n = 10
 n_1 = 10

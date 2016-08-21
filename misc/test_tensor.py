@@ -1,6 +1,19 @@
 ### tensor product of many many vectors
 from dolo.misc.timing import timeit
 
+import time
+from contextlib import contextmanager
+
+
+import numpy as np
+@contextmanager
+def timeit(msg):
+    t1 = time.time()
+    yield
+    t2 = time.time()
+    print('{}: {:.4f} s'.format(msg, t2-t1))
+
+
 import numpy
 from numpy import empty
 from numba import jit
@@ -167,7 +180,9 @@ assert(abs(oo5-oo).max()<1e-16)
 # we want to implement   C.(X⨂Y⨂Z)
 # without computing the tensor product first
 
+import numpy
 import numpy as np
+from numba import jit, guvectorize, float64, void
 
 @jit
 def vec_strange_tensor(C,X,Y,Z):
@@ -206,7 +221,6 @@ Y = numpy.random.random((N,J))
 Z = numpy.random.random((N,K))
 
 
-res_2 - res_0
 with timeit("guvec"):
     for k in range(K): res_0 = gu_strange_tensor_cpu(C,X,Y,Z)
 
@@ -219,24 +233,16 @@ with timeit("jit"):
 with timeit("direct"):
     for k in range(K): res_3 = (vec_tensor_product_bcast_1(X,Y,Z)*C.reshape((I,J,K))[None,:,:,:]).sum(axis=(1,2,3))
 
-res_3  -res_2
 
-res_3 - res_0
-res_0.shape
-res_1.shape
-res_3 - res_2
-res_1 - res_0
-
-res_3-res_1
 
 assert(abs(res_1-res_0).max()<1e-8)
 assert(abs(res_2-res_0).max()<1e-8)
-
 assert(abs(res_3-res_0).max()<1e-8)
 
 
 #######################
 #######################
+
 from dolo.numeric.tensor import mdot
 from dolo.misc.timing import timeit
 

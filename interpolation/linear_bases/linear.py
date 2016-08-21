@@ -5,12 +5,17 @@ from interpolation.linear_bases.basis import LinearBasis
 
 import scipy.sparse as spa
 
-class UniformLinearSpline:
 
-    def __init__(self, min=0.0, max=1.0, n=10):
-        self.nodes = np.linspace(min,max,n)
-        self.min = min
-        self.max = max
+
+class LinearSplineBasis(LinearBasis):
+
+    def __init__(self, nodes):
+
+        nodes = np.asarray(nodes)
+        n = len(nodes)
+        self.nodes = nodes
+        self.min = nodes.min()
+        self.max = nodes.max()
         self.n = n
         self.m = n
 
@@ -53,27 +58,18 @@ class UniformLinearSpline:
 
         return mat.todense().A
 
-
-
     def filter(self,x):
         return x
 
-us = UniformLinearSpline(0,1,10)
 
-x = np.linspace(-0.2,1.2, 100)
+class UniformLinearSplineBasis(LinearSplineBasis):
 
+    def __init__(self, *args, **kwargs):
 
-
-us.eval(0.1)
-
-us.eval([0.1,0.2])
-
-mat = us.eval(x)
-
-mat
-
-# from matplotlib import pyplot as plt
-# %matplotlib inline
-#
-# for i in range(10):
-#     plt.plot(x, dmat[:,i])
+        nodes = np.linspace(*args, **kwargs)
+        n = len(nodes)
+        self.nodes = nodes
+        self.min = nodes.min()
+        self.max = nodes.max()
+        self.n = n
+        self.m = n
