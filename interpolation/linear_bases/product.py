@@ -3,6 +3,50 @@ from interpolation.cartesian import cartesian
 import numpy.linalg
 import numpy as np
 
+from numpy import ndarray
+
+from numba import float64
+from numba.types import Tuple
+
+import numba
+from numpy import array
+
+import numba.types
+from numba import float64, int64
+tt = numba.types.Tuple((float64, float64))
+
+from typing import Tuple
+
+import typing
+
+
+class BasisMatrix:
+    pass
+
+class BasisArray:
+    pass
+
+
+
+
+
+
+
+
+
+#
+
+
+
+#
+# gu_tensor_product([A[:,:,0],B[:,:,0],C[:,:,0]])[0,:]- np.kron(np.kron(A[0,:,0],B[0,:,0]),C[0,:,0])
+#
+# gu_tensor_product([A[0,:,0],B[0,:,0],C[0,:,0]]) - np.kron(np.kron(A[0,:,0],B[0,:,0]),C[0,:,0])
+
+from interpolation.cartesian import cartesian
+
+
+
 class TensorProduct:
 
     def __init__(self, arrays):
@@ -14,36 +58,103 @@ class TensorProduct:
         # 1: tensor product of vectors
         # 2: vectorized tensor product
         # 3: vectorized tensor product with derivative informations
-        if self.tensor_type==3:
-            raise Exception('Not supported yet.')
-
 
     def as_matrix(self):
-        if self.d == 1:
-            return self.arrays[0]
-        arrays = self.arrays
-        # placeholder algo (should be optimized/generic)
-        if self.tensor_type==1:
-            if self.d == 2:
-                res = arrays[0][:,None]*arrays[1][None,:]
-            if self.d == 3:
-                res = arrays[0][:,:,None]*arrays[1][:,None,:]*arrays[1][None,:,:]
-            return res.ravel()
-        elif self.tensor_type==2:
-            if self.d == 2:
-                res = arrays[0][:,:,None]*arrays[1][:,None,:]
-            if self.d == 3:
-                res = arrays[0][:,:,:,None]*arrays[1][:,:,None,:]*arrays[1][:,None,:,:]
-            return res.reshape((res.shape[0],-1))
-        else: # self.tensor_type==3:
-            raise Exception('Not supported yet.')
+        if self.tensor_type < 3:
+            return gu_tensor_product(self.arrays)
+        else:
+            raise Exception('Not supported. Use as_array instead.')
+
+    def as_array(self, enum='complete'):
+        if enum == 'complete':
+            # TODO: check that all arrays have the same first and last dimensions
+            rr = np.arange(self.arrays[0].shape[2])
+            enum = [tuple(el.astype(int).tolist()) for el in cartesian([rr]*self.d, order='F') if sum(el)<=1]
+        last_dim = len(enum)
+        N = self.arrays[0].shape[0]
+        K = reduce(operator.mul, [a.shape[1] for a in self.arrays])
+        res = np.zeros((N, K, last_dim))
+        for k in range(last_dim):
+            arrs = [a[:, :, 0] for a in self.arrays]
+            rhs = gu_tensor_product(arrs)
+            res[:, :, k] = rhs
+        return res
 
     def __mul__(self, c):
         c = np.asarray(c)
         # placeholder algo
-        mat = self.as_matrix()
-        res = mat @ c.reshape((mat.shape[1],-1))
+        if self.tensor_type <3:
+            mat = self.as_matrix()
+            res = mat @ c.reshape((mat.shape[1],-1))
+        else:
+            mat = self.as_array()
+            tmat = mat.swapaxes(1,2)
+
+            res = np.dot( tmat , c.reshape((mat.shape[1],-1)) )
+            if c.ndim == 1:
+                res = res[:,:,0]
+            elif c.ndim==2:
+                res = res.swapaxes(1,2)
         return res
+
+
+def gu_tensor_product(arrays):
+    # this is actually a "kronecker" product
+    # placeholder algo
+    d = len(arrays)
+    if d == 1:
+        return arrays[0]
+    tensor_type = arrays[0].ndim
+    c = tensor_type - 1
+    # enum_res = (np.expand_dims(a, axis=d-i-1+c) for i, a in enumerate(arrays))
+    enum_res = []
+    for i,a in enumerate(arrays):
+        ind = [None]*d
+        ind[i] = slice(None,None,None)
+        if tensor_type == 2:
+            ind = [slice(None,None,None)] + ind
+        enum_res.append(a[ind])
+    res = reduce(operator.mul, enum_res)
+    if tensor_type ==1:
+        return res.ravel()
+    else:
+        return  res.reshape((res.shape[0],-1))
+
+#
+# def test_compact_basis_array():
+
+from numpy.testing import assert_equal
+A = np.random.random((100,10,2))
+B = np.random.random((100,10,2))
+C = np.random.random((100,10,2))
+
+c = np.random.random((1000))
+
+tp = TensorProduct([A,B,C])
+
+(tp*c).shape
+
+c2 = np.random.random((1000,3))
+(tp*c2).shape
+
+c * tp
+tp @ c
+
+
+
+%time mat = tp.as_array(enum='complete')
+mat.shape
+
+from numpy.testing import assert_equal
+A = np.random.random((100,10))
+B = np.random.random((100,10))
+C = np.random.random((100,10))
+
+
+tp = TensorProduct([A,B,C])
+
+%time mat = tp.as_matrix()
+
 
 class TensorBase:
 
@@ -105,6 +216,7 @@ class TensorBase:
                 cc = cc.reshape([b.m for b in self.bases])
             return cc
 
+
     # def eval(coeffs, x)
 
 if __name__ == '__main__':
@@ -112,10 +224,10 @@ if __name__ == '__main__':
     n = 10
     n_1 = 10
     n_2 = 20
-    from interpolation.linear_bases.linear import UniformLinearSpline
+    from interpolation.linear_bases.linear import UniformLinearSplineBasis as UniformLinearSpline
     from interpolation.linear_bases.chebychev import ChebychevBasis
     cb = ChebychevBasis(min=0,max=1,n=n_1)
-    lb = UniformLinearSpline(min=0,max=1,n=n_2)
+    lb = UniformLinearSpline(start=0,stop=1,num=n_2)
 
     tp = TensorBase([cb, lb])
 
@@ -135,6 +247,7 @@ if __name__ == '__main__':
 
     values.shape
 
+    from matplotlib import pyplot as plt
     plt.plot(values[:,0])
 
     plt.plot(tp.bases[1].filter(values[:,0]))
@@ -143,7 +256,7 @@ if __name__ == '__main__':
     Phi = tp.bases[1].eval(tp.bases[0].nodes)
 
 
-
+    print( abs(coeffs-coeffs_2).max() )
     assert(abs(coeffs-coeffs_2).max()<1e-8)
 
     coeffs
