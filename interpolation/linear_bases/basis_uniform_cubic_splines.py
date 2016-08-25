@@ -1,15 +1,8 @@
 import numpy as np
 from interpolation.linear_bases.basis import LinearBasis
 
-from numba import double, int64
-
-from numba import jit, njit
-
 import numpy as np
 from numpy import zeros, array, zeros
-
-from math import floor
-from numpy import empty
 
 
 Ad = array([
@@ -29,6 +22,7 @@ d2Ad = zeros((4,4))
 for i in range(1,4):
     d2Ad[:,i] = dAd[:,i-1]*(4-i)
 
+from interpolation.linear_bases.compact_matrices import CompactBasisMatrix, CompactBasisArray
 
 class UniformSpline(LinearBasis):
 
@@ -65,31 +59,29 @@ class UniformSpline(LinearBasis):
         i0 = np.maximum( np.minimum(i0,M0-2), 0 )
         t0 = u0-i0
         tp0_0 = t0*t0*t0;  tp0_1 = t0*t0;  tp0_2 = t0;  tp0_3 = 1.0;
+        def cat(*l):
 
+            return np.concatenate([e[:,None] for e in l], axis=1)
         if orders==0:
             Phi0_0 = (dAd[0,3]*t0 + Ad[0,3])*(t0<0) + ((3*Ad[0,0] + 2*Ad[0,1] + Ad[0,2])*(t0-1) + (Ad[0,0]+Ad[0,1]+Ad[0,2]+Ad[0,3]))*(t0>1) + (t0>=0)*(t0<=1)*((Ad[0,0]*tp0_0 + Ad[0,1]*tp0_1 + Ad[0,2]*tp0_2 + Ad[0,3]*tp0_3))
             Phi0_1 = (dAd[1,3]*t0 + Ad[1,3])*(t0<0) + ((3*Ad[1,0] + 2*Ad[1,1] + Ad[1,2])*(t0-1) + (Ad[1,0]+Ad[1,1]+Ad[1,2]+Ad[1,3]))*(t0>1) + (t0>=0)*(t0<=1)*((Ad[1,0]*tp0_0 + Ad[1,1]*tp0_1 + Ad[1,2]*tp0_2 + Ad[1,3]*tp0_3))
             Phi0_2 = (dAd[2,3]*t0 + Ad[2,3])*(t0<0) + ((3*Ad[2,0] + 2*Ad[2,1] + Ad[2,2])*(t0-1) + (Ad[2,0]+Ad[2,1]+Ad[2,2]+Ad[2,3]))*(t0>1) + (t0>=0)*(t0<=1)*((Ad[2,0]*tp0_0 + Ad[2,1]*tp0_1 + Ad[2,2]*tp0_2 + Ad[2,3]*tp0_3))
             Phi0_3 = (dAd[3,3]*t0 + Ad[3,3])*(t0<0) + ((3*Ad[3,0] + 2*Ad[3,1] + Ad[3,2])*(t0-1) + (Ad[3,0]+Ad[3,1]+Ad[3,2]+Ad[3,3]))*(t0>1) + (t0>=0)*(t0<=1)*((Ad[3,0]*tp0_0 + Ad[3,1]*tp0_1 + Ad[3,2]*tp0_2 + Ad[3,3]*tp0_3))
-            return (i0, Phi0_0, Phi0_1, Phi0_2, Phi0_3)
+            return CompactBasisMatrix(i0, cat(Phi0_0, Phi0_1, Phi0_2, Phi0_3), self.n+2)
         elif orders==1:
             dPhi0_0 = (dAd[0,0]*tp0_0 + dAd[0,1]*tp0_1 + dAd[0,2]*tp0_2 + dAd[0,3]*tp0_3)*dinv0
             dPhi0_1 = (dAd[1,0]*tp0_0 + dAd[1,1]*tp0_1 + dAd[1,2]*tp0_2 + dAd[1,3]*tp0_3)*dinv0
             dPhi0_2 = (dAd[2,0]*tp0_0 + dAd[2,1]*tp0_1 + dAd[2,2]*tp0_2 + dAd[2,3]*tp0_3)*dinv0
             dPhi0_3 = (dAd[3,0]*tp0_0 + dAd[3,1]*tp0_1 + dAd[3,2]*tp0_2 + dAd[3,3]*tp0_3)*dinv0
-            return (i0, dPhi0_0, dPhi0_1, dPhi0_2, dPhi0_3)
+            return CompactBasisMatrix(i0, cat(dPhi0_0, dPhi0_1, dPhi0_2, dPhi0_3), self.n+2)
         elif orders==2:
             dPhi0_0 = (d2Ad[0,0]*tp0_0 + d2Ad[0,1]*tp0_1 + d2Ad[0,2]*tp0_2 + d2Ad[0,3]*tp0_3)*dinv0**2
             dPhi0_1 = (d2Ad[1,0]*tp0_0 + d2Ad[1,1]*tp0_1 + d2Ad[1,2]*tp0_2 + d2Ad[1,3]*tp0_3)*dinv0**2
             dPhi0_2 = (d2Ad[2,0]*tp0_0 + d2Ad[2,1]*tp0_1 + d2Ad[2,2]*tp0_2 + d2Ad[2,3]*tp0_3)*dinv0**2
             dPhi0_3 = (d2Ad[3,0]*tp0_0 + d2Ad[3,1]*tp0_1 + d2Ad[3,2]*tp0_2 + d2Ad[3,3]*tp0_3)*dinv0**2
-            return (i0, dPhi0_0, dPhi0_1, dPhi0_2, dPhi0_3)
+            return CompactBasisMatrix(i0, cat(dPhi0_0, dPhi0_1, dPhi0_2, dPhi0_3), self.n+2)
         else:
             raise Exception("Not implemented")
-
-
-
-
 
     def filter(self, x):
 
@@ -108,12 +100,9 @@ import scipy.sparse as sp
 
 if __name__ == '__main__':
 
-    uf = UniformSpline(0,1,10)
-
+    uf = UniformSpline(0, 1, 10)
     f = lambda x: np.sin(3*x**2)
-
-    x = np.linspace(0,1,1000)
-
+    x = np.linspace(0, 1, 1000)
     C = uf.filter(f(uf.nodes))
 
 
@@ -124,36 +113,36 @@ if __name__ == '__main__':
     res = ( uf.eval(0.5, orders=1) )
     res2 = ( uf.eval(0.5, orders=0) )
     res3 = ( uf.eval(0.5, orders=[0,1,2]) )
-    exit()
+
 
     vals = np.array( [uf.eval(i) for i in x] )
     dvals = np.array( [uf.eval(i, orders=1) for i in x] )
     d2vals = np.array( [uf.eval(i, orders=2) for i in x] )
     #
-    # plt.figure()
-    # plt.subplot(311)
-    # plt.plot(x, vals[:,1])
-    # plt.plot(x, vals[:,2])
-    # plt.plot(x, vals[:,3])
-    # plt.plot(x, vals[:,4])
-    #
-    # plt.subplot(312)
-    # plt.plot(x, dvals[:,1])
-    # plt.plot(x, dvals[:,2])
-    # plt.plot(x, dvals[:,3])
-    # plt.plot(x, dvals[:,4])
-    #
-    #
-    # di = (dvals[1:,:]-dvals[:-1,:])/(x[1]-x[0])
-    # plt.subplot(313)
-    # plt.plot(x, d2vals[:,1])
-    # plt.plot(x, d2vals[:,2])
-    # plt.plot(x, d2vals[:,3])
-    # plt.plot(x, d2vals[:,4])
-    # plt.plot(x[1:], di[:,4], color='cyan', linestyle=':')
-    # plt.ylim(-200,200)
+    plt.figure()
+    plt.subplot(311)
+    plt.plot(x, vals[:,1])
+    plt.plot(x, vals[:,2])
+    plt.plot(x, vals[:,3])
+    plt.plot(x, vals[:,4])
 
-    # plt.show()
+    plt.subplot(312)
+    plt.plot(x, dvals[:,1])
+    plt.plot(x, dvals[:,2])
+    plt.plot(x, dvals[:,3])
+    plt.plot(x, dvals[:,4])
+
+
+    di = (dvals[1:,:]-dvals[:-1,:])/(x[1]-x[0])
+    plt.subplot(313)
+    plt.plot(x, d2vals[:,1])
+    plt.plot(x, d2vals[:,2])
+    plt.plot(x, d2vals[:,3])
+    plt.plot(x, d2vals[:,4])
+    plt.plot(x[1:], di[:,4], color='cyan', linestyle=':')
+    plt.ylim(-200,200)
+
+    plt.show()
     epsilon=1e-08
 
     di = np.array( [(np.array(uf.eval(i+epsilon))-np.array(uf.eval(i)))/epsilon for i in x] )
@@ -176,11 +165,3 @@ if __name__ == '__main__':
     # # plt.ylim(-10,10)
     # plt.plot(x, d2vals[:,4]) #-d2vals[1:,4], linestyle=':')
     # plt.show()
-
-
-    uf.eval(x)
-
-
-
-
-    t.asint()

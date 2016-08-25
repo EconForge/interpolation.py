@@ -118,7 +118,7 @@ if __name__ == '__main__':
     B = np.random.random((N,4))
     c = np.random.random((12,20,2))
 
-    # %time res = kronecker_times_compact(((ind_0,A,m_0), (ind_1, B, m_1)), c)
+    res = kronecker_times_compact(((ind_0,A,m_0), (ind_1, B, m_1)), c)
 
     # test 2
 
@@ -126,4 +126,4 @@ if __name__ == '__main__':
     B = np.random.random((N,4,2))
     c = np.random.random((12,20,2))
 
-    # %time res = kronecker_times_compact_diff(((ind_0,A,m_0), (ind_1, B, m_1)), c)
+    res = kronecker_times_compact_diff(((ind_0,A,m_0), (ind_1, B, m_1)), c)

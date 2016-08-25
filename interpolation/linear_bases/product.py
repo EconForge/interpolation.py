@@ -1,23 +1,12 @@
-from interpolation.linear_bases.chebychev import LinearBasis, ChebychevBasis
+from interpolation.linear_bases.basis_chebychev import LinearBasis, ChebychevBasis
 from interpolation.cartesian import cartesian
 import numpy.linalg
 import numpy as np
 
-from numpy import ndarray
+from interpolation.cartesian import cartesian
 
-from numba import float64
-from numba.types import Tuple
-
-import numba
-from numpy import array
-
-import numba.types
-from numba import float64, int64
-tt = numba.types.Tuple((float64, float64))
-
-from typing import Tuple
-
-import typing
+from functools import reduce
+import operator
 
 
 class BasisMatrix:
@@ -25,26 +14,6 @@ class BasisMatrix:
 
 class BasisArray:
     pass
-
-
-
-
-
-
-
-
-
-#
-
-
-
-#
-# gu_tensor_product([A[:,:,0],B[:,:,0],C[:,:,0]])[0,:]- np.kron(np.kron(A[0,:,0],B[0,:,0]),C[0,:,0])
-#
-# gu_tensor_product([A[0,:,0],B[0,:,0],C[0,:,0]]) - np.kron(np.kron(A[0,:,0],B[0,:,0]),C[0,:,0])
-
-from interpolation.cartesian import cartesian
-
 
 
 class TensorProduct:
@@ -120,41 +89,6 @@ def gu_tensor_product(arrays):
     else:
         return  res.reshape((res.shape[0],-1))
 
-#
-# def test_compact_basis_array():
-
-from numpy.testing import assert_equal
-A = np.random.random((100,10,2))
-B = np.random.random((100,10,2))
-C = np.random.random((100,10,2))
-
-c = np.random.random((1000))
-
-tp = TensorProduct([A,B,C])
-
-(tp*c).shape
-
-c2 = np.random.random((1000,3))
-(tp*c2).shape
-
-c * tp
-tp @ c
-
-
-
-%time mat = tp.as_array(enum='complete')
-mat.shape
-
-from numpy.testing import assert_equal
-A = np.random.random((100,10))
-B = np.random.random((100,10))
-C = np.random.random((100,10))
-
-
-tp = TensorProduct([A,B,C])
-
-%time mat = tp.as_matrix()
-
 
 class TensorBase:
 
@@ -170,7 +104,11 @@ class TensorBase:
         x = np.asarray(x)
         if orders is None:
             orders = [None]*len(self.bases)
-        return TensorProduct(
+        # return TensorProduct(
+        #     list( b.eval(x[..., i], orders=orders[i]) for i,b in enumerate(self.bases) )
+        #         )
+        from interpolation.linear_bases.compact_matrices import CompactKroneckerProduct
+        return CompactKroneckerProduct(
             list( b.eval(x[..., i], orders=orders[i]) for i,b in enumerate(self.bases) )
                 )
 
@@ -219,13 +157,15 @@ class TensorBase:
 
     # def eval(coeffs, x)
 
-if __name__ == '__main__':
+def test_product_dense():
 
     n = 10
     n_1 = 10
     n_2 = 20
-    from interpolation.linear_bases.linear import UniformLinearSplineBasis as UniformLinearSpline
-    from interpolation.linear_bases.chebychev import ChebychevBasis
+
+    from interpolation.linear_bases.basis_linear import UniformLinearSplineBasis as UniformLinearSpline
+    from interpolation.linear_bases.basis_chebychev import ChebychevBasis
+
     cb = ChebychevBasis(min=0,max=1,n=n_1)
     lb = UniformLinearSpline(start=0,stop=1,num=n_2)
 
@@ -297,3 +237,37 @@ if __name__ == '__main__':
     plt.plot(tvec, true_vals)
     # plt.plot(tvec, true_vals-vv)
     plt.show()
+
+
+def test_product_compact():
+
+    n = 10
+    n_1 = 10
+    n_2 = 20
+
+    # from interpolation.linear_bases.basis_linear import UniformLinearSplineBasis as UniformLinearSpline
+    from interpolation.linear_bases.basis_uniform_cubic_splines import UniformSpline
+
+    # cb = ChebychevBasis(min=0,max=1,n=n_1)
+    lb1 = UniformSpline(0,1,n_1)
+    lb2 = UniformSpline(0,1,n_2)
+
+    tb = TensorBase([lb1, lb2])
+
+    print(tb)
+    print( tb.B(tb.grid).shape )
+
+
+
+
+    tp = (tb.Phi(tb.grid))
+
+    xvec = numpy.linspace(0,1,10)
+    yvec = numpy.linspace(0,1,20)
+
+
+
+
+if __name__ == '__main__':
+
+    test_product_compact()

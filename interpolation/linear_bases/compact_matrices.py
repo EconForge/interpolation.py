@@ -1,8 +1,4 @@
 from numba import float64, int64
-from typing import List
-
-from functools import reduce
-import operator
 import numpy as np
 
 class CompactBasisMatrix:
@@ -66,7 +62,7 @@ class CompactBasisArray:
     def as_array(self):
         return np.concatenate([m.as_matrix()[:,:,None] for m in self.matrices], axis=2)
 
-from interpolation.linear_bases.templates import kronecker_times_compact, kronecker_times_compact_diff
+from interpolation.linear_bases.kronecker import kronecker_times_compact, kronecker_times_compact_diff
 
 class CompactKroneckerProduct:
 
@@ -75,6 +71,7 @@ class CompactKroneckerProduct:
         # TODO: allow for 3d-array
         self.matrices = matrices
         self.d = len(matrices)
+
 
     def __mul__(self, c):
         if self.matrices[0].vals.shape[1] != 4:
@@ -85,7 +82,7 @@ class CompactKroneckerProduct:
         else:
             if len(self.matrices[0].shape) == 2:
                 matrices = tuple([(mat.inds,mat.vals,mat.m)  for mat in self.matrices])
-                return = kronecker_times_compact(matrices, c)
+                return kronecker_times_compact(matrices, c)
             else:
                 matrices = tuple([(mat.inds,mat.as_array(),mat.m)  for mat in self.matrices])
                 return kronecker_times_compact_diff(matrices, c)
