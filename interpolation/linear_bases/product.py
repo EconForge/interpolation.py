@@ -1,9 +1,13 @@
-from interpolation.linear_bases.basis_chebychev import LinearBasis, ChebychevBasis
-from interpolation.cartesian import cartesian
+from dolo import dprint
+
 import numpy.linalg
 import numpy as np
 
 from interpolation.cartesian import cartesian
+from interpolation.linear_bases.basis import LinearBasis, CompactLinearBasis
+
+from interpolation.linear_bases.basis_chebychev import ChebychevBasis
+from interpolation.linear_bases.compact_matrices import CompactBasisMatrix, CompactBasisArray, CompactKroneckerProduct
 
 from functools import reduce
 import operator
@@ -15,10 +19,10 @@ class BasisMatrix:
 class BasisArray:
     pass
 
-
-class TensorProduct:
+class KroneckerProduct:
 
     def __init__(self, arrays):
+
         # right now, arrays is a list of vectors or matrices
         # TODO: allow for 3d-array
         self.arrays = [np.asarray(a) for a in arrays]
@@ -66,7 +70,6 @@ class TensorProduct:
                 res = res.swapaxes(1,2)
         return res
 
-
 def gu_tensor_product(arrays):
     # this is actually a "kronecker" product
     # placeholder algo
@@ -89,11 +92,14 @@ def gu_tensor_product(arrays):
     else:
         return  res.reshape((res.shape[0],-1))
 
-
 class TensorBase:
 
     def __init__(self, bases):
         self.bases = bases
+        is_compact_base = [isinstance(b, CompactLinearBasis) for b in bases]
+        if len(set(is_compact_base))>1:
+            raise Exception("One cannot mix (for now) compact support bases with non-compact ones.")
+        self.__compact_bases__ = is_compact_base[0]
         self.d = len(bases)
 
     @property
@@ -104,16 +110,20 @@ class TensorBase:
         x = np.asarray(x)
         if orders is None:
             orders = [None]*len(self.bases)
-        # return TensorProduct(
-        #     list( b.eval(x[..., i], orders=orders[i]) for i,b in enumerate(self.bases) )
-        #         )
-        from interpolation.linear_bases.compact_matrices import CompactKroneckerProduct
-        return CompactKroneckerProduct(
-            list( b.eval(x[..., i], orders=orders[i]) for i,b in enumerate(self.bases) )
-                )
+
+        ll = list( b.eval(x[..., i], orders=orders[i]) for i,b in enumerate(self.bases) )
+        if self.__compact_bases__:
+            return CompactKroneckerProduct(ll)
+        else:
+            return KroneckerProduct(ll)
+
 
     def B(self, x):
-        return self.Phi(x).as_matrix()
+        Phi = self.Phi(x)
+
+        print(Phi)
+        return Phi.as_matrix()
+        # return self.Phi(x).as_matrix()
 
     def __str__(self):
         return str.join(" ⊗ ", [str(e) for e in self.bases])
@@ -122,7 +132,8 @@ class TensorBase:
 
         x = np.asarray(x)
         d = self.d
-        # c = np.zeros(tuple([b.m for b in self.bases]))
+
+        # c = np.zeros([b.m for b in self.bases])
         c = np.zeros_like(x) # here we should know he required sizes
         c[...] = x
 
@@ -167,7 +178,7 @@ def test_product_dense():
     from interpolation.linear_bases.basis_chebychev import ChebychevBasis
 
     cb = ChebychevBasis(min=0,max=1,n=n_1)
-    lb = UniformLinearSpline(start=0,stop=1,num=n_2)
+    lb = UniformLinearSpline(0,1,n_2)
 
     tp = TensorBase([cb, lb])
 
@@ -270,4 +281,7 @@ def test_product_compact():
 
 if __name__ == '__main__':
 
+
+
+    test_product_dense()
     test_product_compact()

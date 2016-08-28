@@ -68,6 +68,8 @@ class SplineBasis(LinearBasis):
 
     def eval(self, x, orders=None):
 
+        x = np.atleast_1d(x)
+
         if isinstance(orders, list):
             return np.concatenate([self.eval(x, orders=o)[...,None] for o in orders],axis=-1)
 

@@ -11,3 +11,7 @@ class LinearBasis:
 
     def filter(self,x):
         pass
+
+class CompactLinearBasis(LinearBasis):
+
+    pass

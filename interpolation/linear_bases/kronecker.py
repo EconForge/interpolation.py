@@ -100,30 +100,3 @@ def kronecker_times_compact_diff(matrices, coefs):
     key = 'kronecker_times_compact_diff_{}d'.format(d)
     fun = context[key]
     return fun
-
-#
-# print_expr(['Phi_0', 'Phi_1'], multispline=True)
-
-
-if __name__ == '__main__':
-
-    # test 1
-
-    N = 100000
-    ind_0 = np.random.randint(6,size=N)
-    ind_1 = np.random.randint(6,size=N)
-    m_0 = 12
-    m_1 = 20
-    A = np.random.random((N,4))
-    B = np.random.random((N,4))
-    c = np.random.random((12,20,2))
-
-    res = kronecker_times_compact(((ind_0,A,m_0), (ind_1, B, m_1)), c)
-
-    # test 2
-
-    A = np.random.random((N,4,2))
-    B = np.random.random((N,4,2))
-    c = np.random.random((12,20,2))
-
-    res = kronecker_times_compact_diff(((ind_0,A,m_0), (ind_1, B, m_1)), c)

@@ -61,7 +61,6 @@ class ChebychevBasis(LinearBasis):
     def filter(self,x):
 
         from numpy.linalg import solve
-
         x = np.asarray(x)
         return solve(self.Phi, x)
 
@@ -115,47 +114,3 @@ def chebychev2(x,m):
     for i in range(2,m):
         T[...,i] = 2*x*T[...,i-1] - T[...,i-2]
     return T
-
-
-
-if __name__ == '__main__':
-
-    def fun(x): return np.sin(x**2/5) + 2*x
-    def dfun(x): return np.cos(x**2/5)*2*x/5 + 2
-
-    xvec = np.linspace(-0.5, 5,200)
-    yvec = fun(xvec)
-
-
-
-    cb = ChebychevBasis(min=-0.5, max=5, n=5)
-
-    coeffs = cb.filter(fun(cb.nodes))
-
-    from matplotlib import pyplot as plt
-
-    plt.figure()
-    plt.subplot(121)
-    Phi = cb.eval(xvec)
-    ivec = Phi @ coeffs
-    plt.plot(xvec, yvec)
-    plt.plot(xvec,ivec)
-    plt.plot(cb.nodes, fun(cb.nodes),'x')
-
-
-    plt.subplot(122)
-    d_yvec = dfun(xvec)
-    d_Phi = cb.eval(xvec, orders=1)
-    d_ivec = d_Phi @ coeffs
-    plt.plot(xvec, d_yvec)
-    plt.plot(xvec, d_ivec)
-    plt.plot(cb.nodes, dfun(cb.nodes),'x')
-
-
-
-    ff = np.concatenate( [fun(cb.nodes)[:,None] for i in range(2)], axis=1 )
-
-    ff.shape
-    coeffs = cb.filter(ff)
-    coeffs.shape
-    plt.show()

@@ -1,3 +1,4 @@
+from interpolation.linear_bases.kronecker import kronecker_times_compact, kronecker_times_compact_diff
 from numba import float64, int64
 import numpy as np
 
@@ -10,6 +11,9 @@ class CompactBasisMatrix:
 
         inds = np.array(indices,dtype=int)
         vals = np.array(vals,dtype=float)
+        if inds.ndim==0 and vals.ndim==1:
+            inds = inds[None,...]
+            vals = vals[None,...]
         assert(vals.ndim==2)
         assert(inds.shape[0]==vals.shape[0])
         if m is None:
@@ -39,7 +43,7 @@ class CompactBasisMatrix:
 
 class CompactBasisArray:
 
-    def __init__(self, indices, vals, m=None):
+    def __init__(self, indices: int64[:], vals: float64[:, :, :], m=int64):
         # vals: tuple of 2d arrays
         inds = np.array(indices, dtype=int)
         vals = [np.array(v, dtype=float) for v in vals]
@@ -62,7 +66,6 @@ class CompactBasisArray:
     def as_array(self):
         return np.concatenate([m.as_matrix()[:,:,None] for m in self.matrices], axis=2)
 
-from interpolation.linear_bases.kronecker import kronecker_times_compact, kronecker_times_compact_diff
 
 class CompactKroneckerProduct:
 
@@ -72,6 +75,11 @@ class CompactKroneckerProduct:
         self.matrices = matrices
         self.d = len(matrices)
 
+
+    def as_matrix(self):
+
+        from interpolation.linear_bases.product import KroneckerProduct
+        return KroneckerProduct([m.as_matrix() for m in self.matrices]).as_matrix()
 
     def __mul__(self, c):
         if self.matrices[0].vals.shape[1] != 4:
@@ -95,59 +103,6 @@ class CompactKroneckerProduct:
 
 
 
-def test_compact_basis_matrix():
-    inds = [2, 3, 3]
-    vals = [[0.1, 0.2], [-0.1, -0.2], [1.1, 2.1]]
-    cbm = CompactBasisMatrix(inds, vals)
-    sol = np.array([[ 0. ,  0. ,  0.1,  0.2,  0. ],
-           [ 0. ,  0. ,  0. , -0.1, -0.2],
-           [ 0. ,  0. ,  0. ,  1.1,  2.1]])
-    from numpy.testing import assert_equal
-    assert_equal(sol, cbm.as_matrix())
-    assert_equal(sol, cbm.as_spmatrix().todense())
-
-
-def test_compact_basis_array():
-
-    from numpy.testing import assert_equal
-    A = np.zeros((4,2)) + 0.1
-    B = np.zeros((4,2)) + 0.2
-    C = np.zeros((4,2)) + 0.3
-
-    inds = [1,2,0,1]
-
-    cba = CompactBasisArray(inds, [A,B,C], m=5)
-
-    mat = CompactBasisMatrix(inds, C, m=5).as_matrix()
-    assert_equal( cba.matrices[2].as_matrix(), mat )
-    assert_equal(mat, cba.as_array()[:,:,2])
-
-
-def test_kron_compact_basis_matrix():
-    inds = [2, 3, 3]
-    vals = [[0.1, 0.2]*2, [-0.1, -0.2]*2, [1.1, 2.1]*2]
-    cbm_1 = CompactBasisMatrix(inds, vals, m=8)
-    cbm_2 = CompactBasisMatrix(inds, vals, m=8)
-    ckp = CompactKroneckerProduct(matrices=[cbm_1, cbm_2])
-    c = np.random.random((8,8,6))
-
-
-def test_kron_compact_basis_array():
-
-    from numpy.testing import assert_equal
-    N = 6
-    A = np.zeros((N,4)) + 0.1
-    B = np.zeros((N,4)) + 0.2
-    C = np.zeros((N,4)) + 0.3
-
-    inds = [1]*6
-
-    cba_1 = CompactBasisArray(inds, [A,B,C], m=7)
-    cba_2 = CompactBasisArray(inds, [A,B,C], m=6)
-
-    ckp = CompactKroneckerProduct(matrices=[cba_1, cba_2])
-
-    c = np.random.random((7,6,3))
 
 if __name__ == '__main__':
 
