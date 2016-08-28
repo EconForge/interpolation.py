@@ -44,7 +44,9 @@ class UniformSplineBasis(CompactLinearBasis):
             orders = 0
         elif not isinstance(orders, int):
             l = [self.eval(x, orders=o) for o in orders]
-            return tuple(l)
+            inds = l[0].inds
+            vals = np.concatenate([m.vals[:,:,None] for m in l], axis=2)
+            return CompactBasisArray(inds, vals, self.n+2)
 
         m = self.n
 

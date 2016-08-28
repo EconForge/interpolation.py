@@ -43,25 +43,25 @@ class CompactBasisMatrix:
 
 class CompactBasisArray:
 
-    def __init__(self, indices: int64[:], vals: float64[:, :, :], m=int64):
+    def __init__(self, indices: int64[:], vals: float64[:, :, :], m: int64):
         # vals: tuple of 2d arrays
         inds = np.array(indices, dtype=int)
-        vals = [np.array(v, dtype=float) for v in vals]
-        shape = {mat.shape for mat in vals}
-        assert(len(shape)==1)
-        shape = shape.pop()
-        assert(inds.shape[0] == shape[0])
-        if m is None:
-            m = inds.max() + shape[1]
+        vals = np.array(vals, dtype=float)
+        # assert(len(shape)==1)
+        # shape = shape.pop()
+        # assert(inds.shape[0] == shape[0])
         self.m = m
         self.inds = inds
         self.vals = vals
-        self.q = len(vals) # number of derivatives
+        self.q = vals.shape[2] # number of derivatives
         self.shape = (len(inds), self.m, self.q)
 #
     @property
     def matrices(self):
-        return [CompactBasisMatrix(self.inds, v, self.m) for v in self.vals]
+        print(self.inds.shape)
+        print(self.vals.shape)
+        print(self.shape)
+        return [CompactBasisMatrix(self.inds, self.vals[:,:,i], self.m) for i in range(self.vals.shape[2])]
 
     def as_array(self):
         return np.concatenate([m.as_matrix()[:,:,None] for m in self.matrices], axis=2)
@@ -94,23 +94,3 @@ class CompactKroneckerProduct:
             else:
                 matrices = tuple([(mat.inds,mat.as_array(),mat.m)  for mat in self.matrices])
                 return kronecker_times_compact_diff(matrices, c)
-
-
-
-
-
-## Tests
-
-
-
-
-if __name__ == '__main__':
-
-    import time
-    t1 = time.time()
-    test_compact_basis_array()
-    test_compact_basis_matrix()
-    test_kron_compact_basis_matrix()
-    test_kron_compact_basis_array()
-    t2 = time.time()
-    print("Elapsed : {}".format(t2-t1))

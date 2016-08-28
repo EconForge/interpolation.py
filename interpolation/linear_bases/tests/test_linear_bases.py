@@ -60,15 +60,20 @@ def test_uniform_cubic_splines():
     from matplotlib import pyplot as plt
     # %matplotlib inline
 
-    res = ( uf.eval(0.5, orders=1) )
-    res2 = ( uf.eval(0.5, orders=0) )
-    res3 = ( uf.eval(0.5, orders=[0,1,2]) )
+    res0 = ( uf.eval(0.5, orders=0) )
+    res1 = ( uf.eval(0.5, orders=1) )
+    res2 = ( uf.eval(0.5, orders=2) )
+    res_012 = ( uf.eval(0.5, orders=[0,1,2]) )
 
+    from numpy.testing import assert_equal
+    assert_equal(res_012.matrices[0].vals, res0.vals)
+    assert_equal(res_012.matrices[0].inds, res0.inds)
+    assert_equal(res_012.matrices[1].vals, res1.vals)
+    assert_equal(res_012.matrices[2].vals, res2.vals)
 
     vals = uf.eval(x).as_matrix()
     dvals = uf.eval(x, orders=1).as_matrix()
     d2vals = uf.eval(x, orders=2).as_matrix()
-
 
 
     plt.figure()
@@ -117,7 +122,6 @@ def test_uniform_cubic_splines():
     # plt.show()
 
 
-
 def test_compact_basis_matrix():
 
     from interpolation.linear_bases.compact_matrices import CompactBasisMatrix
@@ -147,8 +151,8 @@ def test_compact_basis_array():
 
     inds = [1,2,0,1]
 
-    cba = CompactBasisArray(inds, [A,B,C], m=5)
-
+    arr = np.concatenate([A[...,None],B[...,None],C[...,None]], axis=2)
+    cba = CompactBasisArray(inds, arr, m=5)
     mat = CompactBasisMatrix(inds, C, m=5).as_matrix()
     assert_equal( cba.matrices[2].as_matrix(), mat )
     assert_equal(mat, cba.as_array()[:,:,2])
