@@ -20,9 +20,9 @@ class LinearSplineBasis(LinearBasis):
         self.m = n
 
     def __call__(self, *args, **kwargs):
-        return self.eval(*args, **kwargs)
+        return self.Phi(*args, **kwargs)
 
-    def eval(self, x, orders=None):
+    def Phi(self, x, orders=None):
 
         x = np.array(x)
 

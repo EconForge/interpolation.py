@@ -12,14 +12,12 @@ class ChebychevBasis(LinearBasis):
         self.max = max
         self.n = n      # number of nodes
         self.m = n      # number of basis functions
-        self.Phi = self.eval(self.nodes)
-
 
 
     def __str__(self):
         return "ChebychevBasis(min={}, max={}, n={})".format(self.min, self.max, self.n)
 
-    def eval(self, x, orders=None):
+    def Phi(self, x, orders=None):
 
         m = self.m
         x = np.asarray(x)
@@ -62,7 +60,7 @@ class ChebychevBasis(LinearBasis):
 
         from numpy.linalg import solve
         x = np.asarray(x)
-        return solve(self.Phi, x)
+        return solve(self.B, x)
 
 
 def chebbase(x, m, orders=None):

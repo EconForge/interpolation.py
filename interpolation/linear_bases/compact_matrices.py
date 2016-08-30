@@ -23,6 +23,9 @@ class CompactBasisMatrix:
         self.inds = inds
         self.vals = vals
 
+    def __matmul__(self, mat):
+        return self.as_matrix() @ mat
+
     def as_matrix(self, sparse=False):
         nm = self.vals.shape[1]
         cols = (self.inds[:, None].repeat(nm, axis=1) +

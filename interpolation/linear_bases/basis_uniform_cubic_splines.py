@@ -34,11 +34,29 @@ class UniformSplineBasis(CompactLinearBasis):
         self.n = num
         self.min = a
         self.max = b
+        self.m = len(self.knots)
 
         if k != 3:
             raise Exception("Not implemented")
 
-    def eval(self, x, orders=None):
+    @property
+    def B(self):
+        vals = self.Phi(self.nodes).as_matrix()
+        offset = (self.m-self.n)/2
+        di = 1/(self.knots[1]-self.knots[0])
+        res = np.zeros((self.m, self.m))
+        P = self.Phi(self.nodes).as_matrix()
+        print(P.shape)
+        res[1:-1,:] = self.Phi(self.nodes).as_matrix()
+        res[0,0] = 1.0*di*di
+        res[0,1] = -2.0*di*di
+        res[0,2] = 1.0*di*di
+        res[-1,-3] = 1.0*di*di
+        res[-1,-2] = -2.0*di*di
+        res[-1,-1] = 1.0*di*di
+        return res
+
+    def Phi(self, x, orders=None):
 
         if orders is None:
             orders = 0
@@ -46,7 +64,7 @@ class UniformSplineBasis(CompactLinearBasis):
             l = [self.eval(x, orders=o) for o in orders]
             inds = l[0].inds
             vals = np.concatenate([m.vals[:,:,None] for m in l], axis=2)
-            return CompactBasisArray(inds, vals, self.n+2)
+            return CompactBasisArray(inds, vals, self.m)
 
         m = self.n
 
@@ -86,6 +104,9 @@ class UniformSplineBasis(CompactLinearBasis):
             raise Exception("Not implemented")
 
     def filter(self, x):
+
+        if x.ndim == 2:
+            return np.concatenate([self.filter(x[:,i])[:,None] for i in range(x.shape[1])], axis=1)
 
         from interpolation.splines.filter_cubic import find_coefs_1d
 

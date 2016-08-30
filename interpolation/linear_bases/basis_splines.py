@@ -63,10 +63,14 @@ class SplineBasis(LinearBasis):
         x[-1] = b  # 26
         return x
 
+    @property
+    def B(self):
+        raise Exception("Not implemented")
+
     def derivative_op(self, order=1):
         raise NotImplementedError()
 
-    def eval(self, x, orders=None):
+    def Phi(self, x, orders=None):
 
         x = np.atleast_1d(x)
 
