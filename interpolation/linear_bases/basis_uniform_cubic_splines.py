@@ -46,7 +46,6 @@ class UniformSplineBasis(CompactLinearBasis):
         di = 1/(self.knots[1]-self.knots[0])
         res = np.zeros((self.m, self.m))
         P = self.Phi(self.nodes).as_matrix()
-        print(P.shape)
         res[1:-1,:] = self.Phi(self.nodes).as_matrix()
         res[0,0] = 1.0*di*di
         res[0,1] = -2.0*di*di
