@@ -66,9 +66,11 @@ def test_complete_derivative():
     out_mat = complete_polynomial_der(z, 2, 1)
     assert(abs(out_mat[0, :]).max() < 1e-10)
     assert(abs(out_mat[2, :] - np.ones(2)).max() < 1e-10)
-    assert(abs(out_mat[-1, :] - np.array([5.0, 6.0])).max() < 1e-10)
+    assert(abs(out_mat[-2, :] - np.array([5.0, 6.0])).max() < 1e-10)
 
 
 if __name__ == '__main__':
     test_complete_scalar()
     test_complete_vector()
+    test_complete_derivative()
+
