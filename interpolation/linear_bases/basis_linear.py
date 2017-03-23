@@ -1,11 +1,8 @@
 import numpy as np
-# from interpolation.splines.util import lookup
 from interpolation.linear_bases.util import lookup
 from interpolation.linear_bases.basis import LinearBasis
 
 import scipy.sparse as spa
-
-
 
 class LinearSplineBasis(LinearBasis):
 

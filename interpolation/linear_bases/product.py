@@ -59,6 +59,8 @@ class KroneckerProduct:
         if self.tensor_type <3:
             mat = self.as_matrix()
             res = mat @ c.reshape((mat.shape[1],-1))
+            if c.ndim == len(self.arrays):
+                res = res.ravel()
         else:
             mat = self.as_array()
             tmat = mat.swapaxes(1,2)
