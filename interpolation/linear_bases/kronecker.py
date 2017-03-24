@@ -1,5 +1,6 @@
 import tempita
-
+from functools import reduce
+import operator
 from numba import generated_jit
 import numpy as np
 
@@ -100,3 +101,80 @@ def kronecker_times_compact_diff(matrices, coefs):
     key = 'kronecker_times_compact_diff_{}d'.format(d)
     fun = context[key]
     return fun
+
+
+
+class KroneckerProduct:
+
+    def __init__(self, arrays):
+
+        # right now, arrays is a list of vectors or matrices
+        # TODO: allow for 3d-array
+        self.arrays = [np.asarray(a) for a in arrays]
+        self.d = len(arrays)
+        self.tensor_type = self.arrays[0].ndim
+        # 1: tensor product of vectors
+        # 2: vectorized tensor product
+        # 3: vectorized tensor product with derivative informations
+
+    def as_matrix(self):
+        if self.tensor_type < 3:
+            return gu_tensor_product(self.arrays)
+        else:
+            raise Exception('Not supported. Use as_array instead.')
+
+    def as_array(self, enum='complete'):
+        if enum == 'complete':
+            # TODO: check that all arrays have the same first and last dimensions
+            rr = np.arange(self.arrays[0].shape[2])
+            enum = [tuple(el.astype(int).tolist()) for el in cartesian([rr]*self.d, order='F') if sum(el)<=1]
+        last_dim = len(enum)
+        N = self.arrays[0].shape[0]
+        K = reduce(operator.mul, [a.shape[1] for a in self.arrays])
+        res = np.zeros((N, K, last_dim))
+        for k in range(last_dim):
+            arrs = [a[:, :, 0] for a in self.arrays]
+            rhs = gu_tensor_product(arrs)
+            res[:, :, k] = rhs
+        return res
+
+    def __mul__(self, c):
+        c = np.asarray(c)
+        # placeholder algo
+        if self.tensor_type <3:
+            mat = self.as_matrix()
+            res = mat @ c.reshape((mat.shape[1],-1))
+            if c.ndim == len(self.arrays):
+                res = res.ravel()
+        else:
+            mat = self.as_array()
+            tmat = mat.swapaxes(1,2)
+
+            res = np.dot( tmat , c.reshape((mat.shape[1],-1)) )
+            if c.ndim == 1:
+                res = res[:,:,0]
+            elif c.ndim==2:
+                res = res.swapaxes(1,2)
+        return res
+
+def gu_tensor_product(arrays):
+    # this is actually a "kronecker" product
+    # placeholder algo
+    d = len(arrays)
+    if d == 1:
+        return arrays[0]
+    tensor_type = arrays[0].ndim
+    c = tensor_type - 1
+    # enum_res = (np.expand_dims(a, axis=d-i-1+c) for i, a in enumerate(arrays))
+    enum_res = []
+    for i,a in enumerate(arrays):
+        ind = [None]*d
+        ind[i] = slice(None,None,None)
+        if tensor_type == 2:
+            ind = [slice(None,None,None)] + ind
+        enum_res.append(a[ind])
+    res = reduce(operator.mul, enum_res)
+    if tensor_type ==1:
+        return res.ravel()
+    else:
+        return  res.reshape((res.shape[0],-1))
