@@ -99,17 +99,23 @@ def complete_polynomial(z, d):
     """
     # check inputs
     assert d >= 0, "d must be non-negative"
-    z = np.asarray(z)
-
-    # compute inds allocate space for output
-    nvar, nobs = z.shape
-    out = np.zeros((n_complete(nvar, d), nobs))
-
     if d > 5:
         raise ValueError("Complete polynomial only implemeted up to degree 5")
 
-    # populate out with jitted function
-    _complete_poly_impl(z, d, out)
+    # Assure z is array
+    z = np.asarray(z)
+
+    # compute inds allocate space for output
+    if np.ndim(z) == 1:
+        nvar = z.size
+        out = np.zeros(n_complete(nvar, d))
+        # populate out with jitted function
+        _complete_poly_impl_vec(z, d, out)
+    else:
+        nvar, nobs = z.shape
+        out = np.zeros((n_complete(nvar, d), nobs))
+        # populate out with jitted function
+        _complete_poly_impl(z, d, out)
 
     return out
 
@@ -313,18 +319,25 @@ def complete_polynomial_der(z, d, der):
     # check inputs
     assert d >= 0, "d must be non-negative"
     assert der >= 0, "derivative must be non-negative"
-    z = np.asarray(z)
-
-    # compute inds allocate space for output
-    nvar, nobs = z.shape
-    assert der < nvar, "derivative integer must be smaller than nobs in z"
-    out = np.zeros((n_complete(nvar, d), nobs))
-
     if d > 5:
         raise ValueError("Complete polynomial only implemeted up to degree 5")
 
-    # populate out with jitted function
-    _complete_poly_der_impl(z, d, der, out)
+    # Ensure z is a numpy array
+    z = np.asarray(z)
+
+    # compute inds allocate space for output
+    if np.ndim(z) == 1:
+        nvar = z.size
+        assert der < nvar, "derivative integer must be smaller than nobs in z"
+        out = np.zeros(n_complete(nvar, d))
+        # populate with jitted function
+        _complete_poly_der_impl_vec(z, d, der, out)
+    else:
+        nvar, nobs = z.shape
+        assert der < nvar, "derivative integer must be smaller than nobs in z"
+        out = np.zeros((n_complete(nvar, d), nobs))
+        # populate out with jitted function
+        _complete_poly_der_impl(z, d, der, out)
 
     return out
 
@@ -474,6 +487,8 @@ def _complete_poly_der_impl(z, d, der, out):
                 for i3 in range(i2, nvar):
                     ix += 1
                     for k in range(nobs):
+                        c1, t1 = (1, 1.0) if i1==der else (0, z[i1, k])
+                        c2, t2 = (c1+1, 1.0) if i2==der else (c1, z[i2, k])
                         c3, t3 = (c2+1, 1.0) if i3==der else (c2, z[i3, k])
                         out[ix, k] = c3*t1*t2*t3*z[der, k]**(c3-1) if c3>0 else 0.0
 
@@ -491,12 +506,17 @@ def _complete_poly_der_impl(z, d, der, out):
                 for i3 in range(i2, nvar):
                     ix += 1
                     for k in range(nobs):
+                        c1, t1 = (1, 1.0) if i1==der else (0, z[i1, k])
+                        c2, t2 = (c1+1, 1.0) if i2==der else (c1, z[i2, k])
                         c3, t3 = (c2+1, 1.0) if i3==der else (c2, z[i3, k])
                         out[ix, k] = c3*t1*t2*t3*z[der, k]**(c3-1) if c3>0 else 0.0
 
                     for i4 in range(i3, nvar):
                         ix += 1
                         for k in range(nobs):
+                            c1, t1 = (1, 1.0) if i1==der else (0, z[i1, k])
+                            c2, t2 = (c1+1, 1.0) if i2==der else (c1, z[i2, k])
+                            c3, t3 = (c2+1, 1.0) if i3==der else (c2, z[i3, k])
                             c4, t4 = (c3+1, 1.0) if i4==der else (c3, z[i4, k])
                             out[ix, k] = c4*t1*t2*t3*t4*z[der, k]**(c4-1) if c4>0 else 0.0
 
@@ -514,18 +534,27 @@ def _complete_poly_der_impl(z, d, der, out):
                 for i3 in range(i2, nvar):
                     ix += 1
                     for k in range(nobs):
+                        c1, t1 = (1, 1.0) if i1==der else (0, z[i1, k])
+                        c2, t2 = (c1+1, 1.0) if i2==der else (c1, z[i2, k])
                         c3, t3 = (c2+1, 1.0) if i3==der else (c2, z[i3, k])
                         out[ix, k] = c3*t1*t2*t3*z[der, k]**(c3-1) if c3>0 else 0.0
 
                     for i4 in range(i3, nvar):
                         ix += 1
                         for k in range(nobs):
+                            c1, t1 = (1, 1.0) if i1==der else (0, z[i1, k])
+                            c2, t2 = (c1+1, 1.0) if i2==der else (c1, z[i2, k])
+                            c3, t3 = (c2+1, 1.0) if i3==der else (c2, z[i3, k])
                             c4, t4 = (c3+1, 1.0) if i4==der else (c3, z[i4, k])
                             out[ix, k] = c4*t1*t2*t3*t4*z[der, k]**(c4-1) if c4>0 else 0.0
 
                         for i5 in range(i4, nvar):
                             ix += 1
                             for k in range(nobs):
+                                c1, t1 = (1, 1.0) if i1==der else (0, z[i1, k])
+                                c2, t2 = (c1+1, 1.0) if i2==der else (c1, z[i2, k])
+                                c3, t3 = (c2+1, 1.0) if i3==der else (c2, z[i3, k])
+                                c4, t4 = (c3+1, 1.0) if i4==der else (c3, z[i4, k])
                                 c5, t5 = (c4+1, 1.0) if i5==der else (c4, z[i5, k])
                                 out[ix, k] = c5*t1*t2*t3*t4*t5*z[der, k]**(c5-1) if c5>0 else 0.0
 

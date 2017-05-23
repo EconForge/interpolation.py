@@ -50,10 +50,6 @@ def test_complete_vector():
 
 def test_complete_derivative():
 
-    # TODO: Currently if z has a 0 value then it breaks because occasionally
-    #       tries to raise 0 to a negative power -- This can be fixed by
-    #       checking whether coefficient is 0 before trying to do anything...
-
     # Test derivative vector
     z = np.array([1, 2, 3])
     sol_vec = np.array([0.0, 1.0, 0.0, 0.0, 2.0, 2.0, 3.0, 0.0, 0.0, 0.0])
@@ -68,9 +64,31 @@ def test_complete_derivative():
     assert(abs(out_mat[2, :] - np.ones(2)).max() < 1e-10)
     assert(abs(out_mat[-2, :] - np.array([5.0, 6.0])).max() < 1e-10)
 
+def test_complete_vec_vs_mat():
+    # Matrix for allocation
+    temp = np.ones(n_complete(2, 3))*5.0
+    temp_mat = np.ones((n_complete(2, 3), 3))
+
+    # Point at which to evaluate
+    z = np.array([0.9, 1.05])
+    z_mat = np.array([[0.9, 0.95, 1.0], [1.05, 1.0, 0.95]])
+
+    foo = complete_polynomial(z, 2)
+    bar = complete_polynomial(z_mat, 2)[:, 0]
+    assert np.allclose(foo, bar)
+
+    foo = complete_polynomial_der(z, 2, 0)
+    bar = complete_polynomial_der(z_mat, 2, 0)[:, 0]
+    assert np.allclose(foo, bar)
+
+    foo = complete_polynomial_der(z, 4, 0)
+    bar = complete_polynomial_der(z_mat, 4, 0)[:, 0]
+    assert np.allclose(foo, bar)
+
 
 if __name__ == '__main__':
     test_complete_scalar()
     test_complete_vector()
     test_complete_derivative()
+    test_complete_vec_vs_mat()
 
