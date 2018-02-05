@@ -74,9 +74,6 @@ class LinearSpline:
 
     def set_values(self,values):
         values = values.reshape(self.orders)
-        print("Setting")
-        print(self.orders)
-        print(values.shape)
         self.values = numpy.ascontiguousarray(values,dtype=self.dtype)
 
 
@@ -158,11 +155,7 @@ class LinearSplines:
     def set_values(self,mvalues):
 
         n_x = mvalues.shape[-1]
-        print(mvalues.shape)
-        print(self.orders)
-        print(n_x)
         new_orders = list(self.orders) + [n_x]
-        print(new_orders)
         mvalues = mvalues.reshape( new_orders)
         self.mvalues = numpy.ascontiguousarray(mvalues,dtype=self.dtype)
 
