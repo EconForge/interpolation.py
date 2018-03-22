@@ -1,17 +1,10 @@
-from __future__ import print_function
-
-
 import numpy
 
-# try:
-#     from eval_cubic_splines_cython import *
-#
-# except Exception:
 from .eval_cubic_numba import *
-
 
 ## the functions in this file work for any dimension (d<=4)
 ## they can optionnally allocate memory for the result
+
 
 def eval_cubic_spline(a, b, orders, coefs, point):
     """Evaluates a cubic spline at one point
@@ -35,9 +28,9 @@ def eval_cubic_spline(a, b, orders, coefs, point):
         Interpolated value.
     """
 
-    a = numpy.array(a,dtype=float)
-    b = numpy.array(b,dtype=float)
-    orders = numpy.array(orders,dtype=int)
+    a = numpy.array(a, dtype=float)
+    b = numpy.array(b, dtype=float)
+    orders = numpy.array(orders, dtype=int)
 
     d = len(a)
 
@@ -58,8 +51,7 @@ def eval_cubic_spline(a, b, orders, coefs, point):
 
 # def eval_cubic_spline_d(a, b, orders, coefs, point, value, dvalue):
 
-
-    # pass
+# pass
 
 
 def vec_eval_cubic_spline(a, b, orders, coefs, points, values=None):
@@ -86,9 +78,9 @@ def vec_eval_cubic_spline(a, b, orders, coefs, points, values=None):
         Interpolated values. values[i] contains spline evaluated at point points[i,:].
     """
 
-    a = numpy.array(a,dtype=float)
-    b = numpy.array(b,dtype=float)
-    orders = numpy.array(orders,dtype=int)
+    a = numpy.array(a, dtype=float)
+    b = numpy.array(b, dtype=float)
+    orders = numpy.array(orders, dtype=int)
 
     d = a.shape[0]
 
@@ -108,11 +100,10 @@ def vec_eval_cubic_spline(a, b, orders, coefs, points, values=None):
     return values
 
 
-
-
 # def eval_cubic_multi_spline_d(a, b, orders, mcoefs, point, values, dvalues):
 #
 #     pass
+
 
 def eval_cubic_splines(a, b, orders, mcoefs, point, values=None):
     """Evaluates multi-splines at one point.
@@ -139,9 +130,9 @@ def eval_cubic_splines(a, b, orders, mcoefs, point, values=None):
         Interpolated values. values[j] contains spline n-j evaluated at point `point`.
     """
 
-    a = numpy.array(a,dtype=float)
-    b = numpy.array(b,dtype=float)
-    orders = numpy.array(orders,dtype=int)
+    a = numpy.array(a, dtype=float)
+    b = numpy.array(b, dtype=float)
+    orders = numpy.array(orders, dtype=int)
 
     d = a.shape[0]
 
@@ -161,8 +152,8 @@ def eval_cubic_splines(a, b, orders, mcoefs, point, values=None):
     elif d == 4:
         eval_cubic_splines_4(a, b, orders, mcoefs, point, values)
 
-
     return values
+
 
 def vec_eval_cubic_splines(a, b, orders, mcoefs, points, values=None):
     """Evaluates multi-splines on a series of points.
@@ -189,9 +180,9 @@ def vec_eval_cubic_splines(a, b, orders, mcoefs, points, values=None):
         Interpolated values. values[i,j] contains spline n-j evaluated at point points[i,:].
     """
 
-    a = numpy.array(a,dtype=float)
-    b = numpy.array(b,dtype=float)
-    orders = numpy.array(orders,dtype=int)
+    a = numpy.array(a, dtype=float)
+    b = numpy.array(b, dtype=float)
+    orders = numpy.array(orders, dtype=int)
 
     d = a.shape[0]
 
@@ -213,16 +204,20 @@ def vec_eval_cubic_splines(a, b, orders, mcoefs, points, values=None):
     elif d == 4:
         vec_eval_cubic_splines_4(a, b, orders, mcoefs, points, values)
 
-
     return values
 
 
+def vec_eval_cubic_splines_G(a,
+                             b,
+                             orders,
+                             mcoefs,
+                             points,
+                             values=None,
+                             dvalues=None):
 
-def vec_eval_cubic_splines_G(a, b, orders, mcoefs, points, values=None, dvalues=None):
-
-    a = numpy.array(a,dtype=float)
-    b = numpy.array(b,dtype=float)
-    orders = numpy.array(orders,dtype=int)
+    a = numpy.array(a, dtype=float)
+    b = numpy.array(b, dtype=float)
+    orders = numpy.array(orders, dtype=int)
 
     d = a.shape[0]
     N = points.shape[0]
@@ -232,19 +227,22 @@ def vec_eval_cubic_splines_G(a, b, orders, mcoefs, points, values=None, dvalues=
         values = numpy.empty((N, n_sp))
 
     if dvalues is None:
-        dvalues = numpy.empty((N,d,n_sp))
+        dvalues = numpy.empty((N, d, n_sp))
 
     if d == 1:
-        vec_eval_cubic_splines_G_1(a, b, orders, mcoefs, points, values, dvalues)
+        vec_eval_cubic_splines_G_1(a, b, orders, mcoefs, points, values,
+                                   dvalues)
 
     elif d == 2:
-        vec_eval_cubic_splines_G_2(a, b, orders, mcoefs, points, values, dvalues)
+        vec_eval_cubic_splines_G_2(a, b, orders, mcoefs, points, values,
+                                   dvalues)
 
     elif d == 3:
-        vec_eval_cubic_splines_G_3(a, b, orders, mcoefs, points, values, dvalues)
+        vec_eval_cubic_splines_G_3(a, b, orders, mcoefs, points, values,
+                                   dvalues)
 
     elif d == 4:
-        vec_eval_cubic_splines_G_4(a, b, orders, mcoefs, points, values, dvalues)
-
+        vec_eval_cubic_splines_G_4(a, b, orders, mcoefs, points, values,
+                                   dvalues)
 
     return [values, dvalues]

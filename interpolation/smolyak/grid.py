@@ -29,7 +29,6 @@ from itertools import product, combinations_with_replacement
 from itertools import chain
 import numpy as np
 from scipy.linalg import lu
-import pandas as pd
 from functools import reduce
 from .util import *
 
@@ -37,10 +36,10 @@ from .util import *
 #- Building Blocks -#
 ## --------------- ##
 
-__all__ = ['num_grid_points', 'm_i', 'cheby2n', 's_n', 'a_chain', 'phi_chain',
-            'smol_inds', 'build_grid', 'build_B', 'SmolyakGrid']
-
-
+__all__ = [
+    'num_grid_points', 'm_i', 'cheby2n', 's_n', 'a_chain', 'phi_chain',
+    'smol_inds', 'build_grid', 'build_B', 'SmolyakGrid'
+]
 
 
 def num_grid_points(d, mu):
@@ -63,13 +62,14 @@ def num_grid_points(d, mu):
 
     """
     if mu == 1:
-        return 2*d + 1
+        return 2 * d + 1
 
     if mu == 2:
-        return 1 + 4*d + 4*d*(d-1)/2.
+        return 1 + 4 * d + 4 * d * (d - 1) / 2.
 
     if mu == 3:
-        return 1 + 8*d + 12*d*(d-1)/2. + 8*d*(d-1)*(d-2)/6.
+        return 1 + 8 * d + 12 * d * (d - 1) / 2. + 8 * d * (d - 1) * (
+            d - 2) / 6.
 
 
 def m_i(i):
@@ -105,6 +105,7 @@ def m_i(i):
     else:
         return 2**(i - 1) + 1
 
+
 def chebyvalto(x, n, kind=1.):
     """
     Computes first :math:`n` Chebychev polynomials of the first kind
@@ -138,11 +139,11 @@ def chebyvalto(x, n, kind=1.):
     x = np.asarray(x)
     row, col = x.shape
 
-    ret_matrix = np.zeros((row, col * (n-1)))
+    ret_matrix = np.zeros((row, col * (n - 1)))
 
     init = np.ones((row, col))
     ret_matrix[:, :col] = x * kind
-    ret_matrix[:, col:2*col] = 2 * x * ret_matrix[:, :col] - init
+    ret_matrix[:, col:2 * col] = 2 * x * ret_matrix[:, :col] - init
 
     for i in range(3, n):
         ret_matrix[:, col*(i-1): col*(i)] = 2 * x * ret_matrix[:, col*(i-2):col*(i-1)] \
@@ -185,8 +186,8 @@ def cheby2n(x, n, kind=1.):
     results = np.zeros((n + 1, ) + dim)
     results[0, ...] = np.ones(dim)
     results[1, ...] = x * kind
-    for i in range(2, n+1):
-        results[i, ...] = 2 * x * results[i-1, ...] - results[i-2, ...]
+    for i in range(2, n + 1):
+        results[i, ...] = 2 * x * results[i - 1, ...] - results[i - 2, ...]
     return results
 
 
@@ -212,14 +213,14 @@ def s_n(n):
         return np.array([0.])
 
     # Apply the necessary transformation to get the nested sequence
-    m_i = 2**(n-1) + 1
+    m_i = 2**(n - 1) + 1
 
     # Create an array of values that will be passed in to calculate
     # the set of values
     comp_vals = np.arange(1., m_i + 1.)
 
     # Values are - cos(pi(j-1)/(n-1)) for j in [1, 2, ..., n]
-    vals = -1. * np.cos(np.pi*(comp_vals - 1.)/(m_i-1.))
+    vals = -1. * np.cos(np.pi * (comp_vals - 1.) / (m_i - 1.))
     vals[np.where(np.abs(vals) < 1e-14)] = 0.0
 
     return vals
@@ -294,13 +295,14 @@ def phi_chain(n):
     aphi_chain[2] = [2, 3]
 
     curr_val = 4
-    for i in range(3, n+1):
-        end_val = 2**(i-1) + 1
-        temp = range(curr_val, end_val+1)
+    for i in range(3, n + 1):
+        end_val = 2**(i - 1) + 1
+        temp = range(curr_val, end_val + 1)
         aphi_chain[i] = temp
-        curr_val = end_val+1
+        curr_val = end_val + 1
 
     return aphi_chain
+
 
 ## ---------------------- ##
 #- Construction Utilities -#
@@ -344,18 +346,20 @@ def smol_inds(d, mu):
 
     # find all (i1, i2, ... id) such that their sum is in range
     # we want; this will cut down on later iterations
-    poss_inds = [el for el in combinations_with_replacement(possible_values, d)
-                 if d < sum(el) <= d+max_mu]
+    poss_inds = [
+        el for el in combinations_with_replacement(possible_values, d)
+        if d < sum(el) <= d + max_mu
+    ]
 
     if isinstance(mu, int):
         true_inds = [[el for el in permute(list(val))] for val in poss_inds]
     else:
-        true_inds = [[el for el in permute(list(val)) if all(el <= mu+1)]
+        true_inds = [[el for el in permute(list(val)) if all(el <= mu + 1)]
                      for val in poss_inds]
 
     # Add the d dimension 1 array so that we don't repeat it a bunch
     # of times
-    true_inds.extend([[[1]*d]])
+    true_inds.extend([[[1] * d]])
 
     tinds = list(chain.from_iterable(true_inds))
 
@@ -461,8 +465,7 @@ def build_grid(d, mu, inds=None):
         # inds.append(el)
         points.extend(list(product(*temp)))
 
-    # TODO  do we need a pandas grid here?
-    grid = pd.lib.to_object_array_tuples(points).astype(float)
+    grid = np.array(points)
 
     return grid
 
@@ -519,8 +522,7 @@ def build_B(d, mu, pts, b_inds=None, deriv=False):
     npts = pts.shape[0]
     B = np.empty((npts, npolys), order='F')
     for ind, comb in enumerate(b_inds):
-        B[:, ind] = reduce(mul, [Ts[comb[i] - 1, i, :]
-                           for i in range(d)])
+        B[:, ind] = reduce(mul, [Ts[comb[i] - 1, i, :] for i in range(d)])
 
     if deriv:
         # TODO: test this. I am going to bed.
@@ -533,13 +535,12 @@ def build_B(d, mu, pts, b_inds=None, deriv=False):
 
         for i in range(d):
             for ind, comb in enumerate(b_inds):
-                der_B[ind, i, :] = reduce(mul, [(Ts[comb[k] - 1, k, :] if i != k
-                                          else Us[comb[k] - 1, k, :])
-                                          for k in range(d)])
+                der_B[ind, i, :] = reduce(
+                    mul, [(Ts[comb[k] - 1, k, :]
+                           if i != k else Us[comb[k] - 1, k, :])
+                          for k in range(d)])
 
         return B, der_B
-
-
 
     return B
 
@@ -571,7 +572,6 @@ def build_B(d, mu, pts, b_inds=None, deriv=False):
 #     if mu==2:
 #         for i in range(d-1):
 
-
 #             mult_inds = np.hstack([np.arange(i+1, d), np.arange(d + (i+1), 2*d)])
 
 #             temp1 = easy_B[:, i].reshape(npts, 1) * easy_B[:, mult_inds]
@@ -580,7 +580,6 @@ def build_B(d, mu, pts, b_inds=None, deriv=False):
 #             new_cols = temp1.shape[1] + temp2.shape[1]
 #             B[:, B_col_mrk: B_col_mrk + new_cols] = np.hstack([temp1, temp2])
 #             B_col_mrk = B_col_mrk + new_cols
-
 
 #     #-----------------------------------------------------------------#
 #     #-----------------------------------------------------------------#
@@ -633,11 +632,10 @@ def build_B(d, mu, pts, b_inds=None, deriv=False):
 
 #     return B
 
-
-
 ## ------------------ ##
 #- Class: SmolyakGrid -#
 ## ------------------ ##
+
 
 class SmolyakGrid(object):
     """
@@ -706,6 +704,7 @@ class SmolyakGrid(object):
         B: 0.68% non-zero
 
     """
+
     def __init__(self, d, mu, lb=None, ub=None):
         self.d = d
 
@@ -771,7 +770,7 @@ class SmolyakGrid(object):
     def __repr__(self):
         npoints = self.cube_grid.shape[0]
         nz_pts = np.count_nonzero(self.B)
-        pct_nz = nz_pts / (npoints ** 2.)
+        pct_nz = nz_pts / (npoints**2.)
 
         if isinstance(self.mu, int):
             msg = "Smolyak Grid:\n\td: {0} \n\tmu: {1} \n\tnpoints: {2}"
@@ -797,10 +796,10 @@ class SmolyakGrid(object):
         lb = self.lb
         ub = self.ub
 
-        centers = lb + (ub - lb)/2
-        radii = (ub - lb)/2
+        centers = lb + (ub - lb) / 2
+        radii = (ub - lb) / 2
 
-        trans_pts = (pts-centers)/radii
+        trans_pts = (pts - centers) / radii
 
         return trans_pts
 
@@ -815,10 +814,10 @@ class SmolyakGrid(object):
         lb = self.lb
         ub = self.ub
 
-        centers = lb + (ub - lb)/2
-        radii = (ub - lb)/2
+        centers = lb + (ub - lb) / 2
+        radii = (ub - lb) / 2
 
-        inv_trans_pts = pts*radii + centers
+        inv_trans_pts = pts * radii + centers
 
         return inv_trans_pts
 

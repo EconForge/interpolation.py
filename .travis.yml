@@ -24,13 +24,11 @@ install:
   # Useful for debugging any issues with conda
   - conda info -a
 
-  - deps='pip nose numba numpy pandas cython scipy'
+  - deps='pip nose numba numpy scipy'
   - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION $deps
   - source activate test-environment
   - python setup.py install
   - export  NUMBA_ENABLE_CUDASIM=1
-
-
 
 script:
 
