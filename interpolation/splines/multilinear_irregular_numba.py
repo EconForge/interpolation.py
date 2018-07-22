@@ -2,10 +2,31 @@ import numpy as np
 from numba import njit
 
 @njit(cache=True)
+def multilinear_irregular_1d_nonvec(x0, y, u0):
+
+    order_0 = x0.shape[0]
+
+    # (s_1, ..., s_d) : evaluation point
+    u_0 = u0
+
+    # q_k : index of the interval "containing" s_k
+    q_0 = max( min( np.searchsorted(x0, u_0)-1, (order_0-2) ), 0 )
+
+    # lam_k : barycentric coordinate in interval k
+    lam_0 =  (u_0-x0[q_0])/(x0[q_0+1]-x0[q_0])
+
+    # v_ij: values on vertices of hypercube "containing" the point
+    v_0 = y[(q_0)]
+    v_1 = y[(q_0+1)]
+
+    # interpolated/extrapolated value
+    return (1-lam_0)*(v_0) + (lam_0)*(v_1)
+
+@njit(cache=True)
 def multilinear_irregular_1d(x0, y, u, output):
 
     d = 1
-    N = s.shape[0]
+    N = u.shape[0]
 
     order_0 = x0.shape[0]
 
@@ -31,7 +52,7 @@ def multilinear_irregular_1d(x0, y, u, output):
 def multilinear_irregular_2d(x0, x1, y, u, output):
 
     d = 2
-    N = s.shape[0]
+    N = u.shape[0]
 
     order_0 = x0.shape[0]
     order_1 = x1.shape[0]
@@ -63,7 +84,7 @@ def multilinear_irregular_2d(x0, x1, y, u, output):
 def multilinear_irregular_3d(x0, x1, x2, y, u, output):
 
     d = 3
-    N = s.shape[0]
+    N = u.shape[0]
 
     order_0 = x0.shape[0]
     order_1 = x1.shape[0]
@@ -103,7 +124,7 @@ def multilinear_irregular_3d(x0, x1, x2, y, u, output):
 def multilinear_irregular_4d(x0, x1, x2, x3, y, u, output):
 
     d = 4
-    N = s.shape[0]
+    N = u.shape[0]
 
     order_0 = x0.shape[0]
     order_1 = x1.shape[0]
@@ -155,7 +176,7 @@ def multilinear_irregular_4d(x0, x1, x2, x3, y, u, output):
 def multilinear_irregular_5d(x0, x1, x2, x3, x4, y, u, output):
 
     d = 5
-    N = s.shape[0]
+    N = u.shape[0]
 
     order_0 = x0.shape[0]
     order_1 = x1.shape[0]
@@ -227,7 +248,7 @@ def multilinear_irregular_5d(x0, x1, x2, x3, x4, y, u, output):
 def multilinear_irregular_vector_1d(x0, y,u, output):
 
     d = 1
-    N = s.shape[0]
+    N = u.shape[0]
     n_x = y.shape[1]
 
     order_0 = x0.shape[0]
@@ -235,7 +256,7 @@ def multilinear_irregular_vector_1d(x0, y,u, output):
     for n in range(N):
 
             # (s_1, ..., s_d) : evaluation point
-            s_0 = u[ n, 0 ]
+            u_0 = u[ n, 0 ]
 
             # q_k : index of the interval "containing" s_k
             q_0 = max( min( np.searchsorted(x0, u_0)-1, (order_0-2) ), 0 )
@@ -256,7 +277,7 @@ def multilinear_irregular_vector_1d(x0, y,u, output):
 def multilinear_irregular_vector_2d(x0, x1, y,u, output):
 
     d = 2
-    N = s.shape[0]
+    N = u.shape[0]
     n_x = y.shape[2]
 
     order_0 = x0.shape[0]
@@ -265,8 +286,8 @@ def multilinear_irregular_vector_2d(x0, x1, y,u, output):
     for n in range(N):
 
             # (s_1, ..., s_d) : evaluation point
-            s_0 = u[ n, 0 ]
-            s_1 = u[ n, 1 ]
+            u_0 = u[ n, 0 ]
+            u_1 = u[ n, 1 ]
 
             # q_k : index of the interval "containing" s_k
             q_0 = max( min( np.searchsorted(x0, u_0)-1, (order_0-2) ), 0 )
@@ -291,7 +312,7 @@ def multilinear_irregular_vector_2d(x0, x1, y,u, output):
 def multilinear_irregular_vector_3d(x0, x1, x2, y,u, output):
 
     d = 3
-    N = s.shape[0]
+    N = u.shape[0]
     n_x = y.shape[3]
 
     order_0 = x0.shape[0]
@@ -301,9 +322,9 @@ def multilinear_irregular_vector_3d(x0, x1, x2, y,u, output):
     for n in range(N):
 
             # (s_1, ..., s_d) : evaluation point
-            s_0 = u[ n, 0 ]
-            s_1 = u[ n, 1 ]
-            s_2 = u[ n, 2 ]
+            u_0 = u[ n, 0 ]
+            u_1 = u[ n, 1 ]
+            u_2 = u[ n, 2 ]
 
             # q_k : index of the interval "containing" s_k
             q_0 = max( min( np.searchsorted(x0, u_0)-1, (order_0-2) ), 0 )
@@ -334,7 +355,7 @@ def multilinear_irregular_vector_3d(x0, x1, x2, y,u, output):
 def multilinear_irregular_vector_4d(x0, x1, x2, x3, y,u, output):
 
     d = 4
-    N = s.shape[0]
+    N = u.shape[0]
     n_x = y.shape[4]
 
     order_0 = x0.shape[0]
@@ -345,10 +366,10 @@ def multilinear_irregular_vector_4d(x0, x1, x2, x3, y,u, output):
     for n in range(N):
 
             # (s_1, ..., s_d) : evaluation point
-            s_0 = u[ n, 0 ]
-            s_1 = u[ n, 1 ]
-            s_2 = u[ n, 2 ]
-            s_3 = u[ n, 3 ]
+            u_0 = u[ n, 0 ]
+            u_1 = u[ n, 1 ]
+            u_2 = u[ n, 2 ]
+            u_3 = u[ n, 3 ]
 
             # q_k : index of the interval "containing" s_k
             q_0 = max( min( np.searchsorted(x0, u_0)-1, (order_0-2) ), 0 )
@@ -389,7 +410,7 @@ def multilinear_irregular_vector_4d(x0, x1, x2, x3, y,u, output):
 def multilinear_irregular_vector_5d(x0, x1, x2, x3, x4, y,u, output):
 
     d = 5
-    N = s.shape[0]
+    N = u.shape[0]
     n_x = y.shape[5]
 
     order_0 = x0.shape[0]
@@ -401,11 +422,11 @@ def multilinear_irregular_vector_5d(x0, x1, x2, x3, x4, y,u, output):
     for n in range(N):
 
             # (s_1, ..., s_d) : evaluation point
-            s_0 = u[ n, 0 ]
-            s_1 = u[ n, 1 ]
-            s_2 = u[ n, 2 ]
-            s_3 = u[ n, 3 ]
-            s_4 = u[ n, 4 ]
+            u_0 = u[ n, 0 ]
+            u_1 = u[ n, 1 ]
+            u_2 = u[ n, 2 ]
+            u_3 = u[ n, 3 ]
+            u_4 = u[ n, 4 ]
 
             # q_k : index of the interval "containing" s_k
             q_0 = max( min( np.searchsorted(x0, u_0)-1, (order_0-2) ), 0 )
