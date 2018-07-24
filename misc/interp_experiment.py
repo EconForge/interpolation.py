@@ -1,7 +1,11 @@
+from numba.extending import overload
 import numba
 import numpy as np
 from numba import float64, int64
 from numba import generated_jit, njit
+import ast
+
+from numba.types.containers import Tuple, UniTuple
 
 # the following code implements a function
 #
@@ -74,68 +78,75 @@ def get_size(gc):
 # def f(x): x**2
 # fmap(f, (1,2,3)) -> (1,3,9)
 # def g(x,y): x**2 + y
-# fmap1(g, (1,2,3), 0.1) -> (1.1,3.1,9.1)  # (g(1,0.1), g(2,0.1), g(3,0.1))
+# fmap(g, (1,2,3), 0.1) -> (1.1,3.1,9.1)  # (g(1,0.1), g(2,0.1), g(3,0.1))
 # def g(x,y): x**2 + y
-# fmapc(g, (1,2,3), (0.1,0.2,0.3)) -> (1.1,3.0.12,9.3)
+# fmap(g, (1,2,3), (0.1,0.2,0.3)) -> (1.1,3.0.12,9.3)
 # ```
 
-@generated_jit(nopython=True)
-def fmap(fun, tup):
-    if len(tup)==1:
-        def fun(fun, tup): return (fun(tup[0]),)
-    if len(tup)==2:
-        def fun(fun, tup): return (fun(tup[0]),fun(tup[1]))
-    if len(tup)==3:
-        def fun(fun, tup): return (fun(tup[0]),fun(tup[1]),fun(tup[2]))
-    if len(tup)==4:
-        def fun(fun, tup): return (fun(tup[0]),fun(tup[1]),fun(tup[2]),fun(tup[3]))
-    if len(tup)==5:
-        def fun(fun, tup): return (fun(tup[0]),fun(tup[1]),fun(tup[2]),fun(tup[3]),fun(tup[4]))
-    return fun
 
-@generated_jit(nopython=True)
-def fmap1(fun, tup, x):
-    if len(tup)==1:
-        def fun(fun, tup, x): return (fun(tup[0],x),)
-    if len(tup)==2:
-        def fun(fun, tup, x): return (fun(tup[0],x),fun(tup[1],x))
-    if len(tup)==3:
-        def fun(fun, tup, x): return (fun(tup[0],x),fun(tup[1],x),fun(tup[2],x))
-    if len(tup)==4:
-        def fun(fun, tup, x): return (fun(tup[0],x),fun(tup[1],x),fun(tup[2],x),fun(tup[3],x))
-    if len(tup)==5:
-        def fun(fun, tup, x): return (fun(tup[0],x),fun(tup[1],x),fun(tup[2],x),fun(tup[3],x),fun(tup[4],x))
-    return fun
+def fmap():
+    pass
 
-@generated_jit(nopython=True)
-def fmapc(fun, tup1, tup2):
-    if len(tup1)==1:
-        def fun(fun, tup1, tup2): return (fun(tup1[0],tup2[0]),)
-    if len(tup1)==2:
-        def fun(fun, tup1, tup2): return (fun(tup1[0],tup2[0]),fun(tup1[1],tup2[1]))
-    if len(tup1)==3:
-        def fun(fun, tup1, tup2): return (fun(tup1[0],tup2[0]),fun(tup1[1],tup2[1]),fun(tup1[2],tup2[2]))
-    if len(tup1)==4:
-        def fun(fun, tup1, tup2): return (fun(tup1[0],tup2[0]),fun(tup1[1],tup2[1]),fun(tup1[2],tup2[2]),fun(tup1[3],tup2[3]))
-    if len(tup1)==5:
-        def fun(fun, tup1, tup2): return (fun(tup1[0],tup2[0]),fun(tup1[1],tup2[1]),fun(tup1[2],tup2[2]),fun(tup1[3],tup2[3]),fun(tup1[4],tup2[4]))
-    return fun
+@overload(fmap)
+def _map(*args):
+
+    if len(args)==2 and isinstance(args[1], (Tuple, UniTuple)):
+        k = len(args[1])
+        s = "def __map(f, t): return ({}, )".format(str.join(', ',['f(t[{}])'.format(i) for i in range(k)]))
+    elif len(args)==3 and isinstance(args[1], (Tuple, UniTuple)):
+        k = len(args[1])
+        if isinstance(args[2], (Tuple, UniTuple)):
+            if len(args[2]) != k:
+                # we don't know what to do in this case
+                return None
+            s = "def __map(f, t1, t2): return ({}, )".format(str.join(', ',['f(t1[{}], t2[{}])'.format(i,i) for i in range(k)]))
+        else:
+            s = "def __map(f, t1, x): return ({}, )".format(str.join(', ',['f(t1[{}], x)'.format(i,i) for i in range(k)]))
+    else:
+        return None
+    d = {}
+    eval(compile(ast.parse(s),'<string>','exec'), d)
+    return d['__map']
 
 
+# not that `fmap` does nothing in python mode...
+# an alternative would be
+#
+# @njit
+# def _fmap():
+#     pass
+#
+# @overload(_fmap)
+# ...
+#
+# @njit
+# def fmap(*args):
+#     return _fmap(*args)
+#
+# but this seems to come with a performance cost.
+# It it is also possible to overload `map` but we would risk
+# a future conflict with the map api.
+
+
+#
+# @njit
+# def fmap(*args):
+#     return _fmap(*args)
 #
 # funzip(((1,2), (2,3), (4,3))) -> ((1,2,4),(2,3,3))
 
 @generated_jit(nopython=True)
-def funzip(tup):
-    if len(tup)==1:
-        def fun(tup): return ((tup[0][0],),(tup[0][1],))
-    if len(tup)==2:
-        def fun(tup): return ((tup[0][0],tup[1][0]),(tup[0][1],tup[1][1]))
-    if len(tup)==3:
-        def fun(tup): return ((tup[0][0],tup[1][0],tup[2][0]),(tup[0][1],tup[1][1],tup[2][1]))
-    if len(tup)==4:
-        def fun(tup): return ((tup[0][0],tup[1][0],tup[2][0],tup[3][0]),(tup[0][1],tup[1][1],tup[2][1],tup[3][1]))
-    return fun
+def funzip(t):
+    k = t.count
+    assert(len(set([e.count for e in t.types]))==1)
+    l = t.types[0].count
+    def print_tuple(t): return "({},)".format(str.join(", ", t))
+    tab =  [ [ 't[{}][{}]'.format(i,j) for i in range(k)] for j in range(l) ]
+    s = "def funzip(t): return {}".format(print_tuple( [print_tuple(e) for e in tab] ))
+    d = {}
+    eval(compile(ast.parse(s),'<string>','exec'), d)
+    return d['funzip']
+
 
 #####
 # array subscribing:
@@ -185,8 +196,7 @@ from typing import Tuple
 def interp(grid: Tuple, c, u: Tuple)->float:
 
     # get indices and barycentric coordinates
-    sizes = fmap(get_size, grid)
-    tmp = fmapc(get_index, grid, u)
+    tmp = fmap(get_index, grid, u)
     indices, barycenters = funzip(tmp)
     coeffs = get_coeffs(c, indices)
     v = tensor_reduction(coeffs, barycenters)
