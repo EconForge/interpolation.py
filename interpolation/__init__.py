@@ -1,1 +1,1 @@
-from .multilinear.mlinterp import interp
+from .multilinear.mlinterp import interp, mlinterp

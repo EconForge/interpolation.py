@@ -18,7 +18,7 @@
 # Actual interpolation function #
 #################################
 
-from .fungen import fmap, funzip, get_coeffs, tensor_reduction, get_index
+from .fungen import fmap, funzip, get_coeffs, tensor_reduction, get_index, extract_row
 
 from numba import njit
 from typing import Tuple
@@ -26,18 +26,37 @@ from typing import Tuple
 from numba.types import UniTuple, Array, float64
 from numba.types import Float
 
+import numpy as np
+from numba import generated_jit
 
 #logic of multilinear interpolation
 
-@njit
-def _mlinterp(grid: Tuple, c, u: Tuple)->float:
 
-    # get indices and barycentric coordinates
-    tmp = fmap(get_index, grid, u)
-    indices, barycenters = funzip(tmp)
-    coeffs = get_coeffs(c, indices)
-    v = tensor_reduction(coeffs, barycenters)
-    return v
+@generated_jit
+def mlinterp(grid, c, u):
+    if isinstance(u, UniTuple):
+        def mlininterp(grid: Tuple, c: Array, u: Tuple)->float:
+            # get indices and barycentric coordinates
+            tmp = fmap(get_index, grid, u)
+            indices, barycenters = funzip(tmp)
+            coeffs = get_coeffs(c, indices)
+            v = tensor_reduction(coeffs, barycenters)
+            return v
+    elif isinstance(u, Array) and u.ndim==2:
+        def mlininterp(grid: Tuple, c: Array, u: Array)->float:
+            N = u.shape[0]
+            res = np.zeros(N)
+            for n in range(N):
+                uu = extract_row(u, n, grid)
+                # get indices and barycentric coordinates
+                tmp = fmap(get_index, grid, uu)
+                indices, barycenters = funzip(tmp)
+                coeffs = get_coeffs(c, indices)
+                res[n] = tensor_reduction(coeffs, barycenters)
+            return res
+    else:
+        mlininterp = None
+    return mlininterp
 
 ### The rest of this file constrcts function `interp`
 
@@ -90,6 +109,7 @@ def make_mlinterp(it, funname):
 
     if it.values =='vector':
         return None
+
     if it.eval in ('float', 'tuple') and it.values =='vector':
         # raise Exception("Non supported. (return type unknown)")
         return None
@@ -110,7 +130,7 @@ def {funname}(*args):
     grid = {grid_s}
     C = args[{it.d}]
     point = {point_s}
-    res = _mlinterp(grid, C, point)
+    res = mlinterp(grid, C, point)
     return res
     """
         return source
@@ -126,7 +146,7 @@ def {funname}(*args):
     res = zeros(N)
     # return res
     for n in range(N):
-        res[n] = _mlinterp(grid, C, {p_s})
+        res[n] = mlinterp(grid, C, {p_s})
     return res
 """
         return source
@@ -146,7 +166,7 @@ def {funname}(*args):
     res = zeros((N,M))
     for n in range(N):
         for m in range(M):
-            res[n,m] = _mlinterp(grid, C, (points_x[n], points_y[m]))
+            res[n,m] = mlinterp(grid, C, (points_x[n], points_y[m]))
     return res
 """
         return source

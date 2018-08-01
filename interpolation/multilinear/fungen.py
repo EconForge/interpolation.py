@@ -169,3 +169,11 @@ def tensor_reduction(C,l):
     else:
         print("Not implemented")
     return fun# funzip(((1,2), (2,3), (4,3)))n
+
+@generated_jit
+def extract_row(a, n, tup):
+    d = len(tup.types)
+    dd = {}
+    s = "def extract_row(a, n, tup): return ({},)".format(str.join(', ', [f"a[n,{i}]" for i in range(d)]))
+    eval(compile(ast.parse(s),'<string>','exec'), dd)
+    return dd['extract_row']

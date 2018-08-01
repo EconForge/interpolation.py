@@ -50,19 +50,44 @@ d5 = (linspace(0,1,10), linspace(0,1,20), random((10,20,3)), 0.5, 2.0) # unsuppo
 tests = [a2, a3, a4, c1, c2, c3, c4]
 tests_failing = [b1, b2, b3, b4, b5, d4, d5, d1, d2, d3, d4, d5]
 
-from interpolation.multilinear.mlinterp import mlinterp
+from interpolation.multilinear.mlinterp import mlinterp, interp
+
+
+def test_mlinterp():
+
+    # simple multilinear interpolation api
+
+    import numpy as np
+    from interpolation import mlinterp
+
+    # from interpolation.multilinear.mlinterp import mlininterp, mlininterp_vec
+    x1 = np.linspace(0,1,10)
+    x2 = np.linspace(0,1,20)
+    y = np.random.random((10,20))
+
+    z1 = np.linspace(0,1,30)
+    z2 = np.linspace(0,1,30)
+
+    pp = np.random.random((2000,2))
+
+    res0 = mlinterp((x1,x2), y, pp)
+    res0 = mlinterp((x1,x2), y, (0.1, 0.2))
+
 
 def test_multilinear():
+
+    # flat flexible api
 
     for t in tests:
 
         tt = [typeof(e) for e in t]
-        rr = mlinterp(*t)
+        print(tt)
+        rr = interp(*t)
+
         try:
             print(f"{tt}: {rr.shape}")
         except:
             print(f"{tt}: OK")
-
 
 #
 # exit()
