@@ -7,21 +7,6 @@ import ast
 
 from numba.types.containers import Tuple, UniTuple
 
-# the following code implements a function
-#
-# interpolate(grid, c, u)
-#
-# where grid is a cartesian grid, but dimensions are not necessarly evenly spaced
-# grid are represented by a tuple like:
-# - `( (-1.0,1.0,10), (-1.0,1.0,20) )` : a `10x20` even cartesian grid on `[-1,1]^2`
-# - `( linspace(0,1,10), linspace(0,1,100)**2)` : a `10x100` uneven cartesian grid on `[0,1]^2`
-# - `( (0,1.0,10), linspace(0,1,100)**2)` : a `10x100` cartesian grid where first dimension is evenly distributed, the second not
-
-# there is only one (easy-to-read?) jitted implementation of `interpolate`, line 185
-# it depends on several generated jit functions which dispatch the right behaviour
-# in this example this helper functions are written by hand, but for any dimension
-# the code could be generated just in time too.
-
 
 ####################
 # Dimension helper #
@@ -178,112 +163,9 @@ def get_coeffs(X,I):
 @generated_jit(nopython=True)
 def tensor_reduction(C,l):
     if len(l)==1:
-        def fun(C,l): return (1-l[0])*C[0] + l[0]*C[1]
+        def fun(C,l): return (1-l[0])*C[0][0] + l[0]*C[0][1]
     elif len(l)==2:
         def fun(C,l): return (1-l[0])*((1-l[1])*C[0][0]+l[1]*C[0][1]) + l[0]*((1-l[1])*C[1][0]+l[1]*C[1][1])
     else:
         print("Not implemented")
     return fun# funzip(((1,2), (2,3), (4,3)))n
-
-#################################
-# Actual interpolation function #
-#################################
-
-from typing import Tuple
-
-
-@njit
-def interp(grid: Tuple, c, u: Tuple)->float:
-
-    # get indices and barycentric coordinates
-    tmp = fmap(get_index, grid, u)
-    indices, barycenters = funzip(tmp)
-    coeffs = get_coeffs(c, indices)
-    v = tensor_reduction(coeffs, barycenters)
-    return v
-
-
-grid = (
-    (0.0, 1.0, 11),
-    (0.0, 1.0, 11)
-)
-
-vv = np.linspace(0,1,11)
-
-grid_uneven = (
-    vv,
-    vv
-)
-
-C = np.random.rand(11,11)
-
-# two equivalent calls:
-v = interp(grid, C, (0.3, 0.2))
-v_unevn = interp(grid_uneven, C, (0.3, 0.2))
-
-assert(abs(v_unevn-v)<1e-10)
-
-
-#
-# # let's compare with interp2d
-from scipy.interpolate import interp2d
-intp2 = interp2d(vv,vv,C.T)
-v_2d = intp2(0.3,0.2)
-assert(abs(v_2d-v)<1e-10)
-
-# and Regular Grid Interpolator
-from scipy.interpolate import RegularGridInterpolator
-vg = np.linspace(0,1,11)
-rgi = RegularGridInterpolator((vg,vg),C)
-v_rgi = rgi([0.3, 0.2])[0]
-assert(abs(v_rgi-v)<1e-10)
-
-
-###############################################################
-# Now let's see what are the gains of jit for repeated callas #
-# with some unscientific performance benchmarks               #
-###############################################################
-@njit
-def vec_interp(grid, C, points):
-    N = points.shape[0]
-    out = np.zeros(N)
-    for n in range(N):
-        p1 = points[n,0]
-        p2 = points[n,1]
-        out[n] = interp(grid, C, (p1,p2))
-    return out
-
-N = 100000
-points = np.random.rand(N,2)
-
-
-
-vals = vec_interp(grid, C, points)
-vals_un = vec_interp(grid_uneven, C, points)
-vals_rgi = rgi(points)
-
-# both give the same result
-assert((abs(vals-vals_rgi).max()<1e-10))
-assert((abs(vals-vals_un).max()<1e-10))
-
-import time
-K = 1000
-
-t1_a = time.time()
-for k in range(K):
-    vals = vec_interp(grid, C, points)
-t1_b = time.time()
-
-t2_a = time.time()
-for k in range(K):
-    vals_un = vec_interp(grid_uneven, C, points)
-t2_b = time.time()
-
-t3_a = time.time()
-for k in range(K):
-    vals_rgi = rgi(points)
-t3_b = time.time()
-
-print(f"Even: {t1_b-t1_a}")
-print(f"Uneven: {t2_b-t2_a}")
-print(f"Scipy: {t3_b-t3_a}")
