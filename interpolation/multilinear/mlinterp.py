@@ -91,6 +91,8 @@ def detect_types(args):
             assert(set([e.ndim for e in eval_args])==set([1]))
         elif set([isinstance(e,Float) for e in eval_args])==set([True]):
             eval_type = 'float'
+        else:
+            raise Exception("Undetected evaluation type.")
     else:
         if isinstance(eval_args[0], Array):
             if eval_args[0].ndim==1:
@@ -101,6 +103,10 @@ def detect_types(args):
                 raise Exception("Undetected evaluation type.")
         elif isinstance(eval_args[0], UniTuple):
             eval_type = 'tuple'
+        elif set([isinstance(e,Float) for e in eval_args])==set([True]):
+            eval_type = 'float'
+        else:
+            raise Exception("Undetected evaluation type.")
 
     return itt(d, values_type, eval_type)
 

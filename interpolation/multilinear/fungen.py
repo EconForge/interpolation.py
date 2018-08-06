@@ -1,10 +1,10 @@
-from numba.extending import overload
 import numba
 import numpy as np
 from numba import float64, int64
 from numba import generated_jit, njit
 import ast
 
+from numba.extending import overload
 from numba.types.containers import Tuple, UniTuple
 
 
