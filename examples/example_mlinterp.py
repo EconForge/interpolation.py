@@ -1,5 +1,25 @@
 import numpy as np
 
+from numba import generated_jit
+import ast
+
+C = ((0.1,0.2),(0.1,0.2))
+l = (0.1,0.5)
+
+from interpolation.multilinear.fungen import extract_row, tensor_reduction
+
+tensor_reduction(C,l)
+
+ll = np.row_stack([1-np.array(l),l])
+ll
+np.einsum('ij,i,j', np.array(C), ll[0,:], ll[1,:])
+
+A = np.random.random((5,5))
+extract_row(A, 1, (2,2))
+
+from interpolation.multilinear.fungen import get_coeffs
+get_coeffs(A, (1,2))
+
 ##########
 # interp #
 ##########
@@ -33,6 +53,7 @@ print( abs(vec_eval(u) - interp(x,y,u)).max())
 
 ### 2d interpolation (same for higher orders)
 
+
 from interpolation import interp
 
 x1 = np.linspace(0,1,100)**2 # non-uniform points
@@ -42,6 +63,7 @@ y = np.array([[np.sqrt(u1**2 + u2**2) for u2 in x2] for u1 in x1])
 
 
 # interpolate at one point:
+
 interp(x1,x2,y,0.5,0.2)
 interp(x1,x2,y,(0.5,0.2))
 
@@ -52,7 +74,7 @@ interp(x1,x2,y,points)
 from numba import njit
 @njit
 def vec_eval(p):
-    N = u.shape[0]
+    N = p.shape[0]
     out = np.zeros(N)
     for n in range(N):
         z1 = p[n,0]
@@ -70,7 +92,6 @@ z1 = np.linspace(0,1,100)
 z2 = np.linspace(0,1,100)
 out = interp(x1,x2,y,z1,z2)
 # out[i,j] contains f(z1[i],z2[j])
-
 
 
 
@@ -95,3 +116,14 @@ mlinterp(grid, y, points)
 
 # non-vectorized call (note third argument must be a tuple of floats of right size)
 mlinterp(grid, y, (0.4, 0.2))
+
+# arbitrary dimension
+
+d = 4
+K = 100
+N = 10000
+grid = (np.linspace(0,1,K),)*d
+y = np.random.random((K,)*d)
+z = np.random.random((N,d))
+
+mlinterp(grid,y,z)

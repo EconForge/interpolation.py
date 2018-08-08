@@ -140,37 +140,47 @@ def funzip(t):
 # the number of its elements can be inferred by the compiler
 #####
 
+
 @generated_jit(nopython=True)
 def get_coeffs(X,I):
     if X.ndim>len(I):
         print("not implemented yet")
     else:
-        if len(I)==1:
-            def fun(X,I): return ((X[I[0]],X[I[0]+1]),)
-        elif len(I)==2:
-            def fun(X,I): return (
-                    (X[I[0],  I[1]],X[I[0],  I[1]+1]),
-                    (X[I[0]+1,I[1]],X[I[0]+1,I[1]+1]),
-                )
-        else:
-            print("Not implemented")
+        from itertools import product
+        d = len(I)
+        mat = np.array( ["X[{}]".format(str.join(',', e)) for e in product(*[(f"I[{j}]", f"I[{j}]+1") for j in range(d)])] ).reshape((2,)*d)
+        mattotup = lambda mat: mat if isinstance(mat,str) else "({})".format(str.join(',',[mattotup(e) for e in mat]))
+        t = mattotup(mat)
+        s = "def get_coeffs(X,I): return {}".format(t)
+        dd = {}
+        eval(compile(ast.parse(s),'<string>','exec'), dd)
+        return dd['get_coeffs']
         return fun
 
 # tensor_reduction(C,l)
-# (in 2d) computes the equivalent of np.einsum('ij,i,j->', C, l[1], l[2])`
-# but where C and l are given as list of tuples.
+# (in 2d) computes the equivalent of np.einsum('ij,i,j->', C, [1-l[0],l[0]], [1-l[1],l[1]])`
+# but where l is a tuple and C a tuple of tuples.
+
+# this one is a temporary implementation (should be merged with old gen_splines* code)
+def gen_tensor_reduction(X, symbs, inds=[]):
+    if len(symbs) == 0:
+        return '{}[{}]'.format(X, str.join('][',[str(e) for e in inds]))
+    else:
+        h = symbs[0]
+        q = symbs[1:]
+        exprs = [  '{}*({})'.format(h if i==1 else '(1-{})'.format(h),gen_tensor_reduction(X, q,inds + [i])) for i in range(2)]
+        return str.join( ' + ', exprs )
+
 
 @generated_jit(nopython=True)
 def tensor_reduction(C,l):
-    if len(l)==1:
-        def fun(C,l): return (1-l[0])*C[0][0] + l[0]*C[0][1]
-    elif len(l)==2:
-        def fun(C,l): return (1-l[0])*((1-l[1])*C[0][0]+l[1]*C[0][1]) + l[0]*((1-l[1])*C[1][0]+l[1]*C[1][1])
-    else:
-        print("Not implemented")
-    return fun# funzip(((1,2), (2,3), (4,3)))n
+    ex = gen_tensor_reduction('C', ['l[{}]'.format(i) for i in range(len(l.types))])
+    dd = dict()
+    s = "def tensor_reduction(C,l): return {}".format(ex)
+    eval(compile(ast.parse(s),'<string>','exec'), dd)
+    return dd['tensor_reduction']
 
-@generated_jit
+@generated_jit(nopython=True)
 def extract_row(a, n, tup):
     d = len(tup.types)
     dd = {}
