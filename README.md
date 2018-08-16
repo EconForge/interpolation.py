@@ -49,6 +49,28 @@ In the near future:
 - JIT classes for all interpolation objects
 
 
+## jitted, non-uniform multilinear interpolation
+
+There is a simple `interp` function with a flexible API which does multinear on uniform or non uniform cartesian grids.
+
+```
+### 1d grid
+from interpolation import interp
+
+x = np.linspace(0,1,100)**2 # non-uniform points
+y = np.linspace(0,1,100)    # values
+
+# interpolate at one point:
+interp(x,y,0.5)
+
+# or at many points:
+u = np.linspace(0,1,1000)   # points
+interp(x,y,u)
+```
+
+
+
+
 
 
 ## smolyak interpolation
