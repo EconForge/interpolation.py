@@ -158,9 +158,21 @@ def {funname}(*args):
         return source
 
     elif it.eval == 'cartesian':
-        if it.d != 2:
-            return None
-        source = f"""
+        if it.d==1:
+            source = f"""
+from numpy import zeros
+def {funname}(*args):
+    grid = {grid_s}
+    C = args[{it.d}]
+    points_x = args[2]
+    N = points_x.shape[0]
+    res = zeros(N)
+    for n in range(N):
+        res[n] = mlinterp(grid, C, (points_x[n],))
+    return res
+"""
+        elif it.d==2:
+            source = f"""
 from numpy import zeros
 def {funname}(*args):
     grid = {grid_s}
@@ -175,6 +187,8 @@ def {funname}(*args):
             res[n,m] = mlinterp(grid, C, (points_x[n], points_y[m]))
     return res
 """
+        else:
+            return None
         return source
 
 
@@ -186,6 +200,8 @@ def interp(*args):
     aa = args[0].types
 
     it = detect_types(aa)
+    if it.d==1 and it.eval=='point':
+        it = itt(it.d, it.values, 'cartesian')
     source = make_mlinterp(it,'__mlinterp')
     import ast
     tree = ast.parse(source)
