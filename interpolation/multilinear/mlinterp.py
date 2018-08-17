@@ -203,7 +203,6 @@ def interp(*args):
     if it.d==1 and it.eval=='point':
         it = itt(it.d, it.values, 'cartesian')
     source = make_mlinterp(it,'__mlinterp')
-    print(source)
     import ast
     tree = ast.parse(source)
     code = compile(tree, "<string>", "exec")
