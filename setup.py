@@ -13,4 +13,5 @@ setup(
     ],
     packages=find_packages(exclude=['contrib', 'docs', 'tests*']),
     install_requires=["numba", "numpy", "scipy"],
+    zip_safe=False
 )
