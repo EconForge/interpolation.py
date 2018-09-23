@@ -7,6 +7,7 @@ import ast
 from numba.extending import overload
 from numba.types.containers import Tuple, UniTuple
 
+# from math import max, min
 
 ####################
 # Dimension helper #
@@ -14,6 +15,10 @@ from numba.types.containers import Tuple, UniTuple
 
 t_coord = numba.typeof((2.3,2.4,1))           # type of an evenly spaced dimension
 t_array = numba.typeof(np.array([4.0, 3.9]))  # type of an unevenly spaced dimension
+
+@njit
+def clamp(x,a,b):
+    return min(b,max(a,x))
 
 # returns the index of a 1d point along a 1d dimension
 @generated_jit(nopython=True)
@@ -24,15 +29,18 @@ def get_index(gc, x):
             δ = (gc[1]-gc[0])/(gc[2]-1)
             d = x-gc[0]
             ii = d // δ
-            r = d-ii*δ
             i = int(ii)
+            i = clamp(i, 0, gc[2]-2)
+            r = d-i*δ
             λ = r/δ
             return (i, λ)
         return fun
     else:
         # irregular coordinate
         def fun(gc,x):
+            N = gc.shape[0]
             i = int(np.searchsorted(gc, x))-1
+            i = clamp(i, 0, N-2)
             λ = (x-gc[i])/(gc[i+1]-gc[i])
             return (i, λ)
         return fun
