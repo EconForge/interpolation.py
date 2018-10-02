@@ -182,7 +182,8 @@ def gen_tensor_reduction(X, symbs, inds=[]):
 
 @generated_jit(nopython=True)
 def tensor_reduction(C,l):
-    ex = gen_tensor_reduction('C', ['l[{}]'.format(i) for i in range(len(l.types))])
+    d = len(l.types)
+    ex = gen_tensor_reduction('C', ['l[{}]'.format(i) for i in range(d)])
     dd = dict()
     s = "def tensor_reduction(C,l): return {}".format(ex)
     eval(compile(ast.parse(s),'<string>','exec'), dd)
