@@ -18,7 +18,7 @@
 # Actual interpolation function #
 #################################
 
-from .fungen import fmap, funzip, get_coeffs, tensor_reduction, get_index, extract_row
+from .fungen import fmap, funzip, get_coeffs, tensor_reduction, get_index, extract_row, project
 
 from numba import njit
 from typing import Tuple
@@ -136,7 +136,8 @@ def {funname}(*args):
     grid = {grid_s}
     C = args[{it.d}]
     point = {point_s}
-    res = mlinterp(grid, C, point)
+    ppoint = project(grid, point)
+    res = mlinterp(grid, C, ppoint)
     return res
     """
         return source
@@ -152,7 +153,8 @@ def {funname}(*args):
     res = zeros(N)
     # return res
     for n in range(N):
-        res[n] = mlinterp(grid, C, {p_s})
+        ppoint = project(grid, {p_s})
+        res[n] = mlinterp(grid, C, ppoint)
     return res
 """
         return source
@@ -168,7 +170,8 @@ def {funname}(*args):
     N = points_x.shape[0]
     res = zeros(N)
     for n in range(N):
-        res[n] = mlinterp(grid, C, (points_x[n],))
+        ppoint = project(grid,(points_x[n],))
+        res[n] = mlinterp(grid, C, ppoint)
     return res
 """
         elif it.d==2:
@@ -184,7 +187,8 @@ def {funname}(*args):
     res = zeros((N,M))
     for n in range(N):
         for m in range(M):
-            res[n,m] = mlinterp(grid, C, (points_x[n], points_y[m]))
+            ppoint = project(grid,(points_x[n], points_y[m]))
+            res[n,m] = mlinterp(grid, C, ppoint)
     return res
 """
         else:
