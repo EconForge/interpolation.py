@@ -20,6 +20,9 @@ t_array = numba.typeof(np.array([4.0, 3.9]))  # type of an unevenly spaced dimen
 def clamp(x,a,b):
     return min(b,max(a,x))
 
+
+
+
 # returns the index of a 1d point along a 1d dimension
 @generated_jit(nopython=True)
 def get_index(gc, x):
@@ -196,3 +199,20 @@ def extract_row(a, n, tup):
     s = "def extract_row(a, n, tup): return ({},)".format(str.join(', ', [f"a[n,{i}]" for i in range(d)]))
     eval(compile(ast.parse(s),'<string>','exec'), dd)
     return dd['extract_row']
+
+
+
+# find closest point inside the grid domain
+@generated_jit
+def project(grid, point):
+    s = "def __project(grid, point):\n"
+    d = len(grid.types)
+    for i in range(d):
+        if isinstance(grid.types[i], numba.types.Array):
+            s += f"    x_{i} = min(max(point[{i}], grid[{i}][0]), grid[{i}][grid[{i}].shape[0]-1])\n"
+        else:
+            s += f"    x_{i} = min(max(point[{i}], grid[{i}][0]), grid[{i}][1])\n"
+    s += f"    return ({str.join(', ', ['x_{}'.format(i) for i in range(d)])},)"
+    d = {}
+    eval(compile(ast.parse(s),'<string>','exec'), d)
+    return d['__project']
