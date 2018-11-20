@@ -170,13 +170,58 @@ def mult_multilinear_interpolation_2d_grid(grid, V, s, output):
                 # interpolated/extrapolated value
                 output[n, i_x] = (1-lam_0)*((1-lam_1)*(v_00) + (lam_1)*(v_01)) + (lam_0)*((1-lam_1)*(v_10) + (lam_1)*(v_11))
 
+
+def mlininterp(grid: Tuple, c: Array, u: Array)->float:
+    N = u.shape[0]
+    res = np.zeros(N)
+    for n in range(N):
+        uu = extract_row(u, n, grid)
+        # get indices and barycentric coordinates
+        tmp = fmap(get_index, grid, uu)
+        indices, barycenters = funzip(tmp)
+        coeffs = get_coeffs(c, indices)
+        res[n] = tensor_reduction(coeffs, barycenters)
+    return res
+
+
+
+def index(inds):
+    return str.join('_',  [str(e) for e in inds] )
+
+def rindex(binds):
+    # M = ['M_{}*'.format(i) for i in range(len(binds)-1)] + ['']
+
+    N = ['(q_{}{})'.format(n,'+1'*i) for n,i in enumerate(binds)]
+    # return str.join(' , ',  [ str.join('', e) for e in zip(M,N) ])
+    return str.join(' , ',  N )
+
+def make_formula(d,ind,mm):
+    if len(ind) == d:
+        return 'v_{}'.format(index(ind))
+    else:
+        j = len(ind)
+        ind1 = ind + (0,)
+        ind2 = ind + (1,)
+        s = "(1-λ_{j})*({a}) + (λ_{j})*({b})".format(j=j, a=make_formula(d,ind1,mm), b=make_formula(d,ind2,mm))
+        return s
+
+index([0,1,3])
+
+rindex([0,2,3])
+
+make_formula(2,tuple([]),None)
+
+from interpolation.multilinear.fungen import gen_tensor_reduction
+
+l
+gen_tensor_reduction('C', ['l[{}]'.format(i) for i in range(2)])
 # if __name__ == "__main__":
 
 import numpy as np
 smin = np.array([0.0, 0.0])
 smax = np.array([1.0, 1.0])
-orders = np.array( [50,50])
-C = np.random.random((50,50))
+orders = np.array( [50, 50])
+C = np.random.random((50, 50))
 
 N = 1000000
 d = 2
