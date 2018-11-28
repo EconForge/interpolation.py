@@ -16,3 +16,5 @@ import numba
 tt = numba.typeof((a,b,n,c,out))
 
 detect_types(tt)
+
+a = 
