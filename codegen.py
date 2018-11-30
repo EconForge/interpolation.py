@@ -36,6 +36,7 @@ def get_values(d, multispline=False, k=4, i_x='i_x'):
         s = gen_trex(l, c)
         return s
 
+
 def get_dvalues(d, diff, multispline=False, k=4, i_x='i_x'):
         values = []
         l = []
@@ -111,26 +112,21 @@ def eval_cubic(grid, C, points{{', out' if not allocate else ""}}):
 
 
         {{for i in range(d)}}
-
-        Φ_{{i}}_0 = 0
-        Φ_{{i}}_1 = 0
-        Φ_{{i}}_2 = 0
-        Φ_{{i}}_3 = 0
+        {{for j in range(4)}}
+        Φ_{{i}}_{{j}} = 0
+        {{endfor}}
         if λ_{{i}} < 0:
-            Φ_{{i}}_0 = dCd[0,3]*λ_{{i}} + Cd[0,3]
-            Φ_{{i}}_1 = dCd[1,3]*λ_{{i}} + Cd[1,3]
-            Φ_{{i}}_2 = dCd[2,3]*λ_{{i}} + Cd[2,3]
-            Φ_{{i}}_3 = dCd[3,3]*λ_{{i}} + Cd[3,3]
+            {{for j in range(4)}}
+            Φ_{{i}}_{{j}} = dCd[{{j}},3]*λ_{{i}} + Cd[{{j}},3]
+            {{endfor}}
         elif λ_{{i}} > 1:
-            Φ_{{i}}_0 = (3*Cd[0,0] + 2*Cd[0,1] + Cd[0,2])*(λ_{{i}}-1) + (Cd[0,0]+Cd[0,1]+Cd[0,2]+Cd[0,3])
-            Φ_{{i}}_1 = (3*Cd[1,0] + 2*Cd[1,1] + Cd[1,2])*(λ_{{i}}-1) + (Cd[1,0]+Cd[1,1]+Cd[1,2]+Cd[1,3])
-            Φ_{{i}}_2 = (3*Cd[2,0] + 2*Cd[2,1] + Cd[2,2])*(λ_{{i}}-1) + (Cd[2,0]+Cd[2,1]+Cd[2,2]+Cd[2,3])
-            Φ_{{i}}_3 = (3*Cd[3,0] + 2*Cd[3,1] + Cd[3,2])*(λ_{{i}}-1) + (Cd[3,0]+Cd[3,1]+Cd[3,2]+Cd[3,3])
+            {{for j in range(4)}}
+            Φ_{{i}}_{{j}} = (3*Cd[{{j}},0] + 2*Cd[{{j}},1] + Cd[{{j}},2])*(λ_{{i}}-1) + (Cd[{{j}},0]+Cd[{{j}},1]+Cd[{{j}},2]+Cd[{{j}},3])
+            {{endfor}}
         else:
-            Φ_{{i}}_0 = (Cd[0,0]*tp_{{i}}_0 + Cd[0,1]*tp_{{i}}_1 + Cd[0,2]*tp_{{i}}_2 + Cd[0,3]*tp_{{i}}_3)
-            Φ_{{i}}_1 = (Cd[1,0]*tp_{{i}}_0 + Cd[1,1]*tp_{{i}}_1 + Cd[1,2]*tp_{{i}}_2 + Cd[1,3]*tp_{{i}}_3)
-            Φ_{{i}}_2 = (Cd[2,0]*tp_{{i}}_0 + Cd[2,1]*tp_{{i}}_1 + Cd[2,2]*tp_{{i}}_2 + Cd[2,3]*tp_{{i}}_3)
-            Φ_{{i}}_3 = (Cd[3,0]*tp_{{i}}_0 + Cd[3,1]*tp_{{i}}_1 + Cd[3,2]*tp_{{i}}_2 + Cd[3,3]*tp_{{i}}_3)
+            {{for j in range(4)}}
+            Φ_{{i}}_{{j}} = (Cd[{{j}},0]*tp_{{i}}_0 + Cd[{{j}},1]*tp_{{i}}_1 + Cd[{{j}},2]*tp_{{i}}_2 + Cd[{{j}},3]*tp_{{i}}_3)
+            {{endfor}}
         {{endfor}}
 
         {{if vector_valued}}
@@ -192,26 +188,21 @@ def eval_cubic(grid, C, points{{ ', out' if not allocate else ""}}):
 
 
     {{for i in range(d)}}
-
-    Φ_{{i}}_0 = 0
-    Φ_{{i}}_1 = 0
-    Φ_{{i}}_2 = 0
-    Φ_{{i}}_3 = 0
+    {{for j in range(4)}}
+    Φ_{{i}}_{{j}} = 0
+    {{endfor}}
     if λ_{{i}} < 0:
-        Φ_{{i}}_0 = dCd[0,3]*λ_{{i}} + Cd[0,3]
-        Φ_{{i}}_1 = dCd[1,3]*λ_{{i}} + Cd[1,3]
-        Φ_{{i}}_2 = dCd[2,3]*λ_{{i}} + Cd[2,3]
-        Φ_{{i}}_3 = dCd[3,3]*λ_{{i}} + Cd[3,3]
+        {{for j in range(4)}}
+        Φ_{{i}}_{{j}} = dCd[{{j}},3]*λ_{{i}} + Cd[{{j}},3]
+        {{endfor}}
     elif λ_{{i}} > 1:
-        Φ_{{i}}_0 = (3*Cd[0,0] + 2*Cd[0,1] + Cd[0,2])*(λ_{{i}}-1) + (Cd[0,0]+Cd[0,1]+Cd[0,2]+Cd[0,3])
-        Φ_{{i}}_1 = (3*Cd[1,0] + 2*Cd[1,1] + Cd[1,2])*(λ_{{i}}-1) + (Cd[1,0]+Cd[1,1]+Cd[1,2]+Cd[1,3])
-        Φ_{{i}}_2 = (3*Cd[2,0] + 2*Cd[2,1] + Cd[2,2])*(λ_{{i}}-1) + (Cd[2,0]+Cd[2,1]+Cd[2,2]+Cd[2,3])
-        Φ_{{i}}_3 = (3*Cd[3,0] + 2*Cd[3,1] + Cd[3,2])*(λ_{{i}}-1) + (Cd[3,0]+Cd[3,1]+Cd[3,2]+Cd[3,3])
+        {{for j in range(4)}}
+        Φ_{{i}}_{{j}} = (3*Cd[{{j}},0] + 2*Cd[{{j}},1] + Cd[{{j}},2])*(λ_{{i}}-1) + (Cd[{{j}},0]+Cd[{{j}},1]+Cd[{{j}},2]+Cd[{{j}},3])
+        {{endfor}}
     else:
-        Φ_{{i}}_0 = (Cd[0,0]*tp_{{i}}_0 + Cd[0,1]*tp_{{i}}_1 + Cd[0,2]*tp_{{i}}_2 + Cd[0,3]*tp_{{i}}_3)
-        Φ_{{i}}_1 = (Cd[1,0]*tp_{{i}}_0 + Cd[1,1]*tp_{{i}}_1 + Cd[1,2]*tp_{{i}}_2 + Cd[1,3]*tp_{{i}}_3)
-        Φ_{{i}}_2 = (Cd[2,0]*tp_{{i}}_0 + Cd[2,1]*tp_{{i}}_1 + Cd[2,2]*tp_{{i}}_2 + Cd[2,3]*tp_{{i}}_3)
-        Φ_{{i}}_3 = (Cd[3,0]*tp_{{i}}_0 + Cd[3,1]*tp_{{i}}_1 + Cd[3,2]*tp_{{i}}_2 + Cd[3,3]*tp_{{i}}_3)
+        {{for j in range(4)}}
+        Φ_{{i}}_{{j}} = (Cd[{{j}},0]*tp_{{i}}_0 + Cd[{{j}},1]*tp_{{i}}_1 + Cd[{{j}},2]*tp_{{i}}_2 + Cd[{{j}},3]*tp_{{i}}_3)
+        {{endfor}}
     {{endfor}}
 
     {{if vector_valued}}
@@ -232,6 +223,126 @@ def eval_cubic(grid, C, points{{ ', out' if not allocate else ""}}):
     {{endif}}
 """
 
+
+txt_vec_1 = """
+def eval_linear(grid, C, points{{', out' if not allocate else ""}}):
+    "This is my docstring"
+
+    N = points.shape[0]
+
+    {{if vector_valued}}
+    n_vals = C.shape[{{d}}]
+    {{endif}}
+
+    {{if allocate}}
+    {{if vector_valued}}
+    out = zeros((N, n_vals))
+    {{else}}
+    out = zeros(N)
+    {{endif}}
+    {{endif}}
+
+    #recover grid parameters
+    {{for i in range(d)}}
+
+    a_{{i}} = grid[{{i}}][0]
+    b_{{i}} = grid[{{i}}][1]
+    n_{{i}} = grid[{{i}}][2]
+    δ_{{i}} = (n_{{i}}-1.0)/(b_{{i}}-a_{{i}})
+    {{endfor}}
+
+    for nn in range(N):
+
+        # extract coordinates
+        {{for i in range(d)}}
+        x_{{i}} = points[nn,{{i}}]
+        {{endfor}}
+
+        # compute indices and barycentric coordinates
+        {{for i in range(d)}}
+        u_{{i}} = (x_{{i}} - a_{{i}})*δ_{{i}}
+        i_{{i}} = int( floor( u_{{i}} ) )
+        i_{{i}} = max( min(i_{{i}},n_{{i}}-2), 0 )
+        λ_{{i}} = u_{{i}}-i_{{i}}
+        {{endfor}}
+
+        {{for i in range(d)}}
+        Φ_{{i}}_{{0}} = 1 - λ_{{i}}
+        Φ_{{i}}_{{1}} = λ_{{i}}
+        {{endfor}}
+
+        {{if vector_valued}}
+        for i_x in range(n_vals):
+            out[nn,i_x] = {{get_values(d, multispline=True, k=2)}}
+        {{else}}
+
+        out[nn] = {{get_values(d, multispline=False, k=2)}}
+        {{endif}}
+
+
+    {{if allocate}}
+    return out
+    {{endif}}
+"""
+
+
+txt_1 = """
+def eval_linear(grid, C, points{{ ', out' if not allocate else ""}}):
+    "This is my docstring"
+
+    {{if vector_valued}}
+    n_vals = C.shape[{{d}}]
+    {{if allocate}}
+    out = zeros(n_vals)
+    {{endif}}
+    {{endif}}
+
+    #recover grid parameters
+    {{for i in range(d)}}
+
+    a_{{i}} = grid[{{i}}][0]
+    b_{{i}} = grid[{{i}}][1]
+    n_{{i}} = grid[{{i}}][2]
+    δ_{{i}} = (n_{{i}}-1.0)/(b_{{i}}-a_{{i}})
+    {{endfor}}
+
+    # extract coordinates
+    {{for i in range(d)}}
+    x_{{i}} = points[{{i}}]
+    {{endfor}}
+
+    # compute indices and barycentric coordinates
+    {{for i in range(d)}}
+
+    u_{{i}} = (x_{{i}} - a_{{i}})*δ_{{i}}
+    i_{{i}} = int( floor( u_{{i}} ) )
+    i_{{i}} = max( min(i_{{i}},n_{{i}}-2), 0 )
+    λ_{{i}} = u_{{i}}-i_{{i}}
+    {{endfor}}
+
+    {{for i in range(d)}}
+    Φ_{{i}}_{{0}} = 1 - λ_{{i}}
+    Φ_{{i}}_{{1}} = λ_{{i}}
+    {{endfor}}
+
+
+    {{if vector_valued}}
+
+    # compute tensor reductions
+    for i_x in range(n_vals):
+        out[i_x] = {{ get_values(d, multispline=True, k=2, i_x='i_x') }}
+
+    {{if allocate}}
+    return out
+    {{endif}}
+
+    {{else}}
+
+    val = {{get_values(d, multispline=False, k=2)}}
+    return val
+
+    {{endif}}
+"""
 
 
 
