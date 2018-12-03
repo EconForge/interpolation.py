@@ -294,7 +294,7 @@ def prefilter_cubic(*args):
 
 import numpy as np
 
-d = 4
+d = 3
 
 K = 100
 grid = ( (0.0, 1.0, K),) * d
