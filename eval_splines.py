@@ -79,20 +79,27 @@ def _eval_linear():
     pass
 from codegen import get_code_linear
 
+from option_types import extrapolation_options, t_CONSTANT, t_LINEAR, t_NEAREST
+
 @overload(_eval_linear)
 def __eval_linear(grid,C,points,out):
+
     d = len(grid)
     n_x = len(grid.types)
     vector_valued = (C.ndim==d+1)
     vec_eval = (points.ndim==2)
     grid_types = ['nonuniform' if isinstance(tt, numba.types.Array) else 'uniform' for tt in grid.types]
-
     context = {'floor': floor, 'zeros': zeros, 'np': np} #, 'Cd': Ad, 'dCd': dAd}
-
-    print(dict(d=d, vector_valued=vector_valued, vectorized=vec_eval, allocate=False, grid_types=grid_types))
-
-    code = get_code_linear(d, vector_valued=vector_valued, vectorized=vec_eval, allocate=False, grid_types=grid_types)
-
+    if out in (t_CONSTANT, t_LINEAR, t_NEAREST):
+        if out == t_NEAREST:
+            extrap_type = 'nearest'
+        elif out == t_CONSTANT:
+            extrap_type = 'constant'
+        else:
+            extrap_type = 'linear'
+        code = get_code_linear(d, vector_valued=vector_valued, vectorized=vec_eval, allocate=True, grid_types=grid_types, extrap_type=extrap_type)
+    else:
+        code = get_code_linear(d, vector_valued=vector_valued, vectorized=vec_eval, allocate=False, grid_types=grid_types)
     print(code)
     f = source_to_function(code, context)
     return f
@@ -100,21 +107,17 @@ def __eval_linear(grid,C,points,out):
 
 @overload(_eval_linear)
 def __eval_linear(grid,C,points):
+
     d = len(grid)
     n_x = len(grid.types)
     vector_valued = (C.ndim==d+1)
     vec_eval = (points.ndim==2)
     from math import floor
     from numpy import zeros
-
     grid_types = ['nonuniform' if isinstance(tt, numba.types.Array) else 'uniform' for tt in grid.types]
-
     context = {'floor': floor, 'zeros': zeros, 'np': np} #, 'Cd': Ad, 'dCd': dAd}
-    print(dict(d=d, vector_valued=vector_valued, vectorized=vec_eval, allocate=False, grid_types=grid_types))
-
     code = get_code_linear(d, vector_valued=vector_valued, vectorized=vec_eval, allocate=True, grid_types=grid_types)
     print(code)
-
     f = source_to_function(code, context)
     return f
 

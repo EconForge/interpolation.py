@@ -71,21 +71,6 @@ exit()
 ###
 
 
-N=100000
-K = 100
-d = 3
-a = np.array([0.0]*d)
-b = np.array([1.0]*d)
-n = np.array([K]*d)
-grid = ((0.0,1.0,K),)*d
-
-CC = np.random.random((K+2,K+2,K+2,5))
-point = np.random.random(3)
-points = np.random.random((N,3))
-vval = np.zeros(5)
-vval1 = np.zeros(5)
-vals = np.zeros((N,5))
-vals1 = np.zeros((N,5))
 from interpolation.splines.eval_cubic import eval_cubic_splines_3, vec_eval_cubic_splines_3
 
 eval_cubic_splines_3(a,b,n,CC,point,vval)

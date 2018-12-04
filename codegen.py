@@ -398,7 +398,7 @@ def eval_linear(grid, C, points{{', out' if not allocate else ""}}):
 import tempita
 
 
-def get_code_cubic(d, vector_valued=False, vectorized=False, allocate=False):
+def get_code_cubic(d, vector_valued=False, vectorized=False, allocate=False, extrap_type='linear'):
     templ = tempita.Template(template_cubic)
     templ_vec = tempita.Template(template_cubic_vectorized)
     if vectorized:
@@ -409,7 +409,7 @@ def get_code_cubic(d, vector_valued=False, vectorized=False, allocate=False):
 
 
 
-def get_code_linear(d, vector_valued=False, vectorized=False, allocate=False, grid_types=None):
+def get_code_linear(d, vector_valued=False, vectorized=False, allocate=False, grid_types=None, extrap_type='linear'):
     templ = tempita.Template(template_linear)
     templ_vec = tempita.Template(template_linear_vectorized)
     if vectorized:
