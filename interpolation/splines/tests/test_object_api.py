@@ -49,9 +49,6 @@ def ttest_object_api(Obj):
     cs = Obj(a,b,orders,vals)
     ii = cs(point)
     iii = cs(points)
-    print('ii')
-    print(ii)
-    print(ii.shape)
     assert(ii.ndim==0)
     assert(isscalar(ii))
     assert(iii.ndim==1)
@@ -61,12 +58,18 @@ def ttest_object_api(Obj):
 def ttest_object_vector_api(Obj):
 
     cs = Obj(a,b,orders,mvals)
-
+    
     ii = cs(point)
     iii = cs(points)
-
+    try:
+        print(cs.mvalues)
+    except:
+        pass
     n_splines = mvals.shape[1]
     assert(ii.ndim==1)
+    print("ii")
+    print(ii)
+    print(n_splines)
     assert(tuple(ii.shape)==(n_splines,))
     assert(iii.ndim==2)
     assert(tuple(iii.shape)==(N,n_splines))

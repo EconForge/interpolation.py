@@ -1,10 +1,27 @@
 import numpy
 
-from .eval_cubic_numba import *
 
+from .eval_splines import eval_cubic
 ## the functions in this file work for any dimension (d<=4)
 ## they can optionnally allocate memory for the result
 
+
+#######################
+# Compatibility calls #
+#######################
+
+from numba import generated_jit
+from .codegen import source_to_function
+
+@generated_jit
+def get_grid(a,b,n,C):
+    d = C.ndim
+    s = "({},)".format(str.join(", ", [f"(a[{k}],b[{k}],n[{k}])" for k in range(d)]))
+    txt = "def get_grid(a,b,n,C): return {}".format(s)
+    print(txt)
+    f = source_to_function(txt)
+    return f
+    
 
 def eval_cubic_spline(a, b, orders, coefs, point):
     """Evaluates a cubic spline at one point
@@ -27,31 +44,8 @@ def eval_cubic_spline(a, b, orders, coefs, point):
     value : float
         Interpolated value.
     """
-
-    a = numpy.array(a, dtype=float)
-    b = numpy.array(b, dtype=float)
-    orders = numpy.array(orders, dtype=int)
-
-    d = len(a)
-
-    if d == 1:
-        value = eval_cubic_spline_1(a, b, orders, coefs, point)
-
-    elif d == 2:
-        value = eval_cubic_spline_2(a, b, orders, coefs, point)
-
-    elif d == 3:
-        value = eval_cubic_spline_3(a, b, orders, coefs, point)
-
-    elif d == 4:
-        value = eval_cubic_spline_4(a, b, orders, coefs, point)
-
-    return value
-
-
-# def eval_cubic_spline_d(a, b, orders, coefs, point, value, dvalue):
-
-# pass
+    grid = get_grid(a,b,orders,coefs)
+    return eval_cubic(grid, coefs, point)
 
 
 def vec_eval_cubic_spline(a, b, orders, coefs, points, values=None):
@@ -78,31 +72,12 @@ def vec_eval_cubic_spline(a, b, orders, coefs, points, values=None):
         Interpolated values. values[i] contains spline evaluated at point points[i,:].
     """
 
-    a = numpy.array(a, dtype=float)
-    b = numpy.array(b, dtype=float)
-    orders = numpy.array(orders, dtype=int)
-
-    d = a.shape[0]
-
+    grid = get_grid(a,b,orders,coefs)
     if values is None:
-        N = points.shape[0]
-        values = numpy.empty(N)
+        return eval_cubic(grid, coefs, points)
+    else:
+        eval_cubic(grid, coefs, points, values)
 
-    if d == 1:
-        vec_eval_cubic_spline_1(a, b, orders, coefs, points, values)
-    elif d == 2:
-        vec_eval_cubic_spline_2(a, b, orders, coefs, points, values)
-    elif d == 3:
-        vec_eval_cubic_spline_3(a, b, orders, coefs, points, values)
-    elif d == 4:
-        vec_eval_cubic_spline_4(a, b, orders, coefs, points, values)
-
-    return values
-
-
-# def eval_cubic_multi_spline_d(a, b, orders, mcoefs, point, values, dvalues):
-#
-#     pass
 
 
 def eval_cubic_splines(a, b, orders, mcoefs, point, values=None):
@@ -130,29 +105,12 @@ def eval_cubic_splines(a, b, orders, mcoefs, point, values=None):
         Interpolated values. values[j] contains spline n-j evaluated at point `point`.
     """
 
-    a = numpy.array(a, dtype=float)
-    b = numpy.array(b, dtype=float)
-    orders = numpy.array(orders, dtype=int)
-
-    d = a.shape[0]
-
+    grid = get_grid(a,b,orders,mcoefs[...,0])
     if values is None:
-        n_sp = mcoefs.shape[0]
-        values = numpy.empty(n_sp)
+        return eval_cubic(grid, mcoefs, point)
+    else:
+        eval_cubic(grid, mcoefs, point, values)
 
-    if d == 1:
-        eval_cubic_splines_1(a, b, orders, mcoefs, point, values)
-
-    elif d == 2:
-        eval_cubic_splines_2(a, b, orders, mcoefs, point, values)
-
-    elif d == 3:
-        eval_cubic_splines_3(a, b, orders, mcoefs, point, values)
-
-    elif d == 4:
-        eval_cubic_splines_4(a, b, orders, mcoefs, point, values)
-
-    return values
 
 
 def vec_eval_cubic_splines(a, b, orders, mcoefs, points, values=None):
@@ -166,9 +124,8 @@ def vec_eval_cubic_splines(a, b, orders, mcoefs, points, values=None):
         Upper bounds of the cartesian grid.
     orders : array of size d (int)
         Number of nodes along each dimension. ( =(n1,...nd) )
-    mcoefs : array of dimension d+1, and size (p, n1+2, ..., nd+2)
-        Filtered coefficients. For i in 1:(mcoefs.shape[0]), mcoefs[i,...] contains
-        the coefficients of spline number i.
+    mcoefs : array of dimension d+1, and size (n1+2, ..., nd+2, p)
+        Filtered coefficients. coefs[i,...] contains the coefficients of spline number i.
     points : array of size N x d
         List of points where the splines must be interpolated.
     values (optional) :  array of size (N x p)
@@ -180,32 +137,16 @@ def vec_eval_cubic_splines(a, b, orders, mcoefs, points, values=None):
         Interpolated values. values[i,j] contains spline n-j evaluated at point points[i,:].
     """
 
-    a = numpy.array(a, dtype=float)
-    b = numpy.array(b, dtype=float)
-    orders = numpy.array(orders, dtype=int)
-
-    d = a.shape[0]
-
+    grid = get_grid(a,b,orders,mcoefs[...,0])
     if values is None:
+        return eval_cubic(grid, mcoefs, points)
+    else:
+        eval_cubic(grid, mcoefs, points, values)
 
-        N = points.shape[0]
-        n_sp = mcoefs.shape[-1]
-        values = numpy.empty((N, n_sp))
 
-    if d == 1:
-        vec_eval_cubic_splines_1(a, b, orders, mcoefs, points, values)
+#########
 
-    elif d == 2:
-        vec_eval_cubic_splines_2(a, b, orders, mcoefs, points, values)
-
-    elif d == 3:
-        vec_eval_cubic_splines_3(a, b, orders, mcoefs, points, values)
-
-    elif d == 4:
-        vec_eval_cubic_splines_4(a, b, orders, mcoefs, points, values)
-
-    return values
-
+from .eval_cubic_numba import vec_eval_cubic_splines_G_1,vec_eval_cubic_splines_G_2,vec_eval_cubic_splines_G_3,vec_eval_cubic_splines_G_4
 
 def vec_eval_cubic_splines_G(a,
                              b,

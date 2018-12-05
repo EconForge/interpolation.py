@@ -3,7 +3,7 @@
 import numpy
 import numpy as np
 
-from .misc import mlinspace
+from ..cartesian import mlinspace
 
 
 class CubicSpline:

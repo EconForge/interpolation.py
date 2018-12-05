@@ -12,6 +12,6 @@ setup(
         'Development Status :: 4 - Beta',
     ],
     packages=find_packages(exclude=['contrib', 'docs', 'tests*']),
-    install_requires=["numba", "numpy", "scipy"],
+    install_requires=["numba", "numpy", "scipy" , "tempita"],
     zip_safe=False
 )
