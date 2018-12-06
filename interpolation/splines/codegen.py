@@ -250,7 +250,7 @@ def eval_cubic(grid, C, points{{', out' if not allocate else ""}}):
 
 
 template_linear = """
-def eval_linear(grid, C, points{{ ', out' if not allocate else ""}}):
+def eval_linear(grid, C, points{{ ', out' if not allocate else ""}}{{ ', extrap_mode' if extrap_mode else ""}}):
     "This is my docstring"
 
     {{if vector_valued}}
@@ -276,6 +276,21 @@ def eval_linear(grid, C, points{{ ', out' if not allocate else ""}}):
     # extract coordinates
     {{for i in range(d)}}
     x_{{i}} = points[{{i}}]
+    {{if extrap_mode == 'nearest'}}
+    x_{{i}} = max(a_{{i}}, min(x_{{i}}, b_{{i}}))
+    {{endif}}
+    {{if extrap_mode == 'constant'}}
+    if (x_{{i}}<a_{{i}}) or (x_{{i}}>b_{{i}}):
+        {{if vector_valued}}
+        out[:] = 0.0
+        {{if allocate}}
+        return out
+        {{endif}}
+        {{else}}
+        val = 0.0
+        return val
+        {{endif}}
+    {{endif}}
     {{endfor}}
 
     # compute indices and barycentric coordinates
@@ -322,7 +337,7 @@ def eval_linear(grid, C, points{{ ', out' if not allocate else ""}}):
 """
 
 template_linear_vectorized = """
-def eval_linear(grid, C, points{{', out' if not allocate else ""}}):
+def eval_linear(grid, C, points{{', out' if not allocate else ""}}{{ ', extrap_mode' if extrap_mode else ""}}):
     "This is my docstring"
 
     N = points.shape[0]
@@ -357,6 +372,18 @@ def eval_linear(grid, C, points{{', out' if not allocate else ""}}):
         # extract coordinates
         {{for i in range(d)}}
         x_{{i}} = points[nn,{{i}}]
+        {{if extrap_mode == 'nearest'}}
+        x_{{i}} = max(a_{{i}}, min(x_{{i}}, b_{{i}}))
+        {{endif}}
+        {{if extrap_mode == 'constant'}}
+        if (x_{{i}}<a_{{i}}) or (x_{{i}}>b_{{i}}):
+            {{if vector_valued}}
+            out[nn,:] = 0.0
+            {{else}}
+            out[nn] = 0.0
+            {{endif}}
+            continue
+        {{endif}}
         {{endfor}}
 
         # compute indices and barycentric coordinates
@@ -409,14 +436,11 @@ def get_code_cubic(d, vector_valued=False, vectorized=False, allocate=False, ext
 
 
 
-def get_code_linear(d, vector_valued=False, vectorized=False, allocate=False, grid_types=None, extrap_type='linear'):
+def get_code_linear(d, vector_valued=False, vectorized=False, allocate=False, grid_types=None, extrap_mode=None):
     templ = tempita.Template(template_linear)
     templ_vec = tempita.Template(template_linear_vectorized)
     if vectorized:
-        code = ( templ_vec.substitute(d=d, vector_valued=vector_valued, get_values=get_values, allocate=allocate, grid_types=grid_types) )
+        code = ( templ_vec.substitute(d=d, vector_valued=vector_valued, get_values=get_values, allocate=allocate, grid_types=grid_types, extrap_mode=extrap_mode) )
     else:
-        code = ( templ.substitute(d=d, vector_valued=vector_valued, get_values=get_values, allocate=allocate, grid_types=grid_types) )
+        code = ( templ.substitute(d=d, vector_valued=vector_valued, get_values=get_values, allocate=allocate, grid_types=grid_types, extrap_mode=extrap_mode) )
     return (code)[1:]
-
-print(get_code_linear(2, grid_types=['uniform','nonuniform']))
-# print(get_code_cubic(2))
