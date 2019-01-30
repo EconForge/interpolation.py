@@ -2,7 +2,7 @@ from setuptools import setup, find_packages  # Always prefer setuptools over dis
 
 setup(
     name='interpolation',
-    version='2.0.1',
+    version='2.1.0',
     description='Interpolation in Python',
     url='https://github.com/econforge/interpolation.py',
     author='Chase Coleman, Spencer Lyon and Pablo Winant',
@@ -12,6 +12,6 @@ setup(
         'Development Status :: 4 - Beta',
     ],
     packages=find_packages(exclude=['contrib', 'docs', 'tests*']),
-    install_requires=["numba", "numpy", "scipy"],
+    install_requires=["numba", "numpy", "scipy" , "tempita"],
     zip_safe=False
 )

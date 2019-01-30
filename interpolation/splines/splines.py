@@ -3,7 +3,7 @@
 import numpy
 import numpy as np
 
-from .misc import mlinspace
+from ..cartesian import mlinspace
 
 
 class CubicSpline:
@@ -86,7 +86,9 @@ class CubicSpline:
 
         import time
 
-        from .eval_cubic import vec_eval_cubic_spline, eval_cubic_spline
+        from .eval_splines import eval_cubic
+
+        grid = tuple((self.a[i], self.b[i], self.orders[i]) for i in range(len(self.a)))
 
         if not np.all( np.isfinite(points)):
             raise Exception('Spline interpolator evaluated at non-finite points.')
@@ -94,15 +96,16 @@ class CubicSpline:
         if not with_derivatives:
             if points.ndim == 1:
                 # evaluate only on one point
-                return eval_cubic_spline(self.a, self.b, self.orders, self.__coeffs__, points)
+                return eval_cubic(grid, self.__coeffs__, points)
             else:
 
                 N, d = points.shape
                 assert(d==self.d)
                 if values is None:
                     values = np.empty(N, dtype=self.dtype)
-                vec_eval_cubic_spline(self.a, self.b, self.orders, self.__coeffs__, points, values)
+                eval_cubic(grid, self.__coeffs__, points, values)
                 return values
+
         else:
             raise Exception("Not implemented.")
 
@@ -182,10 +185,14 @@ class CubicSplines:
         N = points.shape[0]
         d = points.shape[1]
 
+        from .eval_splines import eval_cubic
+
+
         if not diff:
-            from .eval_cubic import vec_eval_cubic_splines
+            grid = tuple((self.a[i], self.b[i], self.orders[i]) for i in range(len(self.a)))
+            from .eval_splines import eval_cubic
             values = np.empty((N,n_sp), dtype=float)
-            vec_eval_cubic_splines(self.a, self.b, self.orders, self.__mcoeffs__, points, values)
+            eval_cubic(grid, self.__mcoeffs__, points, values)
             return values
         else:
             from .eval_cubic import vec_eval_cubic_splines_G
