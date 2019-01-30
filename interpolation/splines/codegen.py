@@ -294,7 +294,7 @@ def eval_{{'linear' if k==1 else 'cubic'}}(grid, C, points{{', out' if not alloc
         # Basis functions
         {{for i in range(d)}}
         {{for l in bases_orders[i]}}
-    {{indent(blending_formula(k,l,i=i),levels=2)}}
+{{indent(blending_formula(k,l,i=i),levels=2)}}
         {{endfor}}
         {{endfor}}
 
@@ -349,44 +349,15 @@ def get_code_spline(d, k=1, vector_valued=False, vectorized=False, allocate=Fals
 def get_code_linear(d, **kwargs):
     kw = {}
     kw.update(**kwargs)
-    if 'extrap_mode' not in kwargs:
-        kw['extrap_mode'] = 'nearest'
+
     return get_code_spline(d, **kw)
 
 def get_code_cubic(d, **kwargs):
     kw = {}
     kw.update(**kwargs)
-    if 'extrap_mode' not in kwargs:
-        kw['extrap_mode'] = 'linear'
-    return get_code_spline(d, **kw)
 
-
-def get_code_cubic(d, vector_valued=False, vectorized=False, allocate=False, extrap_type='linear'):
-    templ = tempita.Template(template_cubic)
-    templ_vec = tempita.Template(template_cubic_vectorized)
-    if vectorized:
-        code = ( templ_vec.substitute(d=d, vector_valued=vector_valued, get_values=get_values, allocate=allocate) )
-    else:
-        code = ( templ.substitute(d=d, vector_valued=vector_valued, get_values=get_values, allocate=allocate) )
-    return (code)[1:]
-
+    return get_code_spline(d, k=3, **kw)
 
 
 def indent(txt,levels=1):
     return str.join('\n', ['    '*levels + e for e in str.split( txt,"\n")])
-
-txt = """helloe
-cest
-digicoe"""
-
-
-print(blending_formula(k=1, l=1, i=1))
-print(blending_formula(k=3, l=1, i=1))
-
-
-x = """\
-hele
-c'est moi"""
-print(x)
-
-print(indent(x,1))
