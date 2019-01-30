@@ -50,6 +50,7 @@ eval_linear(grid, values, points) # 10000 vector
 out = np.zeros(10000)
 eval_linear(grid, values, points, out) # 10000 vector
 
+## jitted, non-uniform multilinear interpolation
 
 # default calls extrapolate data by using the nearest value inside the grid
 # other extrapolation options can be chosen among NEAREST, LINEAR, CONSTANT
@@ -140,9 +141,9 @@ This is for compatibility purpose only, until a new jittable model object is fou
 from interpolation.splines import LinearSpline, CubicSpline
 a = np.array([0.0,0.0,0.0])         # lower boundaries
 b = np.array([1.0,1.0,1.0])         # upper boundaries
-orders = np.array([50,50,50])       # 10 points along each dimension
+orders = np.array([50,50,50])       # 50 points along each dimension
 values = np.random.random(orders)   # values at each node of the grid
-S = np.random.random((10^6,3))    # coordinates at which to evaluate the splines
+S = np.random.random((10**6,3))    # coordinates at which to evaluate the splines
 
 # multilinear
 lin = LinearSpline(a,b,orders,values)
