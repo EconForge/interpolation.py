@@ -8,6 +8,17 @@ The library contains:
 - smolyak.*: smolyak polinomials
 - complete polynomials
 
+## install
+
+Latest development version from git:
+
+`pip install git+https://github.com/econforge/interpolation.py.git/`
+
+Or latest stable version:
+
+- from conda: `conda install -c conda-forge interpolation`
+- from PyPI: `pip install interpolation`
+
 ## multilinear and cubic interpolation
 
 Fast numba-accelerated interpolation routines
