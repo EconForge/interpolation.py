@@ -76,181 +76,63 @@ def source_to_function(source, context={}):
     exec(code, context, context)
     return context[funname]
 
-#####################
-# Templates (cubic) #
-#####################
+###
+# Template to compute basis functions
+###
 
-
-template_cubic = """
-def eval_cubic(grid, C, points{{ ', out' if not allocate else ""}}):
-    "This is my docstring"
-
-    {{if vector_valued}}
-    n_vals = C.shape[{{d}}]
-    {{if allocate}}
-    out = zeros(n_vals)
-    {{endif}}
-    {{endif}}
-
-    #recover grid parameters
-    {{for i in range(d)}}
-
-    a_{{i}} = grid[{{i}}][0]
-    b_{{i}} = grid[{{i}}][1]
-    n_{{i}} = grid[{{i}}][2]
-    δ_{{i}} = (n_{{i}}-1.0)/(b_{{i}}-a_{{i}})
-    {{endfor}}
-
-    # extract coordinates
-    {{for i in range(d)}}
-    x_{{i}} = points[{{i}}]
-    {{endfor}}
-
-    # compute indices and barycentric coordinates
-    {{for i in range(d)}}
-
-    u_{{i}} = (x_{{i}} - a_{{i}})*δ_{{i}}
-    i_{{i}} = int( floor( u_{{i}} ) )
-    i_{{i}} = max( min(i_{{i}},n_{{i}}-2), 0 )
-    λ_{{i}} = u_{{i}}-i_{{i}}
-    {{endfor}}
-
-
-    # compute coefficients for blending formulas
-    {{for i in range(d)}}
-    tp_{{i}}_0 = λ_{{i}}*λ_{{i}}*λ_{{i}};  tp_{{i}}_1 = λ_{{i}}*λ_{{i}};  tp_{{i}}_2 = λ_{{i}};  tp_{{i}}_3 = 1.0;
-    {{endfor}}
-
-
-    {{for i in range(d)}}
-    {{for j in range(4)}}
-    Φ_{{i}}_{{j}} = 0
-    {{endfor}}
-    if λ_{{i}} < 0:
-        {{for j in range(4)}}
-        Φ_{{i}}_{{j}} = dCd[{{j}},3]*λ_{{i}} + Cd[{{j}},3]
-        {{endfor}}
-    elif λ_{{i}} > 1:
-        {{for j in range(4)}}
-        Φ_{{i}}_{{j}} = (3*Cd[{{j}},0] + 2*Cd[{{j}},1] + Cd[{{j}},2])*(λ_{{i}}-1) + (Cd[{{j}},0]+Cd[{{j}},1]+Cd[{{j}},2]+Cd[{{j}},3])
-        {{endfor}}
-    else:
-        {{for j in range(4)}}
-        Φ_{{i}}_{{j}} = (Cd[{{j}},0]*tp_{{i}}_0 + Cd[{{j}},1]*tp_{{i}}_1 + Cd[{{j}},2]*tp_{{i}}_2 + Cd[{{j}},3]*tp_{{i}}_3)
-        {{endfor}}
-    {{endfor}}
-
-    {{if vector_valued}}
-
-    # compute tensor reductions
-    for i_x in range(n_vals):
-        out[i_x] = {{ get_values(d, multispline=True, k=4, i_x='i_x') }}
-
-    {{if allocate}}
-    return out
-    {{endif}}
-
-    {{else}}
-
-    val = {{get_values(d, multispline=False, k=4)}}
-    return val
-
-    {{endif}}
-"""
-
-
-template_cubic_vectorized = """
-def eval_cubic(grid, C, points{{', out' if not allocate else ""}}):
-    "This is my docstring"
-
-    N = points.shape[0]
-
-    {{if vector_valued}}
-    n_vals = C.shape[{{d}}]
-    {{endif}}
-
-    {{if allocate}}
-    {{if vector_valued}}
-    out = zeros((N, n_vals))
-    {{else}}
-    out = zeros(N)
-    {{endif}}
-    {{endif}}
-
-    #recover grid parameters
-    {{for i in range(d)}}
-
-    a_{{i}} = grid[{{i}}][0]
-    b_{{i}} = grid[{{i}}][1]
-    n_{{i}} = grid[{{i}}][2]
-    δ_{{i}} = (n_{{i}}-1.0)/(b_{{i}}-a_{{i}})
-    {{endfor}}
-
-    for nn in range(N):
-
-        # extract coordinates
-        {{for i in range(d)}}
-        x_{{i}} = points[nn,{{i}}]
-        {{endfor}}
-
-        # compute indices and barycentric coordinates
-        {{for i in range(d)}}
-
-        u_{{i}} = (x_{{i}} - a_{{i}})*δ_{{i}}
-        i_{{i}} = int( floor( u_{{i}} ) )
-        i_{{i}} = max( min(i_{{i}},n_{{i}}-2), 0 )
-        λ_{{i}} = u_{{i}}-i_{{i}}
-        {{endfor}}
-
-
-        # compute coefficients for blending formulas
-        {{for i in range(d)}}
-        tp_{{i}}_0 = λ_{{i}}*λ_{{i}}*λ_{{i}};  tp_{{i}}_1 = λ_{{i}}*λ_{{i}};  tp_{{i}}_2 = λ_{{i}};  tp_{{i}}_3 = 1.0;
-        {{endfor}}
-
-
-        {{for i in range(d)}}
-        {{for j in range(4)}}
-        Φ_{{i}}_{{j}} = 0
-        {{endfor}}
-        if λ_{{i}} < 0:
-            {{for j in range(4)}}
-            Φ_{{i}}_{{j}} = dCd[{{j}},3]*λ_{{i}} + Cd[{{j}},3]
-            {{endfor}}
-        elif λ_{{i}} > 1:
-            {{for j in range(4)}}
-            Φ_{{i}}_{{j}} = (3*Cd[{{j}},0] + 2*Cd[{{j}},1] + Cd[{{j}},2])*(λ_{{i}}-1) + (Cd[{{j}},0]+Cd[{{j}},1]+Cd[{{j}},2]+Cd[{{j}},3])
-            {{endfor}}
+def blending_formula(k=1, l=0, i=0):
+    """
+    k: spline order
+    l: diff order
+    i: current dimension
+    """
+    if k==1:
+        if l==0:
+            s = f"""\
+Φ_{i}_{0} = 1.0 - λ_{i}
+Φ_{i}_{1} = λ_{i}"""
+        elif l==1:
+            s = f"""\
+d_Φ_{i}_{0} = -1.0/δ_{i}
+d_Φ_{i}_{1} = 1.0/δ_{i}"""
         else:
-            {{for j in range(4)}}
-            Φ_{{i}}_{{j}} = (Cd[{{j}},0]*tp_{{i}}_0 + Cd[{{j}},1]*tp_{{i}}_1 + Cd[{{j}},2]*tp_{{i}}_2 + Cd[{{j}},3]*tp_{{i}}_3)
-            {{endfor}}
-        {{endfor}}
+            s = f"""
+d_{{l}}_Φ_{i}_{0} = 0.0
+d_{{l}}_Φ_{i}_{1} = 0.0"""
+    elif k==3:
+        if l>1:
+            raise Exception("Not implemented")
+        import tempita
+        template = tempita.Template("""
+μ_{{i}}_0 = λ_{{i}}*λ_{{i}}*λ_{{i}};  μ_{{i}}_1 = λ_{{i}}*λ_{{i}};  μ_{{i}}_2 = λ_{{i}};  μ_{{i}}_3 = 1.0;
+{{for j in range(4)}}
+Φ_{{i}}_{{j}} = 0.0
+{{endfor}}
+if λ_{{i}} < 0:
+    {{for j in range(4)}}
+    Φ_{{i}}_{{j}} = dCd[{{j}},3]*λ_{{i}} + Cd[{{j}},3]
+    {{endfor}}
+elif λ_{{i}} > 1:
+    {{for j in range(4)}}
+    Φ_{{i}}_{{j}} = (3*Cd[{{j}},0] + 2*Cd[{{j}},1] + Cd[{{j}},2])*(λ_{{i}}-1) + (Cd[{{j}},0]+Cd[{{j}},1]+Cd[{{j}},2]+Cd[{{j}},3])
+    {{endfor}}
+else:
+    {{for j in range(4)}}
+    Φ_{{i}}_{{j}} = (Cd[{{j}},0]*μ_{{i}}_0 + Cd[{{j}},1]*μ_{{i}}_1 + Cd[{{j}},2]*μ_{{i}}_2 + Cd[{{j}},3]*μ_{{i}}_3)
+    {{endfor}}
+""")
+        s = template.substitute(i=i)
 
-        {{if vector_valued}}
-
-        for i_x in range(n_vals):
-            out[nn,i_x] = {{get_values(d, multispline=True, k=4)}}
-        {{else}}
-
-        out[nn] = {{get_values(d, multispline=False, k=4)}}
-        {{endif}}
+    return s
 
 
-    {{if allocate}}
-    return out
-    {{endif}}
-"""
-
-
-
-######################
-# Templates (linear) #
-######################
+##############
+# Templates  #
+##############
 
 
 template_linear = """
-def eval_linear(grid, C, points{{ ', out' if not allocate else ""}}{{ ', extrap_mode' if extrap_mode else ""}}):
+def eval_{{'linear' if k==1 else 'cubic'}}(grid, C, points{{ ', out' if not allocate else ""}}{{ ', extrap_mode' if extrap_mode else ""}}):
     "This is my docstring"
 
     {{if vector_valued}}
@@ -263,11 +145,13 @@ def eval_linear(grid, C, points{{ ', out' if not allocate else ""}}{{ ', extrap_
     #recover grid parameters
     {{for i in range(d)}}
     {{if (not grid_types) or (grid_types[i]=='uniform')}}
+    # dim {{i}}: uniform
     a_{{i}} = grid[{{i}}][0]
     b_{{i}} = grid[{{i}}][1]
     n_{{i}} = grid[{{i}}][2]
     δ_{{i}} = (n_{{i}}-1.0)/(b_{{i}}-a_{{i}})
     {{elif grid_types[i]=='nonuniform'}}
+    # dim {{i}}: nonuniform
     gc_{{i}} = grid[{{i}}]
     N_{{i}} = gc_{{i}}.shape[0]
     {{endif}}
@@ -297,24 +181,25 @@ def eval_linear(grid, C, points{{ ', out' if not allocate else ""}}{{ ', extrap_
     {{for i in range(d)}}
 
     {{if (not grid_types) or (grid_types[i]=='uniform')}}
-    # uniform grid
+    # dimension {{i}}: uniform grid
     u_{{i}} = (x_{{i}} - a_{{i}})*δ_{{i}}
     i_{{i}} = int( floor( u_{{i}} ) )
     i_{{i}} = max( min(i_{{i}},n_{{i}}-2), 0 )
     λ_{{i}} = u_{{i}}-i_{{i}}
     {{elif grid_types[i]=='nonuniform'}}
-    # nonuniform grid
+    # dimension {{i}}: nonuniform grid
     i_{{i}} = int(np.searchsorted(gc_{{i}}, x_{{i}}))-1
     i_{{i}} = min(max(i_{{i}}, 0), N_{{i}}-2)
-    λ_{{i}} = (x_{{i}}-gc_{{i}}[i_{{i}}])/(gc_{{i}}[i_{{i}}+1]-gc_{{i}}[i_{{i}}])
+    δ_{{i}} = (gc_{{i}}[i_{{i}}+1]-gc_{{i}}[i_{{i}}])
+    λ_{{i}} = (x_{{i}}-gc_{{i}}[i_{{i}}])/δ_{{i}}
     {{endif}}
     {{endfor}}
 
     # Basis functions
     {{for i in range(d)}}
-
-    Φ_{{i}}_{{0}} = 1 - λ_{{i}}
-    Φ_{{i}}_{{1}} = λ_{{i}}
+    {{for l in bases_orders[i]}}
+{{indent(blending_formula(k,l,i=i),levels=1)}}
+    {{endfor}}
     {{endfor}}
 
 
@@ -322,7 +207,7 @@ def eval_linear(grid, C, points{{ ', out' if not allocate else ""}}{{ ', extrap_
 
     # compute tensor reductions
     for i_x in range(n_vals):
-        out[i_x] = {{ get_values(d, multispline=True, k=2, i_x='i_x') }}
+        out[i_x] = {{ get_values(d, multispline=True, k=k+1, i_x='i_x') }}
 
     {{if allocate}}
     return out
@@ -330,14 +215,14 @@ def eval_linear(grid, C, points{{ ', out' if not allocate else ""}}{{ ', extrap_
 
     {{else}}
 
-    val = {{get_values(d, multispline=False, k=2)}}
+    val = {{get_values(d, multispline=False, k=k+1)}}
     return val
 
     {{endif}}
 """
 
 template_linear_vectorized = """
-def eval_linear(grid, C, points{{', out' if not allocate else ""}}{{ ', extrap_mode' if extrap_mode else ""}}):
+def eval_{{'linear' if k==1 else 'cubic'}}(grid, C, points{{', out' if not allocate else ""}}{{ ', extrap_mode' if extrap_mode else ""}}):
     "This is my docstring"
 
     N = points.shape[0]
@@ -357,11 +242,13 @@ def eval_linear(grid, C, points{{', out' if not allocate else ""}}{{ ', extrap_m
     #recover grid parameters
     {{for i in range(d)}}
     {{if (not grid_types) or (grid_types[i]=='uniform')}}
+    # dim {{i}}: uniform
     a_{{i}} = grid[{{i}}][0]
     b_{{i}} = grid[{{i}}][1]
     n_{{i}} = grid[{{i}}][2]
     δ_{{i}} = (n_{{i}}-1.0)/(b_{{i}}-a_{{i}})
     {{elif grid_types[i]=='nonuniform'}}
+    # dim {{i}}: nonuniform
     gc_{{i}} = grid[{{i}}]
     N_{{i}} = gc_{{i}}.shape[0]
     {{endif}}
@@ -390,30 +277,33 @@ def eval_linear(grid, C, points{{', out' if not allocate else ""}}{{ ', extrap_m
         {{for i in range(d)}}
 
         {{if (not grid_types) or (grid_types[i]=='uniform')}}
-        # uniform grid
+        # dimension {{i}}: uniform grid
         u_{{i}} = (x_{{i}} - a_{{i}})*δ_{{i}}
         i_{{i}} = int( floor( u_{{i}} ) )
         i_{{i}} = max( min(i_{{i}},n_{{i}}-2), 0 )
         λ_{{i}} = u_{{i}}-i_{{i}}
         {{elif grid_types[i]=='nonuniform'}}
-        # nonuniform grid
+        # dimension {{i}}: nonuniform grid
         i_{{i}} = int(np.searchsorted(gc_{{i}}, x_{{i}}))-1
         i_{{i}} = min(max(i_{{i}}, 0), N_{{i}}-2)
-        λ_{{i}} = (x_{{i}}-gc_{{i}}[i_{{i}}])/(gc_{{i}}[i_{{i}}+1]-gc_{{i}}[i_{{i}}])
+        δ_{{i}} = (gc_{{i}}[i_{{i}}+1]-gc_{{i}}[i_{{i}}])
+        λ_{{i}} = (x_{{i}}-gc_{{i}}[i_{{i}}])/δ_{{i}}
         {{endif}}
         {{endfor}}
 
+        # Basis functions
         {{for i in range(d)}}
-        Φ_{{i}}_{{0}} = 1 - λ_{{i}}
-        Φ_{{i}}_{{1}} = λ_{{i}}
+        {{for l in bases_orders[i]}}
+    {{indent(blending_formula(k,l,i=i),levels=2)}}
+        {{endfor}}
         {{endfor}}
 
         {{if vector_valued}}
         for i_x in range(n_vals):
-            out[nn,i_x] = {{get_values(d, multispline=True, k=2)}}
+            out[nn,i_x] = {{get_values(d, multispline=True, k=k+1)}}
         {{else}}
 
-        out[nn] = {{get_values(d, multispline=False, k=2)}}
+        out[nn] = {{get_values(d, multispline=False, k=k+1)}}
         {{endif}}
 
 
@@ -423,6 +313,52 @@ def eval_linear(grid, C, points{{', out' if not allocate else ""}}{{ ', extrap_m
 """
 
 import tempita
+
+
+
+def get_code_spline(d, k=1, vector_valued=False, vectorized=False, allocate=False, grid_types=None, extrap_mode=None, orders=None):
+    if orders is None:
+        orders = (0,)*d
+    # bases function to compute for each dimension
+    if isinstance(orders, tuple):
+        oo = [orders]
+    else:
+        oo = orders
+    bases_orders = [sorted(list(set(e))) for e in zip(*oo)]
+
+    if grid_types is None:
+        grid_types = ['uniform']*d
+
+    if set(grid_types) != set(['uniform']) and k>1:
+        raise Exception("Nonuniform grids are only supported for linear splines.")
+
+
+
+    templ = tempita.Template(template_linear)
+    templ_vec = tempita.Template(template_linear_vectorized)
+    if vectorized:
+        template = templ_vec
+    else:
+        template = templ
+
+    code = ( template.substitute(d=d, vector_valued=vector_valued, get_values=get_values,
+            allocate=allocate, grid_types=grid_types, extrap_mode=extrap_mode, orders=orders, bases_orders=bases_orders,
+        blending_formula=blending_formula, indent=indent, k=k) )
+    return (code)[1:]
+
+def get_code_linear(d, **kwargs):
+    kw = {}
+    kw.update(**kwargs)
+    if 'extrap_mode' not in kwargs:
+        kw['extrap_mode'] = 'nearest'
+    return get_code_spline(d, **kw)
+
+def get_code_cubic(d, **kwargs):
+    kw = {}
+    kw.update(**kwargs)
+    if 'extrap_mode' not in kwargs:
+        kw['extrap_mode'] = 'linear'
+    return get_code_spline(d, **kw)
 
 
 def get_code_cubic(d, vector_valued=False, vectorized=False, allocate=False, extrap_type='linear'):
@@ -436,11 +372,21 @@ def get_code_cubic(d, vector_valued=False, vectorized=False, allocate=False, ext
 
 
 
-def get_code_linear(d, vector_valued=False, vectorized=False, allocate=False, grid_types=None, extrap_mode=None):
-    templ = tempita.Template(template_linear)
-    templ_vec = tempita.Template(template_linear_vectorized)
-    if vectorized:
-        code = ( templ_vec.substitute(d=d, vector_valued=vector_valued, get_values=get_values, allocate=allocate, grid_types=grid_types, extrap_mode=extrap_mode) )
-    else:
-        code = ( templ.substitute(d=d, vector_valued=vector_valued, get_values=get_values, allocate=allocate, grid_types=grid_types, extrap_mode=extrap_mode) )
-    return (code)[1:]
+def indent(txt,levels=1):
+    return str.join('\n', ['    '*levels + e for e in str.split( txt,"\n")])
+
+txt = """helloe
+cest
+digicoe"""
+
+
+print(blending_formula(k=1, l=1, i=1))
+print(blending_formula(k=3, l=1, i=1))
+
+
+x = """\
+hele
+c'est moi"""
+print(x)
+
+print(indent(x,1))
