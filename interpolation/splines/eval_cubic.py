@@ -1,10 +1,11 @@
 import numpy
 
-
 from .eval_splines import eval_cubic
-## the functions in this file work for any dimension (d<=4)
-## they can optionnally allocate memory for the result
 
+## the functions in this file provide backward compatibility calls
+##
+## they can optionnally allocate memory for the result
+## they work for any dimension, except the functions which compute the gradient
 
 #######################
 # Compatibility calls #
@@ -21,7 +22,7 @@ def get_grid(a,b,n,C):
     print(txt)
     f = source_to_function(txt)
     return f
-    
+
 
 def eval_cubic_spline(a, b, orders, coefs, point):
     """Evaluates a cubic spline at one point

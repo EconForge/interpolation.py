@@ -58,7 +58,7 @@ def ttest_object_api(Obj):
 def ttest_object_vector_api(Obj):
 
     cs = Obj(a,b,orders,mvals)
-    
+
     ii = cs(point)
     iii = cs(points)
     try:

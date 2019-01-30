@@ -1,3 +1,5 @@
+# these are compatibility calls
+
 import numpy as np
 from numba import njit
 from .eval_splines import eval_linear
@@ -20,4 +22,3 @@ def multilinear_interpolation(smin, smax, orders, values, s, out=None):
         return eval_linear(grid, values, s)
     else:
         eval_linear(grid, values, s, out)
-        

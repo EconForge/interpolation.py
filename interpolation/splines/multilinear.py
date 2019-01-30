@@ -79,9 +79,11 @@ class LinearSpline:
 
     def interpolate(self,s):
 
-        from .multilinear_numba import multilinear_interpolation
+        from .eval_splines import eval_linear
+
         s = numpy.ascontiguousarray(s, dtype=self.dtype)
-        a = multilinear_interpolation(self.smin,self.smax,self.orders,self.values,s)
+        grid = tuple((self.smin[i], self.smax[i], self.orders[i]) for i in range(len(self.smin)))
+        a = eval_linear(grid,self.values,s)
         return a
 
     def __call__(self,s):
@@ -162,9 +164,10 @@ class LinearSplines:
 
     def interpolate(self,s):
 
-        from .multilinear_numba import vec_multilinear_interpolation
+        from .multilinear_numba import eval_linear
+        grid = tuple((self.smin[i], self.smax[i], self.orders[i]) for i in range(len(self.smin)))
         s = numpy.ascontiguousarray(s, dtype=self.dtype)
-        a = vec_multilinear_interpolation(self.smin,self.smax,self.orders,self.mvalues,s)
+        a = eval_linear(grid,self.mvalues,s)
         return a
 
     def __call__(self,s):
