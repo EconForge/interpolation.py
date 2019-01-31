@@ -83,7 +83,7 @@ from .option_types import options, t_CONSTANT, t_LINEAR, t_NEAREST
 
 @overload(_eval_linear)
 def __eval_linear(grid,C,points):
-    print("We allocate with default extrapolation.")
+    # print("We allocate with default extrapolation.")
     d = len(grid)
     n_x = len(grid.types)
     vector_valued = (C.ndim==d+1)
@@ -93,7 +93,7 @@ def __eval_linear(grid,C,points):
     grid_types = ['nonuniform' if isinstance(tt, numba.types.Array) else 'uniform' for tt in grid.types]
     context = {'floor': floor, 'zeros': zeros, 'np': np} #, 'Cd': Ad, 'dCd': dAd}
     code = get_code_linear(d, vector_valued=vector_valued, vectorized=vec_eval, allocate=True, grid_types=grid_types)
-    print(code)
+    # print(code)
     f = source_to_function(code, context)
     return f
 
@@ -118,7 +118,7 @@ def __eval_linear(grid,C,points,extrap_mode):
     else:
         return None
     code = get_code_linear(d, vector_valued=vector_valued, vectorized=vec_eval, allocate=True, grid_types=grid_types, extrap_mode=extrap_)
-    print(code)
+    # print(code)
     f = source_to_function(code, context)
     return f
 
@@ -127,7 +127,7 @@ def __eval_linear(grid,C,points,extrap_mode):
 @overload(_eval_linear)
 def __eval_linear(grid,C,points,out,extrap_mode):
 
-    print(f"We are going to do inplace, with {extrap_mode} extrapolation")
+    # print(f"We are going to do inplace, with {extrap_mode} extrapolation")
     d = len(grid)
     n_x = len(grid.types)
     vector_valued = (C.ndim==d+1)
@@ -143,7 +143,7 @@ def __eval_linear(grid,C,points,out,extrap_mode):
     else:
         return None
     code = get_code_linear(d, vector_valued=vector_valued, vectorized=vec_eval, allocate=False, grid_types=grid_types, extrap_mode=extrap_)
-    print(code)
+    # print(code)
     f = source_to_function(code, context)
     return f
 
@@ -151,7 +151,7 @@ def __eval_linear(grid,C,points,out,extrap_mode):
 @overload(_eval_linear)
 def __eval_linear(grid,C,points,out):
 
-    print("We are going to do inplace, with default extrapolation")
+    # print("We are going to do inplace, with default extrapolation")
     d = len(grid)
     n_x = len(grid.types)
     vector_valued = (C.ndim==d+1)
@@ -159,7 +159,7 @@ def __eval_linear(grid,C,points,out):
     grid_types = ['nonuniform' if isinstance(tt, numba.types.Array) else 'uniform' for tt in grid.types]
     context = {'floor': floor, 'zeros': zeros, 'np': np} #, 'Cd': Ad, 'dCd': dAd}
     code = get_code_linear(d, vector_valued=vector_valued, vectorized=vec_eval, allocate=False, grid_types=grid_types)
-    print(code)
+    # print(code)
     f = source_to_function(code, context)
     return f
 
@@ -180,7 +180,7 @@ from .option_types import options, t_CONSTANT, t_LINEAR, t_NEAREST
 
 @overload(_eval_cubic)
 def __eval_cubic(grid,C,points):
-    print("We allocate with default extrapolation.")
+    # print("We allocate with default extrapolation.")
     d = len(grid)
     n_x = len(grid.types)
     vector_valued = (C.ndim==d+1)
@@ -190,7 +190,7 @@ def __eval_cubic(grid,C,points):
     grid_types = ['nonuniform' if isinstance(tt, numba.types.Array) else 'uniform' for tt in grid.types]
     context = {'floor': floor, 'zeros': zeros, 'Cd': Ad, 'dCd': dAd}
     code = get_code_cubic(d, vector_valued=vector_valued, vectorized=vec_eval, allocate=True, grid_types=grid_types)
-    print(code)
+    # print(code)
     f = source_to_function(code, context)
     return f
 
@@ -216,7 +216,7 @@ def __eval_cubic(grid,C,points,extrap_mode):
     else:
         return None
     code = get_code_cubic(d, vector_valued=vector_valued, vectorized=vec_eval, allocate=True, grid_types=grid_types, extrap_mode=extrap_)
-    print(code)
+    # print(code)
     f = source_to_function(code, context)
     return f
 
@@ -225,7 +225,7 @@ def __eval_cubic(grid,C,points,extrap_mode):
 @overload(_eval_cubic)
 def __eval_cubic(grid,C,points,out,extrap_mode):
 
-    print(f"We are going to do inplace, with {extrap_mode} extrapolation")
+    # print(f"We are going to do inplace, with {extrap_mode} extrapolation")
     d = len(grid)
     n_x = len(grid.types)
     vector_valued = (C.ndim==d+1)
@@ -241,7 +241,7 @@ def __eval_cubic(grid,C,points,out,extrap_mode):
     else:
         return None
     code = get_code_cubic(d, vector_valued=vector_valued, vectorized=vec_eval, allocate=False, grid_types=grid_types, extrap_mode=extrap_)
-    print(code)
+    # print(code)
     f = source_to_function(code, context)
     return f
 
@@ -249,7 +249,7 @@ def __eval_cubic(grid,C,points,out,extrap_mode):
 @overload(_eval_cubic)
 def __eval_cubic(grid,C,points,out):
 
-    print("We are going to do inplace, with default extrapolation")
+    # print("We are going to do inplace, with default extrapolation")
     d = len(grid)
     n_x = len(grid.types)
     vector_valued = (C.ndim==d+1)
@@ -257,7 +257,7 @@ def __eval_cubic(grid,C,points,out):
     grid_types = ['nonuniform' if isinstance(tt, numba.types.Array) else 'uniform' for tt in grid.types]
     context = {'floor': floor, 'zeros': zeros, 'Cd': Ad, 'dCd': dAd}
     code = get_code_cubic(d, vector_valued=vector_valued, vectorized=vec_eval, allocate=False, grid_types=grid_types)
-    print(code)
+    # print(code)
     f = source_to_function(code, context)
     return f
 
