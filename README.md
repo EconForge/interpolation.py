@@ -121,6 +121,9 @@ eval_cubic(grid, coeffs, points, out) # 1000x2 matrix
 
 ```
 
+*Remark*: the arguably strange syntax for the extapolation option comes from the fact the actualy method called must be determined by type inference. So `eval_linear(..., extrap_method='linear')` would not work because the type of the last argument is always a string. Instead, we use opts.CONSTANT and opts.LINEAR for instance which have different numba types.
+
+Despite what it looks `UCGrid` and `CGRid` are not objects but functions which return very simple python structures that is a tuple of its arguments. For instance, `((0.0,1.0, 10), (0.0,1.0,20))` represents a 2d square discretized with 10 points along the first dimension and 20 along the second dimension. Similarly `(np.array([0.0, 0.1, 0.3, 1.0]), (0.0, 1.0, 20))` represents a square nonuniformly discretized along the first dimension (with 3 points) but uniformly along the second one. Now type dispatch is very sensitive to the exact types (floats vs ints), (tuple vs lists) which is potentially error-prone. Eventually, the functions `UCGrid` and `CGrid` will provide some type check and sensible conversions where it applies. This may change when if a parameterized structure-like object appear in numba.
 
 ### interp
 
