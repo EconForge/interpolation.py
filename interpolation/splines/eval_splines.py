@@ -108,7 +108,7 @@ def __eval_linear(grid,C,points,extrap_mode):
     from numpy import zeros
     grid_types = ['nonuniform' if isinstance(tt, numba.types.Array) else 'uniform' for tt in grid.types]
     context = {'floor': floor, 'zeros': zeros, 'np': np} #, 'Cd': Ad, 'dCd': dAd}
-    print(f"We are going to extrapolate in {extrap_mode} mode.")
+    # print(f"We are going to extrapolate in {extrap_mode} mode.")
     if extrap_mode == t_NEAREST:
         extrap_ = 'nearest'
     elif extrap_mode == t_CONSTANT:
