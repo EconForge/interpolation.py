@@ -6,6 +6,13 @@ from numpy import floor
 from numba import prange
 from .codegen import get_code_linear, get_code_cubic, source_to_function
 
+from distutils.version import LooseVersion
+from numba import __version__
+if LooseVersion(__version__)>='0.43':
+    overload_options = {'strict': False}
+else:
+    overload_options = {}
+
 #
 
 Ad = np.array([
@@ -81,7 +88,7 @@ def _eval_linear():
 
 from .option_types import options, t_CONSTANT, t_LINEAR, t_NEAREST
 
-@overload(_eval_linear)
+@overload(_eval_linear, **overload_options)
 def __eval_linear(grid,C,points):
     # print("We allocate with default extrapolation.")
     d = len(grid)
@@ -97,7 +104,7 @@ def __eval_linear(grid,C,points):
     f = source_to_function(code, context)
     return f
 
-@overload(_eval_linear)
+@overload(_eval_linear, **overload_options)
 def __eval_linear(grid,C,points,extrap_mode):
 
     d = len(grid)
@@ -124,7 +131,7 @@ def __eval_linear(grid,C,points,extrap_mode):
 
 
 
-@overload(_eval_linear)
+@overload(_eval_linear, **overload_options)
 def __eval_linear(grid,C,points,out,extrap_mode):
 
     # print(f"We are going to do inplace, with {extrap_mode} extrapolation")
@@ -148,7 +155,7 @@ def __eval_linear(grid,C,points,out,extrap_mode):
     return f
 
 
-@overload(_eval_linear)
+@overload(_eval_linear, **overload_options)
 def __eval_linear(grid,C,points,out):
 
     # print("We are going to do inplace, with default extrapolation")
@@ -178,7 +185,7 @@ def _eval_cubic():
 
 from .option_types import options, t_CONSTANT, t_LINEAR, t_NEAREST
 
-@overload(_eval_cubic)
+@overload(_eval_cubic, **overload_options)
 def __eval_cubic(grid,C,points):
     # print("We allocate with default extrapolation.")
     d = len(grid)
@@ -194,7 +201,7 @@ def __eval_cubic(grid,C,points):
     f = source_to_function(code, context)
     return f
 
-@overload(_eval_cubic)
+@overload(_eval_cubic, **overload_options)
 def __eval_cubic(grid,C,points,extrap_mode):
 
     d = len(grid)
@@ -222,7 +229,7 @@ def __eval_cubic(grid,C,points,extrap_mode):
 
 
 
-@overload(_eval_cubic)
+@overload(_eval_cubic, **overload_options)
 def __eval_cubic(grid,C,points,out,extrap_mode):
 
     # print(f"We are going to do inplace, with {extrap_mode} extrapolation")
@@ -246,7 +253,7 @@ def __eval_cubic(grid,C,points,out,extrap_mode):
     return f
 
 
-@overload(_eval_cubic)
+@overload(_eval_cubic, **overload_options)
 def __eval_cubic(grid,C,points,out):
 
     # print("We are going to do inplace, with default extrapolation")

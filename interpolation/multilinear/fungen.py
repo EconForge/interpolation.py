@@ -7,6 +7,13 @@ import ast
 from numba.extending import overload
 from numba.types.containers import Tuple, UniTuple
 
+from distutils.version import LooseVersion
+from numba import __version__
+if LooseVersion(__version__)>='0.43':
+    overload_options = {'strict': False}
+else:
+    overload_options = {}
+
 # from math import max, min
 
 ####################
@@ -83,7 +90,7 @@ def get_size(gc):
 def fmap():
     pass
 
-@overload(fmap)
+@overload(fmap, **overload_options)
 def _map(*args):
 
     if len(args)==2 and isinstance(args[1], (Tuple, UniTuple)):
