@@ -5,7 +5,7 @@
 The library contains:
 - splines.*: fast numba-compatible multilinear and cubic interpolation
 - multilinear.*: fast numba-compatible multilinear interpolation (alternative implementation)
-- smolyak.*: smolyak polinomials
+- smolyak.*: smolyak polynomials
 - complete polynomials
 
 ## install
