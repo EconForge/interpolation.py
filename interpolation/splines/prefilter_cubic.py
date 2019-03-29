@@ -3,6 +3,14 @@ from numba import jit, njit
 from numba import generated_jit
 from numba.extending import overload
 
+
+from distutils.version import LooseVersion
+from numba import __version__
+if LooseVersion(__version__)>='0.43':
+    overload_options = {'strict': False}
+else:
+    overload_options = {}
+
 # used by njitted routines (frozen)
 basis = (1.0 / 6.0, 2.0 / 3.0, 1.0 / 6.0, 0.0)
 
@@ -92,7 +100,7 @@ def _filter_cubic():
 
 
 # non allocating version
-@overload(_filter_cubic)
+@overload(_filter_cubic, **overload_options)
 def __filter_cubic(grid, D, C):
 
     d = len(grid.types)
