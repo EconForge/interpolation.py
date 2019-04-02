@@ -2,7 +2,7 @@ from setuptools import setup, find_packages  # Always prefer setuptools over dis
 
 setup(
     name='interpolation',
-    version='2.1.1',
+    version='2.1.2',
     description='Interpolation in Python',
     url='https://github.com/econforge/interpolation.py',
     author='Chase Coleman, Spencer Lyon and Pablo Winant',
