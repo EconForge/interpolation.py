@@ -19,7 +19,6 @@ def get_grid(a,b,n,C):
     d = C.ndim
     s = "({},)".format(str.join(", ", [f"(a[{k}],b[{k}],n[{k}])" for k in range(d)]))
     txt = "def get_grid(a,b,n,C): return {}".format(s)
-    print(txt)
     f = source_to_function(txt)
     return f
 
