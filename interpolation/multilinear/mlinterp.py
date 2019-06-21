@@ -24,7 +24,8 @@ from numba import njit
 from typing import Tuple
 
 from numba.types import UniTuple, Array, float64
-from numba.types import Float
+from numba.types import Float, Integer
+Scalar = (Float, Integer)
 
 import numpy as np
 from numba import generated_jit
@@ -89,8 +90,8 @@ def detect_types(args):
         if set([isinstance(e,Array) for e in eval_args])==set([True]):
             eval_type = 'cartesian'
             assert(set([e.ndim for e in eval_args])==set([1]))
-        elif set([isinstance(e,Float) for e in eval_args])==set([True]):
-            eval_type = 'float'
+        elif set([isinstance(e,Scalar) for e in eval_args])==set([True]):
+            eval_type = 'scalar'
         else:
             raise Exception("Undetected evaluation type.")
     else:
@@ -103,8 +104,8 @@ def detect_types(args):
                 raise Exception("Undetected evaluation type.")
         elif isinstance(eval_args[0], UniTuple):
             eval_type = 'tuple'
-        elif set([isinstance(e,Float) for e in eval_args])==set([True]):
-            eval_type = 'float'
+        elif set([isinstance(e,Scalar) for e in eval_args])==set([True]):
+            eval_type = 'scalar'
         else:
             raise Exception("Undetected evaluation type.")
 
@@ -116,14 +117,14 @@ def make_mlinterp(it, funname):
     if it.values =='vector':
         return None
 
-    if it.eval in ('float', 'tuple') and it.values =='vector':
+    if it.eval in ('scalar', 'tuple') and it.values =='vector':
         # raise Exception("Non supported. (return type unknown)")
         return None
 
     # grid = str.join(',', ['args[{}]'.format(i) for i in range(it.d)])
     grid_s = "({},)".format(str.join(',', [f"args[{i}]" for i in range(it.d)]))
-    if it.eval in ('float','point','tuple'):
-        if it.eval == 'float':
+    if it.eval in ('scalar','point','tuple'):
+        if it.eval == 'scalar':
             point_s = "({},)".format(str.join(',', [f"args[{it.d+i+1}]" for i in range(it.d)]))
             # point_s = f"(args[{d+1}])"
         elif it.eval == 'tuple':
