@@ -3,33 +3,45 @@ import numba
 from numba import jitclass
 
 
-import numpy as np
-from numba import njit
-from interpolation.splines import eval_linear, UCGrid, nodes
+# Extrapolation types
 
-f = lambda x,y: np.sin(x**3+y**2+0.00001)/np.sqrt(x**2+y**2+0.00001)
-g = lambda x,y: np.sin(x**3+y**2+0.00001)/np.sqrt(x**2+y**2+0.00001)
+# the following fails because of https://github.com/EconForge/interpolation.py/issues/52
+# spec = [
+# ]
+# @jitclass(spec)
+# class c_CONSTANT:
+#     def __init__(self):
+#         pass
+# @jitclass(spec)
+# class c_LINEAR:
+#     def __init__(self):
+#         pass
+# @jitclass(spec)
+# class c_NEAREST:
+#     def __init__(self):
+#         pass
+# CONSTANT = c_CONSTANT()
+# LINEAR = c_LINEAR()
+# NEAREST = c_NEAREST()
 
-grid = UCGrid((-1.0, 1.0, 10), (-1.0, 1.0, 10))
-gp = nodes(grid)   # 100x2 matrix
 
-mvalues = np.concatenate([
-   f(gp[:,0], gp[:,1]).reshape((10,10))[:,:,None],
-   g(gp[:,0], gp[:,1]).reshape((10,10))[:,:,None]
-],axis=2) # 10x10x2 array
-
-points = np.random.random((1000,2))
+# this is a horrible workaround
+CONSTANT = ((None,),(None,)*1)
+LINEAR = ((None,),(None,)*2)
+NEAREST = ((None,),(None,)*3)
 
 
-from interpolation.splines.option_types import options as xto
+t_CONSTANT = numba.typeof(CONSTANT)
+t_LINEAR = numba.typeof(LINEAR)
+t_NEAREST = numba.typeof(NEAREST)
 
-@njit
-def fun():
-    eval_linear(grid, mvalues, points)
+extrap_types = (t_CONSTANT, t_LINEAR, t_NEAREST)
 
-@njit
-def no_fun():
-    eval_linear(grid, mvalues, points, xto.LINEAR)
 
-fun()       # works happily
-no_fun()    # does not :'(
+tt = numba.typeof(CONSTANT)
+
+
+from collections import namedtuple
+
+_extrap = namedtuple("extrapolation_options", ["CONSTANT", 'LINEAR', 'NEAREST'])
+options = _extrap(CONSTANT, LINEAR, NEAREST)
