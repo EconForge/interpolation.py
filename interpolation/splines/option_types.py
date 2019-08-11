@@ -2,30 +2,34 @@ import numba
 
 from numba import jitclass
 
-spec = [
-]
 
 # Extrapolation types
 
-@jitclass(spec)
-class c_CONSTANT:
-    def __init__(self):
-        pass
+# the following fails because of https://github.com/EconForge/interpolation.py/issues/52
+# spec = [
+# ]
+# @jitclass(spec)
+# class c_CONSTANT:
+#     def __init__(self):
+#         pass
+# @jitclass(spec)
+# class c_LINEAR:
+#     def __init__(self):
+#         pass
+# @jitclass(spec)
+# class c_NEAREST:
+#     def __init__(self):
+#         pass
+# CONSTANT = c_CONSTANT()
+# LINEAR = c_LINEAR()
+# NEAREST = c_NEAREST()
 
 
-@jitclass(spec)
-class c_LINEAR:
-    def __init__(self):
-        pass
+# this is a horrible workaround
+CONSTANT = ((None,),(None,)*1)
+LINEAR = ((None,),(None,)*2)
+NEAREST = ((None,),(None,)*3)
 
-@jitclass(spec)
-class c_NEAREST:
-    def __init__(self):
-        pass
-
-CONSTANT = c_CONSTANT()
-LINEAR = c_LINEAR()
-NEAREST = c_NEAREST()
 
 t_CONSTANT = numba.typeof(CONSTANT)
 t_LINEAR = numba.typeof(LINEAR)
@@ -41,5 +45,3 @@ from collections import namedtuple
 
 _extrap = namedtuple("extrapolation_options", ["CONSTANT", 'LINEAR', 'NEAREST'])
 options = _extrap(CONSTANT, LINEAR, NEAREST)
-
-
