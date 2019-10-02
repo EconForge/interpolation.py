@@ -125,7 +125,6 @@ def __eval_linear(grid,C,points,extrap_mode):
     else:
         return None
     code = get_code_linear(d, vector_valued=vector_valued, vectorized=vec_eval, allocate=True, grid_types=grid_types, extrap_mode=extrap_)
-    # print(code)
     f = source_to_function(code, context)
     return f
 

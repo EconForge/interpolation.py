@@ -251,6 +251,8 @@ def eval_{{'linear' if k==1 else 'cubic'}}(grid, C, points{{', out' if not alloc
     # dim {{i}}: nonuniform
     gc_{{i}} = grid[{{i}}]
     N_{{i}} = gc_{{i}}.shape[0]
+    a_{{i}} = gc_{{i}}[0]
+    b_{{i}} = gc_{{i}}[N_{{i}}-1]
     {{endif}}
     {{endfor}}
 
