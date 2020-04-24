@@ -6,12 +6,8 @@ from numpy import floor
 from numba import prange
 from .codegen import get_code_linear, get_code_cubic, source_to_function
 
-from distutils.version import LooseVersion
-from numba import __version__
-if LooseVersion(__version__)>='0.43':
-    overload_options = {'strict': False}
-else:
-    overload_options = {}
+from ..compat import Tuple, UniTuple
+from ..compat import overload_options
 
 #
 
@@ -82,6 +78,7 @@ import numba
 import numpy as np
 from numba import njit
 from numba.extending import overload
+from numba.types import Array
 
 def _eval_linear():
     pass
@@ -97,7 +94,7 @@ def __eval_linear(grid,C,points):
     vec_eval = (points.ndim==2)
     from math import floor
     from numpy import zeros
-    grid_types = ['nonuniform' if isinstance(tt, numba.types.Array) else 'uniform' for tt in grid.types]
+    grid_types = ['nonuniform' if isinstance(tt, Array) else 'uniform' for tt in grid.types]
     context = {'floor': floor, 'zeros': zeros, 'np': np} #, 'Cd': Ad, 'dCd': dAd}
     code = get_code_linear(d, vector_valued=vector_valued, vectorized=vec_eval, allocate=True, grid_types=grid_types)
     # print(code)
@@ -113,7 +110,7 @@ def __eval_linear(grid,C,points,extrap_mode):
     vec_eval = (points.ndim==2)
     from math import floor
     from numpy import zeros
-    grid_types = ['nonuniform' if isinstance(tt, numba.types.Array) else 'uniform' for tt in grid.types]
+    grid_types = ['nonuniform' if isinstance(tt, Array) else 'uniform' for tt in grid.types]
     context = {'floor': floor, 'zeros': zeros, 'np': np} #, 'Cd': Ad, 'dCd': dAd}
     # print(f"We are going to extrapolate in {extrap_mode} mode.")
     if extrap_mode == t_NEAREST:
@@ -138,7 +135,7 @@ def __eval_linear(grid,C,points,out,extrap_mode):
     n_x = len(grid.types)
     vector_valued = (C.ndim==d+1)
     vec_eval = (points.ndim==2)
-    grid_types = ['nonuniform' if isinstance(tt, numba.types.Array) else 'uniform' for tt in grid.types]
+    grid_types = ['nonuniform' if isinstance(tt, Array) else 'uniform' for tt in grid.types]
     context = {'floor': floor, 'zeros': zeros, 'np': np} #, 'Cd': Ad, 'dCd': dAd}
     if extrap_mode == t_NEAREST:
         extrap_ = 'nearest'
@@ -162,7 +159,7 @@ def __eval_linear(grid,C,points,out):
     n_x = len(grid.types)
     vector_valued = (C.ndim==d+1)
     vec_eval = (points.ndim==2)
-    grid_types = ['nonuniform' if isinstance(tt, numba.types.Array) else 'uniform' for tt in grid.types]
+    grid_types = ['nonuniform' if isinstance(tt, Array) else 'uniform' for tt in grid.types]
     context = {'floor': floor, 'zeros': zeros, 'np': np} #, 'Cd': Ad, 'dCd': dAd}
     code = get_code_linear(d, vector_valued=vector_valued, vectorized=vec_eval, allocate=False, grid_types=grid_types)
     # print(code)
@@ -193,7 +190,7 @@ def __eval_cubic(grid,C,points):
     vec_eval = (points.ndim==2)
     from math import floor
     from numpy import zeros
-    grid_types = ['nonuniform' if isinstance(tt, numba.types.Array) else 'uniform' for tt in grid.types]
+    grid_types = ['nonuniform' if isinstance(tt, Array) else 'uniform' for tt in grid.types]
     context = {'floor': floor, 'zeros': zeros, 'Cd': Ad, 'dCd': dAd}
     code = get_code_cubic(d, vector_valued=vector_valued, vectorized=vec_eval, allocate=True, grid_types=grid_types)
     # print(code)
@@ -209,7 +206,7 @@ def __eval_cubic(grid,C,points,extrap_mode):
     vec_eval = (points.ndim==2)
     from math import floor
     from numpy import zeros
-    grid_types = ['nonuniform' if isinstance(tt, numba.types.Array) else 'uniform' for tt in grid.types]
+    grid_types = ['nonuniform' if isinstance(tt, Array) else 'uniform' for tt in grid.types]
     context = {'floor': floor, 'zeros': zeros, 'Cd': Ad, 'dCd': dAd}
 
     # print(f"We are going to extrapolate in {extrap_mode} mode.")
@@ -236,7 +233,7 @@ def __eval_cubic(grid,C,points,out,extrap_mode):
     n_x = len(grid.types)
     vector_valued = (C.ndim==d+1)
     vec_eval = (points.ndim==2)
-    grid_types = ['nonuniform' if isinstance(tt, numba.types.Array) else 'uniform' for tt in grid.types]
+    grid_types = ['nonuniform' if isinstance(tt, Array) else 'uniform' for tt in grid.types]
     context = {'floor': floor, 'zeros': zeros, 'Cd': Ad, 'dCd': dAd}
     if extrap_mode == t_NEAREST:
         extrap_ = 'nearest'
@@ -260,7 +257,7 @@ def __eval_cubic(grid,C,points,out):
     n_x = len(grid.types)
     vector_valued = (C.ndim==d+1)
     vec_eval = (points.ndim==2)
-    grid_types = ['nonuniform' if isinstance(tt, numba.types.Array) else 'uniform' for tt in grid.types]
+    grid_types = ['nonuniform' if isinstance(tt, Array) else 'uniform' for tt in grid.types]
     context = {'floor': floor, 'zeros': zeros, 'Cd': Ad, 'dCd': dAd}
     code = get_code_cubic(d, vector_valued=vector_valued, vectorized=vec_eval, allocate=False, grid_types=grid_types)
     # print(code)

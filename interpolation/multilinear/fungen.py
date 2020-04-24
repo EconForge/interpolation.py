@@ -5,14 +5,10 @@ from numba import generated_jit, njit
 import ast
 
 from numba.extending import overload
-from numba.types.containers import Tuple, UniTuple
+from numba.types import Array
+from ..compat import overload_options
+from ..compat import Tuple, UniTuple
 
-from distutils.version import LooseVersion
-from numba import __version__
-if LooseVersion(__version__)>='0.43':
-    overload_options = {'strict': False}
-else:
-    overload_options = {}
 
 # from math import max, min
 
@@ -215,7 +211,7 @@ def project(grid, point):
     s = "def __project(grid, point):\n"
     d = len(grid.types)
     for i in range(d):
-        if isinstance(grid.types[i], numba.types.Array):
+        if isinstance(grid.types[i], Array):
             s += f"    x_{i} = min(max(point[{i}], grid[{i}][0]), grid[{i}][grid[{i}].shape[0]-1])\n"
         else:
             s += f"    x_{i} = min(max(point[{i}], grid[{i}][0]), grid[{i}][1])\n"
