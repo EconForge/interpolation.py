@@ -24,7 +24,7 @@ from numba import njit
 from typing import Tuple
 
 from ..compat import UniTuple, Tuple
-from numba.types import Float, Integer, Array
+from numba.core.types import Float, Integer, Array
 Scalar = (Float, Integer)
 
 import numpy as np

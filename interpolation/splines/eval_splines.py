@@ -78,7 +78,7 @@ import numba
 import numpy as np
 from numba import njit
 from numba.extending import overload
-from numba.types import Array
+from numba.core.types import Array
 
 def _eval_linear():
     pass

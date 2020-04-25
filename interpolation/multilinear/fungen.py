@@ -5,7 +5,7 @@ from numba import generated_jit, njit
 import ast
 
 from numba.extending import overload
-from numba.types import Array
+from numba.core.types import Array
 from ..compat import overload_options
 from ..compat import Tuple, UniTuple
 
