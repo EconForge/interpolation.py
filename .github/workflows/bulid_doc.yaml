@@ -1,0 +1,33 @@
+name: Publish docs via GitHub Pages
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    name: Deploy docs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout master
+        uses: actions/checkout@v1
+
+      - name: Set up Python 3.7
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.7
+
+      - name: Install Poetry
+        uses: Gr1N/setup-poetry@v2
+
+      - name: Deploy docs (1)
+        run: |
+          git config --global user.name "albop"
+          git config --global user.email "albop@users.noreply.github.com"
+          git remote rm origin
+          git remote add origin https://x-access-token:${PERSONAL_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
+          poetry install
+          poetry run mkdocs gh-deploy --config-file ${GITHUB_WORKSPACE}/mkdocs.yml --force
+        env:
+          PERSONAL_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
