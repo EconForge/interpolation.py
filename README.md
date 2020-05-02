@@ -1,11 +1,11 @@
 # Optimized interpolation routines in Python / numba
 
-[![Build Status](https://travis-ci.org/EconForge/interpolation.py.svg?branch=master)](https://travis-ci.org/EconForge/interpolation.py)
+![CI](https://github.com/EconForge/interpolation.py/workflows/CI/badge.svg?branch=master)
 
 The library contains:
-- splines.*: fast numba-compatible multilinear and cubic interpolation
-- multilinear.*: fast numba-compatible multilinear interpolation (alternative implementation)
-- smolyak.*: smolyak polynomials
+- `splines.*`: fast numba-compatible multilinear and cubic interpolation
+- `multilinear.*`: fast numba-compatible multilinear interpolation (alternative implementation)
+- `smolyak.*`: smolyak polynomials
 - complete polynomials
 
 ## install
