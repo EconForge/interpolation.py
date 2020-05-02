@@ -1,3 +1,4 @@
 *.pyc
 *.nbi
 *.nbc
+dist*

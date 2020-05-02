@@ -2,15 +2,22 @@
 name = "interpolation"
 version = "2.1.4"
 description = "Interpolation in Python"
-authors = ["Chase Coleman <cc7768@gmail.com>",
-        "Spencer Lyon <spencerlyon2@gmail.com>", "Winant Pablo <pablo.winant@gmail.com>"]
-license="BSD-2-Clause"
+authors = [
+    "Pablo Winant <pablo.winant@gmail.com>",
+    "Chase Coleman <cc7768@gmail.com>",
+    "Spencer Lyon <spencerlyon2@gmail.com>"
+]
+maintainers = [
+    "Pablo Winant <pablo.winant@gmail.com>"
+]
+license = "BSD-2-Clause"
 
 [tool.poetry.dependencies]
 python = "^3.6"
-numba = "^0.49.0"
+numba = ">= 0.49"
 numpy = "^1.18.3"
 tempita = "^0.5.2"
+scipy = "^1.4.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"

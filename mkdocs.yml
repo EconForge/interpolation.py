@@ -1,0 +1,7 @@
+site_name: Interpolation
+
+theme:
+    name: mkdocs
+
+nav:
+    - Home: index.md
