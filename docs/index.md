@@ -11,14 +11,25 @@ The library contains:
 
 ## install
 
-Latest development version from git:
-
-`pip install git+https://github.com/econforge/interpolation.py.git/`
-
-Or latest stable version:
+Install latest version:
 
 - from conda: `conda install -c conda-forge interpolation`
 - from PyPI: `pip install interpolation`
+
+Latest development version from git:
+
+```
+pip install poetry # if not already installed
+pip install git+https://github.com/econforge/interpolation.py.git/
+```
+
+The project uses a `pyproject.toml` file instead of `setup.py` and other legacy configuration files. For those used to development installation, this is feasible using `dephell`:
+
+```
+pip install dephell # if not already installed
+dephell --from=pyproject.toml --to=setup.py # only once
+pip install -e . # like old times
+```
 
 ## multilinear and cubic interpolation
 

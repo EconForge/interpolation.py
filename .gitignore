@@ -2,3 +2,4 @@
 *.nbi
 *.nbc
 dist*
+setup.py
