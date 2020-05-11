@@ -23,8 +23,8 @@ from .fungen import fmap, funzip, get_coeffs, tensor_reduction, get_index, extra
 from numba import njit
 from typing import Tuple
 
-from ..compat import UniTuple, Tuple
-from numba.core.types import Float, Integer, Array
+from ..compat import UniTuple, Tuple, Float, Integer, Array
+
 Scalar = (Float, Integer)
 
 import numpy as np
