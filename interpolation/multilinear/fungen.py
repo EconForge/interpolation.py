@@ -5,9 +5,8 @@ from numba import generated_jit, njit
 import ast
 
 from numba.extending import overload
-from numba.core.types import Array
+from ..compat import Array, Tuple, UniTuple
 from ..compat import overload_options
-from ..compat import Tuple, UniTuple
 
 
 # from math import max, min
