@@ -25,40 +25,32 @@ def gen_trex(l, c: Callable, inds=[]):
         exprs = [  '{}*({})'.format(h[i],gen_trex(q,c, inds=inds + [i])) for i in range(k)]
         return str.join( ' + ', exprs )
 
-def get_values(d, multispline=False, k=4, i_x='i_x'):
-        values = []
-        l = [tuple(['Φ_{}_{}'.format(i, ik) for ik in range(k)]) for i in range(d)]
-        if multispline:
-            def c(*arg):
-                inds = [(f'i_{i} + {j}' if j>0 else f'i_{i}') for i,j in enumerate(arg)]
-                return f'C[{str.join(", ", [str(e) for e in inds])}, {i_x}]'
-        else:
-            def c(*arg):
-                inds = [(f'i_{i} + {j}' if j>0 else f'i_{i}') for i,j in enumerate(arg)]
-                return f'C[{str.join(", ", [str(e) for e in inds])}]'
-        s = gen_trex(l, c)
-        return s
+def get_values(d, multispline=False, k=4, i_x='i_x', diffs=None):
 
+    if diffs is None:
+        diffs = (0,)*d
 
-def get_dvalues(d, diff, multispline=False, k=4, i_x='i_x'):
-        values = []
-        l = []
-        for i in range(d):
-            if i==diff:
-                t = tuple(['dΦ_{}_{}'.format(i, ik) for ik in range(k)])
-            else:
-                t = tuple(['Φ_{}_{}'.format(i, ik) for ik in range(k)])
-            l.append(t)
-        if multispline:
-            def c(*arg):
-                inds = [(f'i_{i} + {j}' if j>0 else f'i_{i}') for i,j in enumerate(arg)]
-                return f'C[{str.join(", ", [str(e) for e in inds])}, {i_x}]'
-        else:
-            def c(*arg):
-                inds = [(f'i_{i} + {j}' if j>0 else f'i_{i}') for i,j in enumerate(arg)]
-                return f'C[{str.join(", ", [str(e) for e in inds])}]'
-        s = gen_trex(l, c)
-        return s
+    values = []
+    l = []
+    for i,diff in enumerate(diffs):
+        if diff==0:
+            tt = tuple(['Φ_{}_{}'.format(i, ik) for ik in range(k)])
+        elif diff==1:
+            tt = tuple(['d_Φ_{}_{}'.format(i, ik) for ik in range(k)])
+        elif diff>=2:
+            tt = tuple(['d_{}_Φ_{}_{}'.format(diff, i,  ik) for ik in range(k)])
+        l.append(tt)
+    if multispline:
+        def c(*arg):
+            inds = [(f'i_{i} + {j}' if j>0 else f'i_{i}') for i,j in enumerate(arg)]
+            return f'C[{str.join(", ", [str(e) for e in inds])}, {i_x}]'
+    else:
+        def c(*arg):
+            inds = [(f'i_{i} + {j}' if j>0 else f'i_{i}') for i,j in enumerate(arg)]
+            return f'C[{str.join(", ", [str(e) for e in inds])}]'
+    s = gen_trex(l, c)
+    return s
+
 
 def source_to_function(source, context={}):
     # if context is None:
@@ -93,36 +85,47 @@ def blending_formula(k=1, l=0, i=0):
 Φ_{i}_{1} = λ_{i}"""
         elif l==1:
             s = f"""\
-d_Φ_{i}_{0} = -1.0/δ_{i}
-d_Φ_{i}_{1} = 1.0/δ_{i}"""
+d_Φ_{i}_{0} = -1.0*δ_{i}
+d_Φ_{i}_{1} = 1.0*δ_{i}"""
         else:
             s = f"""
-d_{{l}}_Φ_{i}_{0} = 0.0
-d_{{l}}_Φ_{i}_{1} = 0.0"""
+d_{l}_Φ_{i}_{0} = 0.0
+d_{l}_Φ_{i}_{1} = 0.0"""
     elif k==3:
-        if l>1:
-            raise Exception("Not implemented")
+
         import tempita
-        template = tempita.Template("""
+        if l==0:
+            template_0 = """
 μ_{{i}}_0 = λ_{{i}}*λ_{{i}}*λ_{{i}};  μ_{{i}}_1 = λ_{{i}}*λ_{{i}};  μ_{{i}}_2 = λ_{{i}};  μ_{{i}}_3 = 1.0;
+        """
+            phi = lambda i,j: "Φ_{}_{}".format(i,j)
+        elif l==1:
+            template_0 = """
+μ_{{i}}_0 = 3*λ_{{i}}*λ_{{i}}*δ_{{i}};  μ_{{i}}_1 = 2*λ_{{i}}*δ_{{i}};  μ_{{i}}_2 = *δ_{{i}};  μ_{{i}}_3 = 0.0;
+        """
+            phi = lambda i,j: "d_Φ_{}_{}".format(i,j)
+        else:
+            raise Exception("Not implemented")
+        template = tempita.Template(template_0 + """
 {{for j in range(4)}}
-Φ_{{i}}_{{j}} = 0.0
+{{phi(i,j)}}= 0.0
 {{endfor}}
 if λ_{{i}} < 0:
     {{for j in range(4)}}
-    Φ_{{i}}_{{j}} = dCd[{{j}},3]*λ_{{i}} + Cd[{{j}},3]
+    {{phi(i,j)}} = dCd[{{j}},3]*μ_{{i}}_2 + Cd[{{j}},3]*μ_{{i}}_3
     {{endfor}}
 elif λ_{{i}} > 1:
     {{for j in range(4)}}
-    Φ_{{i}}_{{j}} = (3*Cd[{{j}},0] + 2*Cd[{{j}},1] + Cd[{{j}},2])*(λ_{{i}}-1) + (Cd[{{j}},0]+Cd[{{j}},1]+Cd[{{j}},2]+Cd[{{j}},3])
+    {{phi(i,j)}} = (3*Cd[{{j}},0] + 2*Cd[{{j}},1] + Cd[{{j}},2])*(μ_{{i}}_2-μ_{{i}}_3) + (Cd[{{j}},0]+Cd[{{j}},1]+Cd[{{j}},2]+Cd[{{j}},3])*μ_{{i}}_3
     {{endfor}}
 else:
     {{for j in range(4)}}
-    Φ_{{i}}_{{j}} = (Cd[{{j}},0]*μ_{{i}}_0 + Cd[{{j}},1]*μ_{{i}}_1 + Cd[{{j}},2]*μ_{{i}}_2 + Cd[{{j}},3]*μ_{{i}}_3)
+    {{phi(i,j)}} = (Cd[{{j}},0]*μ_{{i}}_0 + Cd[{{j}},1]*μ_{{i}}_1 + Cd[{{j}},2]*μ_{{i}}_2 + Cd[{{j}},3]*μ_{{i}}_3)
     {{endfor}}
 """)
-        s = template.substitute(i=i)
+        s = template.substitute(i=i, phi=phi)
 
+    print(s)
     return s
 
 
@@ -131,15 +134,19 @@ else:
 ##############
 
 
-template_linear = """
+eval_template = """
 def eval_{{'linear' if k==1 else 'cubic'}}(grid, C, points{{ ', out' if not allocate else ""}}{{ ', extrap_mode' if extrap_mode else ""}}):
     "This is my docstring"
 
     {{if vector_valued}}
     n_vals = C.shape[{{d}}]
-    {{if allocate}}
+        {{if allocate}}
+            {{if orders is None}}
     out = zeros(n_vals)
-    {{endif}}
+            {{else}}
+    out = zeros((n_vals, {{len(orders)}}))
+            {{endif}}
+        {{endif}}
     {{endif}}
 
     #recover grid parameters
@@ -197,17 +204,33 @@ def eval_{{'linear' if k==1 else 'cubic'}}(grid, C, points{{ ', out' if not allo
 
     # Basis functions
     {{for i in range(d)}}
-    {{for l in bases_orders[i]}}
+        {{for l in bases_orders[i]}}
 {{indent(blending_formula(k,l,i=i),levels=1)}}
-    {{endfor}}
+        {{endfor}}
     {{endfor}}
 
 
     {{if vector_valued}}
 
+    {{if orders is None}}
+
     # compute tensor reductions
     for i_x in range(n_vals):
         out[i_x] = {{ get_values(d, multispline=True, k=k+1, i_x='i_x') }}
+
+    {{else}}
+
+    # compute tensor reductions
+    for i_x in range(n_vals):
+        {{for oo in orders}}
+        val_{{str(oo).strip("(").strip(")").replace(",", "").replace(" ", "")}} = {{get_values(d, multispline=True, i_x='i_x', k=k+1, diffs=oo)}}
+        {{endfor}}
+
+        {{for j,oo in enumerate(orders)}}
+        out[i_x, {{j}}] = val_{{str(oo).strip("(").strip(")").replace(",", "").replace(" ", "")}}
+        {{endfor}}
+
+    {{endif}}
 
     {{if allocate}}
     return out
@@ -215,13 +238,29 @@ def eval_{{'linear' if k==1 else 'cubic'}}(grid, C, points{{ ', out' if not allo
 
     {{else}}
 
+    {{if isinstance(orders, (tuple, list))}}
+    {{for oo in orders}}
+    val_{{str(oo).strip("(").strip(")").replace(",", "").replace(" ", "")}} = {{get_values(d, multispline=False, k=k+1, diffs=oo)}}
+    {{endfor}}
+
+    val = (\\
+    {{for oo in orders}}
+    val_{{str(oo).strip("(").strip(")").replace(",", "").replace(" ", "")}},\\
+    {{endfor}}
+    )
+
+    {{else}}
+
     val = {{get_values(d, multispline=False, k=k+1)}}
+
+    {{endif}}
+
     return val
 
     {{endif}}
 """
 
-template_linear_vectorized = """
+eval_template_vectorized = """
 def eval_{{'linear' if k==1 else 'cubic'}}(grid, C, points{{', out' if not allocate else ""}}{{ ', extrap_mode' if extrap_mode else ""}}):
     "This is my docstring"
 
@@ -300,15 +339,51 @@ def eval_{{'linear' if k==1 else 'cubic'}}(grid, C, points{{', out' if not alloc
         {{endfor}}
         {{endfor}}
 
+
         {{if vector_valued}}
+
+        {{if orders is None}}
+
+        # compute tensor reductions
         for i_x in range(n_vals):
-            out[nn,i_x] = {{get_values(d, multispline=True, k=k+1)}}
+            out[i_x] = {{ get_values(d, multispline=True, k=k+1, i_x='i_x') }}
+
         {{else}}
 
-        out[nn] = {{get_values(d, multispline=False, k=k+1)}}
+        # compute tensor reductions
+        for i_x in range(n_vals):
+            {{for oo in orders}}
+            val_{{str(oo).strip("(").strip(")").replace(",", "").replace(" ", "")}} = {{get_values(d, multispline=True, i_x='i_x', k=k+1, diffs=oo)}}
+            {{endfor}}
+
+            {{for j,oo in enumerate(orders)}}
+            out[nn, i_x, {{j}}] = val_{{str(oo).strip("(").strip(")").replace(",", "").replace(" ", "")}}
+            {{endfor}}
+
         {{endif}}
 
 
+        {{else}}
+
+        {{if isinstance(orders, (tuple, list))}}
+        {{for oo in orders}}
+        val_{{str(oo).strip("(").strip(")").replace(",", "").replace(" ", "")}} = {{get_values(d, multispline=False, k=k+1, diffs=oo)}}
+        {{endfor}}
+
+        {{for j,oo in enumerate(orders)}}
+            out[nn,{{j}}] = val_{{str(oo).strip("(").strip(")").replace(",", "").replace(" ", "")}},\\
+        {{endfor}}
+
+        {{else}}
+
+        val = {{get_values(d, multispline=False, k=k+1)}}
+
+        {{endif}}
+
+        return val
+
+        {{endif}}
+        
     {{if allocate}}
     return out
     {{endif}}
@@ -319,15 +394,20 @@ import tempita
 
 
 def get_code_spline(d, k=1, vector_valued=False, vectorized=False, allocate=False, grid_types=None, extrap_mode=None, orders=None):
-    if orders is None:
-        orders = (0,)*d
-    # bases function to compute for each dimension
-    if isinstance(orders, tuple):
-        oo = [orders]
-    else:
-        oo = orders
-    bases_orders = [sorted(list(set(e))) for e in zip(*oo)]
 
+    # if orders is None:
+    #     orders = (0,)*d
+    # # bases function to compute for each dimension
+    # if isinstance(orders, tuple):
+    #     oo = [orders]
+    # else:
+    #     oo = orders
+
+    if orders is None:
+        bases_orders = [(0,)]*d
+    else:
+        bases_orders = [sorted(list(set(e))) for e in zip(*orders)]
+    print(bases_orders)
     if grid_types is None:
         grid_types = ['uniform']*d
 
@@ -335,9 +415,8 @@ def get_code_spline(d, k=1, vector_valued=False, vectorized=False, allocate=Fals
         raise Exception("Nonuniform grids are only supported for linear splines.")
 
 
-
-    templ = tempita.Template(template_linear)
-    templ_vec = tempita.Template(template_linear_vectorized)
+    templ = tempita.Template(eval_template)
+    templ_vec = tempita.Template(eval_template_vectorized)
     if vectorized:
         template = templ_vec
     else:

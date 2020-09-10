@@ -13,17 +13,22 @@ maintainers = [
 license = "BSD-2-Clause"
 
 [tool.poetry.dependencies]
-python = "^3.6"
+python = "^3.7"
 numba = ">=0.47"
 numpy = ">=1.18.1"
 tempita = ">=0.5.2"
 scipy = ">=1.4.1"
+ipython = "^7.18.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
 mkdocs = "^1.1"
 pymdown-extensions = "^7.1"
 python-markdown-math = "^0.6"
+mypy = "^0.782"
+jupyter = "^1.0.0"
+matplotlib = "^3.3.1"
+tk = "^0.1.0"
 
 [build-system]
 requires = ["poetry>=0.12"]
