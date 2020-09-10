@@ -125,7 +125,6 @@ else:
 """)
         s = template.substitute(i=i, phi=phi)
 
-    print(s)
     return s
 
 
@@ -395,19 +394,14 @@ import tempita
 
 def get_code_spline(d, k=1, vector_valued=False, vectorized=False, allocate=False, grid_types=None, extrap_mode=None, orders=None):
 
-    # if orders is None:
-    #     orders = (0,)*d
-    # # bases function to compute for each dimension
-    # if isinstance(orders, tuple):
-    #     oo = [orders]
-    # else:
-    #     oo = orders
-
     if orders is None:
         bases_orders = [(0,)]*d
     else:
         bases_orders = [sorted(list(set(e))) for e in zip(*orders)]
+
+    print(orders)
     print(bases_orders)
+
     if grid_types is None:
         grid_types = ['uniform']*d
 
