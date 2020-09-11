@@ -30,7 +30,6 @@ def get_values(d, multispline=False, k=4, i_x='i_x', diffs=None):
     if diffs is None:
         diffs = (0,)*d
 
-    values = []
     l = []
     for i,diff in enumerate(diffs):
         if diff==0:
@@ -199,6 +198,7 @@ def eval_{{'linear' if k==1 else 'cubic'}}(grid, C, points{{ ', out' if not allo
     δ_{{i}} = (gc_{{i}}[i_{{i}}+1]-gc_{{i}}[i_{{i}}])
     λ_{{i}} = (x_{{i}}-gc_{{i}}[i_{{i}}])/δ_{{i}}
     {{endif}}
+    
     {{endfor}}
 
     # Basis functions
@@ -401,6 +401,7 @@ def get_code_spline(d, k=1, vector_valued=False, vectorized=False, allocate=Fals
 
     print(orders)
     print(bases_orders)
+
 
     if grid_types is None:
         grid_types = ['uniform']*d
