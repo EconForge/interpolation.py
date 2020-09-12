@@ -90,6 +90,7 @@ d_Φ_{i}_{1} = 1.0*δ_{i}"""
             s = f"""
 d_{l}_Φ_{i}_{0} = 0.0
 d_{l}_Φ_{i}_{1} = 0.0"""
+
     elif k==3:
 
         import tempita
@@ -100,7 +101,7 @@ d_{l}_Φ_{i}_{1} = 0.0"""
             phi = lambda i,j: "Φ_{}_{}".format(i,j)
         elif l==1:
             template_0 = """
-μ_{{i}}_0 = 3*λ_{{i}}*λ_{{i}}*δ_{{i}};  μ_{{i}}_1 = 2*λ_{{i}}*δ_{{i}};  μ_{{i}}_2 = *δ_{{i}};  μ_{{i}}_3 = 0.0;
+μ_{{i}}_0 = 3*λ_{{i}}*λ_{{i}}*δ_{{i}};  μ_{{i}}_1 = 2*λ_{{i}}*δ_{{i}};  μ_{{i}}_2 = δ_{{i}};  μ_{{i}}_3 = 0.0;
         """
             phi = lambda i,j: "d_Φ_{}_{}".format(i,j)
         else:
@@ -124,6 +125,8 @@ else:
 """)
         s = template.substitute(i=i, phi=phi)
 
+    else:
+        raise Exception(f"Spline order {k} not implemented.")
     return s
 
 
@@ -133,7 +136,7 @@ else:
 
 
 eval_template = """
-def eval_{{'linear' if k==1 else 'cubic'}}(grid, C, points{{ ', out' if not allocate else ""}}{{ ', extrap_mode' if extrap_mode else ""}}):
+def eval_spline(grid, C, points, out=None, order=1, diff="None"):
     "This is my docstring"
 
     {{if vector_valued}}
@@ -143,6 +146,12 @@ def eval_{{'linear' if k==1 else 'cubic'}}(grid, C, points{{ ', out' if not allo
     out = zeros(n_vals)
             {{else}}
     out = zeros((n_vals, {{len(orders)}}))
+            {{endif}}
+        {{endif}}
+    {{else}}
+        {{if allocate}}
+            {{if orders is not None}}
+    out = zeros({{len(orders)}})
             {{endif}}
         {{endif}}
     {{endif}}
@@ -238,29 +247,40 @@ def eval_{{'linear' if k==1 else 'cubic'}}(grid, C, points{{ ', out' if not allo
     {{else}}
 
     {{if isinstance(orders, (tuple, list))}}
-    {{for oo in orders}}
+
+        {{for oo in orders}}
     val_{{str(oo).strip("(").strip(")").replace(",", "").replace(" ", "")}} = {{get_values(d, multispline=False, k=k+1, diffs=oo)}}
-    {{endfor}}
+        {{endfor}}
+
+        {{if allocate}}
 
     val = (\\
-    {{for oo in orders}}
+            {{for oo in orders}}
     val_{{str(oo).strip("(").strip(")").replace(",", "").replace(" ", "")}},\\
-    {{endfor}}
+            {{endfor}}
     )
+    return val
+
+        {{else}}
+
+            {{for i,oo in enumerate(orders)}}
+    out[{{i}}] = val_{{str(oo).strip("(").strip(")").replace(",", "").replace(" ", "")}}
+            {{endfor}}
+
+        {{endif}}
 
     {{else}}
 
     val = {{get_values(d, multispline=False, k=k+1)}}
+    return val
 
     {{endif}}
-
-    return val
 
     {{endif}}
 """
 
 eval_template_vectorized = """
-def eval_{{'linear' if k==1 else 'cubic'}}(grid, C, points{{', out' if not allocate else ""}}{{ ', extrap_mode' if extrap_mode else ""}}):
+def eval_spline(grid, C, points, out=None, order=1, diff="None"):
     "This is my docstring"
 
     N = points.shape[0]
@@ -270,11 +290,25 @@ def eval_{{'linear' if k==1 else 'cubic'}}(grid, C, points{{', out' if not alloc
     {{endif}}
 
     {{if allocate}}
+
+    {{if orders is None}}
+
     {{if vector_valued}}
     out = zeros((N, n_vals))
     {{else}}
     out = zeros(N)
     {{endif}}
+
+    {{else}}
+
+    {{if vector_valued}}
+    out = zeros((N, n_vals, {{len(orders)}}))
+    {{else}}
+    out = zeros((N, {{len(orders)}}))
+    {{endif}}
+
+    {{endif}}
+
     {{endif}}
 
     #recover grid parameters
@@ -341,45 +375,45 @@ def eval_{{'linear' if k==1 else 'cubic'}}(grid, C, points{{', out' if not alloc
 
         {{if vector_valued}}
 
-        {{if orders is None}}
+            {{if orders is None}}
 
         # compute tensor reductions
         for i_x in range(n_vals):
-            out[i_x] = {{ get_values(d, multispline=True, k=k+1, i_x='i_x') }}
+            out[nn, i_x] = {{ get_values(d, multispline=True, k=k+1, i_x='i_x') }}
 
-        {{else}}
+            {{else}}
 
         # compute tensor reductions
         for i_x in range(n_vals):
-            {{for oo in orders}}
+                {{for oo in orders}}
             val_{{str(oo).strip("(").strip(")").replace(",", "").replace(" ", "")}} = {{get_values(d, multispline=True, i_x='i_x', k=k+1, diffs=oo)}}
-            {{endfor}}
+                {{endfor}}
 
-            {{for j,oo in enumerate(orders)}}
+                {{for j,oo in enumerate(orders)}}
             out[nn, i_x, {{j}}] = val_{{str(oo).strip("(").strip(")").replace(",", "").replace(" ", "")}}
-            {{endfor}}
+                {{endfor}}
 
-        {{endif}}
+            {{endif}}
 
 
         {{else}}
 
-        {{if isinstance(orders, (tuple, list))}}
-        {{for oo in orders}}
+            {{if isinstance(orders, (tuple, list))}}
+                {{for oo in orders}}
         val_{{str(oo).strip("(").strip(")").replace(",", "").replace(" ", "")}} = {{get_values(d, multispline=False, k=k+1, diffs=oo)}}
-        {{endfor}}
+                {{endfor}}
 
-        {{for j,oo in enumerate(orders)}}
-            out[nn,{{j}}] = val_{{str(oo).strip("(").strip(")").replace(",", "").replace(" ", "")}},\\
-        {{endfor}}
 
-        {{else}}
+                {{for j,oo in enumerate(orders)}}
+        out[nn,{{j}}] = val_{{str(oo).strip("(").strip(")").replace(",", "").replace(" ", "")}}
+                {{endfor}}
 
-        val = {{get_values(d, multispline=False, k=k+1)}}
+            {{else}}
 
-        {{endif}}
+        out[nn] = {{get_values(d, multispline=False, k=k+1)}}
 
-        return val
+            {{endif}}
+
 
         {{endif}}
         
@@ -394,6 +428,8 @@ import tempita
 
 def get_code_spline(d, k=1, vector_valued=False, vectorized=False, allocate=False, grid_types=None, extrap_mode=None, orders=None):
 
+
+    print("dimension: d=", d)
     if orders is None:
         bases_orders = [(0,)]*d
     else:
@@ -420,6 +456,8 @@ def get_code_spline(d, k=1, vector_valued=False, vectorized=False, allocate=Fals
     code = ( template.substitute(d=d, vector_valued=vector_valued, get_values=get_values,
             allocate=allocate, grid_types=grid_types, extrap_mode=extrap_mode, orders=orders, bases_orders=bases_orders,
         blending_formula=blending_formula, indent=indent, k=k) )
+
+    print(code)
     return (code)[1:]
 
 def get_code_linear(d, **kwargs):

@@ -79,6 +79,49 @@ import numpy as np
 from numba import njit
 from numba.extending import overload
 from ..compat import Array
+from numba import literally
+import numba.types
+
+def _eval_spline():
+    pass
+
+from .option_types import options, t_CONSTANT, t_LINEAR, t_NEAREST
+
+@overload(_eval_spline, **overload_options)
+def __eval_spline(k, grid, C, points):
+    print("We allocate with default extrapolation.")
+    print(k)
+    print(k.__class__)
+    if isinstance(k, numba.types.Literal):
+
+        kk = (k).literal_value
+        print("OK")
+        print("k: ", kk)
+        d = len(grid)
+        n_x = len(grid.types)
+        vector_valued = (C.ndim==d+1)
+        vec_eval = (points.ndim==2)
+        from math import floor
+        from numpy import zeros
+        grid_types = ['nonuniform' if isinstance(tt, Array) else 'uniform' for tt in grid.types]
+        context = {'floor': floor, 'zeros': zeros, 'np': np} #, 'Cd': Ad, 'dCd': dAd}
+        print(d)
+        print(vector_valued)
+        print(vec_eval)
+        print(grid_tpyes)
+        print(kk)
+        code = get_code_spline(d, vector_valued=vector_valued, vectorized=vec_eval, allocate=True, grid_types=grid_types, k=kk)
+        # print(code)
+        f = source_to_function(code, context)
+        return f
+
+
+
+@njit
+def eval_spline(k, *args):
+    """Do I get a docstring ?"""
+    return _eval_spline(numba.literally(k), *args)
+
 
 def _eval_linear():
     pass
@@ -89,6 +132,7 @@ from .option_types import options, t_CONSTANT, t_LINEAR, t_NEAREST
 def __eval_linear(grid,C,points):
     # print("We allocate with default extrapolation.")
     d = len(grid)
+    print(d)
     n_x = len(grid.types)
     vector_valued = (C.ndim==d+1)
     vec_eval = (points.ndim==2)

@@ -14,7 +14,7 @@ license = "BSD-2-Clause"
 
 [tool.poetry.dependencies]
 python = "^3.7"
-numba = ">=0.47"
+numba = "=0.50"
 numpy = ">=1.18.1"
 tempita = ">=0.5.2"
 scipy = ">=1.4.1"
