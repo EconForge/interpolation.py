@@ -136,7 +136,7 @@ else:
 
 
 eval_template = """
-def eval_spline(grid, C, points, out=None, order=1, diff="None"):
+def eval_spline(grid, C, points, out=None, order=1, diff="None", extrap_mode='linear'):
     "This is my docstring"
 
     {{if vector_valued}}
@@ -280,7 +280,7 @@ def eval_spline(grid, C, points, out=None, order=1, diff="None"):
 """
 
 eval_template_vectorized = """
-def eval_spline(grid, C, points, out=None, order=1, diff="None"):
+def eval_spline(grid, C, points, out=None, order=1, diff="None", extrap_mode='linear'):
     "This is my docstring"
 
     N = points.shape[0]
@@ -290,25 +290,7 @@ def eval_spline(grid, C, points, out=None, order=1, diff="None"):
     {{endif}}
 
     {{if allocate}}
-
-    {{if orders is None}}
-
-    {{if vector_valued}}
-    out = zeros((N, n_vals))
-    {{else}}
-    out = zeros(N)
-    {{endif}}
-
-    {{else}}
-
-    {{if vector_valued}}
-    out = zeros((N, n_vals, {{len(orders)}}))
-    {{else}}
-    out = zeros((N, {{len(orders)}}))
-    {{endif}}
-
-    {{endif}}
-
+    out = allocate_output(grid, C, points, {{orders if orders is not None else "None"}})
     {{endif}}
 
     #recover grid parameters
@@ -429,15 +411,10 @@ import tempita
 def get_code_spline(d, k=1, vector_valued=False, vectorized=False, allocate=False, grid_types=None, extrap_mode=None, orders=None):
 
 
-    print("dimension: d=", d)
     if orders is None:
         bases_orders = [(0,)]*d
     else:
         bases_orders = [sorted(list(set(e))) for e in zip(*orders)]
-
-    print(orders)
-    print(bases_orders)
-
 
     if grid_types is None:
         grid_types = ['uniform']*d
@@ -457,7 +434,6 @@ def get_code_spline(d, k=1, vector_valued=False, vectorized=False, allocate=Fals
             allocate=allocate, grid_types=grid_types, extrap_mode=extrap_mode, orders=orders, bases_orders=bases_orders,
         blending_formula=blending_formula, indent=indent, k=k) )
 
-    print(code)
     return (code)[1:]
 
 def get_code_linear(d, **kwargs):
