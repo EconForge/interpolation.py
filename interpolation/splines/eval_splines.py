@@ -94,7 +94,9 @@ def _eval_spline():
 def __eval_spline(grid, C, points, out=None, order=1, diff="None", extrap_mode='linear'):
 
     if not ( isinstance(order, numba.types.Literal) and isinstance(diff, numba.types.Literal) and isinstance(extrap_mode, numba.types.Literal) ):
-        return None
+        
+        def ugly_workaround(grid, C, points, out=None, order=1, diff="None", extrap_mode='linear'):
+            return (literally(order), literally(diff), literally(extrap_mode))
         # def __eval_spline(grid, C, points, out=None, order=1, diff="None", extrap_mode='linear'):
         #     return __eval_spline(grid, C, points, out=out, order=literally(order), diff=literally(diff), extrap_mode=literally(extrap_mode))
 

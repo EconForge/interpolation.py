@@ -323,24 +323,11 @@ def _ov_prefilter(grid, V, k, out=None):
                 else:
                     return prefilter_cubic(grid, V, out)
             return _impl_prefilter
-
     else:
-        return None
+        def ugly_workaround(grid, V, k, out=None):
+            return (numba.literally(k),)^(k/2)
 
-# # this is super slow
-# @njit
-# def prefilter1(grid, V, out=None, k=3):
-#     return _prefilter(grid, V, numba.literally(k), out=out)
 
 @njit
 def prefilter(grid, V, out=None, k=3):
-    if k==1:
-        if out is None:
-            return V.copy()
-        else:
-            out[...] = V
-    elif k==3:
-        if out is None:
-            return prefilter_cubic(grid, V)
-        else:
-            prefilter_cubic(grid, V, out)
+    return _prefilter(grid, V, numba.literally(k), out=out)
