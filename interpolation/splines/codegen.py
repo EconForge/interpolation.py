@@ -30,7 +30,6 @@ def get_values(d, multispline=False, k=4, i_x='i_x', diffs=None):
     if diffs is None:
         diffs = (0,)*d
 
-    values = []
     l = []
     for i,diff in enumerate(diffs):
         if diff==0:
@@ -91,6 +90,7 @@ d_Φ_{i}_{1} = 1.0*δ_{i}"""
             s = f"""
 d_{l}_Φ_{i}_{0} = 0.0
 d_{l}_Φ_{i}_{1} = 0.0"""
+
     elif k==3:
 
         import tempita
@@ -101,7 +101,7 @@ d_{l}_Φ_{i}_{1} = 0.0"""
             phi = lambda i,j: "Φ_{}_{}".format(i,j)
         elif l==1:
             template_0 = """
-μ_{{i}}_0 = 3*λ_{{i}}*λ_{{i}}*δ_{{i}};  μ_{{i}}_1 = 2*λ_{{i}}*δ_{{i}};  μ_{{i}}_2 = *δ_{{i}};  μ_{{i}}_3 = 0.0;
+μ_{{i}}_0 = 3*λ_{{i}}*λ_{{i}}*δ_{{i}};  μ_{{i}}_1 = 2*λ_{{i}}*δ_{{i}};  μ_{{i}}_2 = δ_{{i}};  μ_{{i}}_3 = 0.0;
         """
             phi = lambda i,j: "d_Φ_{}_{}".format(i,j)
         else:
@@ -125,6 +125,8 @@ else:
 """)
         s = template.substitute(i=i, phi=phi)
 
+    else:
+        raise Exception(f"Spline order {k} not implemented.")
     return s
 
 
@@ -134,7 +136,7 @@ else:
 
 
 eval_template = """
-def eval_{{'linear' if k==1 else 'cubic'}}(grid, C, points{{ ', out' if not allocate else ""}}{{ ', extrap_mode' if extrap_mode else ""}}):
+def eval_spline(grid, C, points, out=None, order=1, diff="None", extrap_mode='linear'):
     "This is my docstring"
 
     {{if vector_valued}}
@@ -144,6 +146,12 @@ def eval_{{'linear' if k==1 else 'cubic'}}(grid, C, points{{ ', out' if not allo
     out = zeros(n_vals)
             {{else}}
     out = zeros((n_vals, {{len(orders)}}))
+            {{endif}}
+        {{endif}}
+    {{else}}
+        {{if allocate}}
+            {{if orders is not None}}
+    out = zeros({{len(orders)}})
             {{endif}}
         {{endif}}
     {{endif}}
@@ -199,6 +207,7 @@ def eval_{{'linear' if k==1 else 'cubic'}}(grid, C, points{{ ', out' if not allo
     δ_{{i}} = (gc_{{i}}[i_{{i}}+1]-gc_{{i}}[i_{{i}}])
     λ_{{i}} = (x_{{i}}-gc_{{i}}[i_{{i}}])/δ_{{i}}
     {{endif}}
+    
     {{endfor}}
 
     # Basis functions
@@ -238,29 +247,40 @@ def eval_{{'linear' if k==1 else 'cubic'}}(grid, C, points{{ ', out' if not allo
     {{else}}
 
     {{if isinstance(orders, (tuple, list))}}
-    {{for oo in orders}}
+
+        {{for oo in orders}}
     val_{{str(oo).strip("(").strip(")").replace(",", "").replace(" ", "")}} = {{get_values(d, multispline=False, k=k+1, diffs=oo)}}
-    {{endfor}}
+        {{endfor}}
+
+        {{if allocate}}
 
     val = (\\
-    {{for oo in orders}}
+            {{for oo in orders}}
     val_{{str(oo).strip("(").strip(")").replace(",", "").replace(" ", "")}},\\
-    {{endfor}}
+            {{endfor}}
     )
+    return val
+
+        {{else}}
+
+            {{for i,oo in enumerate(orders)}}
+    out[{{i}}] = val_{{str(oo).strip("(").strip(")").replace(",", "").replace(" ", "")}}
+            {{endfor}}
+
+        {{endif}}
 
     {{else}}
 
     val = {{get_values(d, multispline=False, k=k+1)}}
+    return val
 
     {{endif}}
-
-    return val
 
     {{endif}}
 """
 
 eval_template_vectorized = """
-def eval_{{'linear' if k==1 else 'cubic'}}(grid, C, points{{', out' if not allocate else ""}}{{ ', extrap_mode' if extrap_mode else ""}}):
+def eval_spline(grid, C, points, out=None, order=1, diff="None", extrap_mode='linear'):
     "This is my docstring"
 
     N = points.shape[0]
@@ -270,11 +290,7 @@ def eval_{{'linear' if k==1 else 'cubic'}}(grid, C, points{{', out' if not alloc
     {{endif}}
 
     {{if allocate}}
-    {{if vector_valued}}
-    out = zeros((N, n_vals))
-    {{else}}
-    out = zeros(N)
-    {{endif}}
+    out = allocate_output(grid, C, points, {{orders if orders is not None else "None"}})
     {{endif}}
 
     #recover grid parameters
@@ -341,45 +357,45 @@ def eval_{{'linear' if k==1 else 'cubic'}}(grid, C, points{{', out' if not alloc
 
         {{if vector_valued}}
 
-        {{if orders is None}}
+            {{if orders is None}}
 
         # compute tensor reductions
         for i_x in range(n_vals):
-            out[i_x] = {{ get_values(d, multispline=True, k=k+1, i_x='i_x') }}
+            out[nn, i_x] = {{ get_values(d, multispline=True, k=k+1, i_x='i_x') }}
 
-        {{else}}
+            {{else}}
 
         # compute tensor reductions
         for i_x in range(n_vals):
-            {{for oo in orders}}
+                {{for oo in orders}}
             val_{{str(oo).strip("(").strip(")").replace(",", "").replace(" ", "")}} = {{get_values(d, multispline=True, i_x='i_x', k=k+1, diffs=oo)}}
-            {{endfor}}
+                {{endfor}}
 
-            {{for j,oo in enumerate(orders)}}
+                {{for j,oo in enumerate(orders)}}
             out[nn, i_x, {{j}}] = val_{{str(oo).strip("(").strip(")").replace(",", "").replace(" ", "")}}
-            {{endfor}}
+                {{endfor}}
 
-        {{endif}}
+            {{endif}}
 
 
         {{else}}
 
-        {{if isinstance(orders, (tuple, list))}}
-        {{for oo in orders}}
+            {{if isinstance(orders, (tuple, list))}}
+                {{for oo in orders}}
         val_{{str(oo).strip("(").strip(")").replace(",", "").replace(" ", "")}} = {{get_values(d, multispline=False, k=k+1, diffs=oo)}}
-        {{endfor}}
+                {{endfor}}
 
-        {{for j,oo in enumerate(orders)}}
-            out[nn,{{j}}] = val_{{str(oo).strip("(").strip(")").replace(",", "").replace(" ", "")}},\\
-        {{endfor}}
 
-        {{else}}
+                {{for j,oo in enumerate(orders)}}
+        out[nn,{{j}}] = val_{{str(oo).strip("(").strip(")").replace(",", "").replace(" ", "")}}
+                {{endfor}}
 
-        val = {{get_values(d, multispline=False, k=k+1)}}
+            {{else}}
 
-        {{endif}}
+        out[nn] = {{get_values(d, multispline=False, k=k+1)}}
 
-        return val
+            {{endif}}
+
 
         {{endif}}
         
@@ -394,13 +410,11 @@ import tempita
 
 def get_code_spline(d, k=1, vector_valued=False, vectorized=False, allocate=False, grid_types=None, extrap_mode=None, orders=None):
 
+
     if orders is None:
         bases_orders = [(0,)]*d
     else:
         bases_orders = [sorted(list(set(e))) for e in zip(*orders)]
-
-    print(orders)
-    print(bases_orders)
 
     if grid_types is None:
         grid_types = ['uniform']*d
@@ -419,6 +433,7 @@ def get_code_spline(d, k=1, vector_valued=False, vectorized=False, allocate=Fals
     code = ( template.substitute(d=d, vector_valued=vector_valued, get_values=get_values,
             allocate=allocate, grid_types=grid_types, extrap_mode=extrap_mode, orders=orders, bases_orders=bases_orders,
         blending_formula=blending_formula, indent=indent, k=k) )
+
     return (code)[1:]
 
 def get_code_linear(d, **kwargs):

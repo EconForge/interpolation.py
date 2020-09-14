@@ -2,6 +2,29 @@ site_name: Interpolation
 
 theme:
     name: mkdocs
+    
 
 nav:
     - Home: index.md
+    - Splines: splines.md
+
+
+markdown_extensions:
+    - mdx_math
+    - markdown.extensions.admonition
+    - pymdownx.details
+    - pymdownx.arithmatex
+    - pymdownx.highlight:
+        use_pygments: true
+        extend_pygments_lang: [yaml]
+    - pymdownx.superfences
+  
+extra_css:
+    - css/extra.css
+  
+extra_javascript:
+    # other extra java script
+    - https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML
+    - https://cdn.jsdelivr.net/npm/vega@5
+    - https://cdn.jsdelivr.net/npm/vega-lite@3
+    - https://cdn.jsdelivr.net/npm/vega-embed@5

@@ -298,3 +298,49 @@ def prefilter_cubic(*args):
     return _filter_cubic(*args)
 
 filter_cubic = prefilter_cubic
+
+
+def _prefilter():
+    pass
+
+import numba
+none = numba.typeof(None)
+
+@numba.extending.overload(_prefilter)
+def _ov_prefilter(grid, V, k, out=None):
+
+    if isinstance(k, numba.types.Literal):
+        
+        if k.literal_value==1:
+            def _impl_prefilter(grid, V, k, out=None):
+                return V # should we copy it here ?
+            return _impl_prefilter
+
+        if k.literal_value==3:
+            def _impl_prefilter(grid, V, k, out=None):
+                if out is None:
+                    return prefilter_cubic(grid, V)
+                else:
+                    return prefilter_cubic(grid, V, out)
+            return _impl_prefilter
+
+    else:
+        return None
+
+# # this is super slow
+# @njit
+# def prefilter1(grid, V, out=None, k=3):
+#     return _prefilter(grid, V, numba.literally(k), out=out)
+
+@njit
+def prefilter(grid, V, out=None, k=3):
+    if k==1:
+        if out is None:
+            return V.copy()
+        else:
+            out[...] = V
+    elif k==3:
+        if out is None:
+            return prefilter_cubic(grid, V)
+        else:
+            prefilter_cubic(grid, V, out)

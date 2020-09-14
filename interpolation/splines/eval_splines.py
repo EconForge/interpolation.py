@@ -4,7 +4,23 @@ from numpy import zeros
 from numpy import floor
 
 from numba import prange
-from .codegen import get_code_linear, get_code_cubic, source_to_function
+from .codegen import get_code_spline, source_to_function
+
+
+import numba
+import numpy as np
+from numba import njit
+from numba.extending import overload
+from numba import literally
+import numba.types
+from numba.core.types.misc import NoneType as none
+from numpy import zeros
+from numpy import floor
+from interpolation.splines.codegen import get_code_spline, source_to_function
+from numba.types import UniTuple, float64, Array
+from interpolation.splines.codegen import source_to_function
+from numba import generated_jit
+  
 
 from ..compat import Tuple, UniTuple
 from ..compat import overload_options
@@ -22,63 +38,103 @@ dAd = zeros((4,4))
 for i in range(1,4):
     dAd[:,i] = Ad[:,i-1]*(4-i)
 
-# @generated_jit(nopython=True)
-# def v_eval_cubic(grid,C,points,out):
-#     d = len(grid.types)
-#     vector_valued = (C.ndim==d+1)
-#     context = {'floor': floor,'Cd': Ad, 'dCd': dAd}
-#     code = ( templ_vec.substitute(d=d, vector_valued=vector_valued, get_values=get_values) )
-#     f = source_to_function(code, context=context)
-#     return f
+array_2d = numba.typeof(np.zeros((2,2)))
+array_1d = numba.typeof(np.zeros(2))
 
-from numba import njit
-from numba.extending import overload
 
-# def _eval_cubic():
-#     pass
-#
-# @overload(_eval_cubic)
-# def __eval_cubic(grid,C,points,out):
-#     d = len(grid)
-#     n_x = len(grid.types)
-#     vector_valued = (C.ndim==d+1)
-#     vec_eval = (points.ndim==2)
-#     from math import floor
-#     from numpy import zeros
-#     context = {'floor': floor, 'zeros': zeros, 'Cd': Ad, 'dCd': dAd}
-#
-#     print("Compiling nonallocating cubic code")
-#     code = get_code_cubic(d, vector_valued=vector_valued, vectorized=vec_eval, allocate=False)
-#     print(code)
-#     f = source_to_function(code, context)
-#     return f
-#
-#
-# @overload(_eval_cubic)
-# def __eval_cubic(grid,C,points):
-#     d = len(grid)
-#     n_x = len(grid.types)
-#     vector_valued = (C.ndim==d+1)
-#     vec_eval = (points.ndim==2)
-#     from math import floor
-#     from numpy import zeros
-#     context = {'floor': floor, 'zeros': zeros, 'Cd': Ad, 'dCd': dAd}
-#
-#     print("Compiling allocating cubic code")
-#     code = get_code_cubic(d, vector_valued=vector_valued, vectorized=vec_eval, allocate=True)
-#
-#     f = source_to_function(code, context)
-#     return f
-#
-# @njit
-# def eval_cubic(*args):
-#     return _eval_cubic(*args)
+### eval spline (main function)
 
-import numba
-import numpy as np
-from numba import njit
-from numba.extending import overload
-from ..compat import Array
+
+# @generated_jit(inline='always', nopython=True) # doens't work
+@generated_jit( nopython=True)
+def allocate_output(G, C, P, O):
+    if C.ndim == len(G)+1:
+        # vector valued
+        if P.ndim == 2:
+            # vectorized call
+            if isinstance(O,none):
+                return lambda G,C,P,O: np.zeros((P.shape[0], C.shape[C.ndim-1]))
+            else:
+                n_o = len(O)
+                s = f"lambda G,C,P,O: np.zeros( (P.shape[0], C.shape[C.ndim-1], {n_o}) )"
+                return eval(s)
+        else:
+            if isinstance(O,none):
+                return lambda G,C,P,O: np.zeros(P.shape[0])
+            else:
+                n_o = len(O)
+                s = f"lambda G,C,P,O: np.zeros( (P.shape[0], C.shape[C.ndim-1], {n_o}) )"
+                return eval(s)
+            # points.ndim == 1
+    else:
+        if P.ndim == 2:
+            # vectorized call
+            if isinstance(O,none):
+                return lambda G,C,P,O: np.zeros(P.shape[0])
+            else:
+                n_o = len(O)
+                s = f"lambda G,C,P,O: np.zeros( (P.shape[0], {n_o}) )"
+                return eval(s)
+        else:
+            if isinstance(O,none):
+                raise Exception("Makes no sense")
+            else:
+                n_o = len(O)
+                s = f"lambda G,C,P,O: np.zeros({n_o})"
+                return eval(s) # makes no sense either
+            # points.ndim == 1
+
+
+
+def _eval_spline():
+    pass
+
+
+@overload(_eval_spline )
+def __eval_spline(grid, C, points, out=None, order=1, diff="None", extrap_mode='linear'):
+
+    if not ( isinstance(order, numba.types.Literal) and isinstance(diff, numba.types.Literal) and isinstance(extrap_mode, numba.types.Literal) ):
+        return None
+        # def __eval_spline(grid, C, points, out=None, order=1, diff="None", extrap_mode='linear'):
+        #     return __eval_spline(grid, C, points, out=out, order=literally(order), diff=literally(diff), extrap_mode=literally(extrap_mode))
+
+    kk = (order).literal_value
+    diffs = (diff).literal_value
+    extrap_ = (extrap_mode).literal_value
+    d = len(grid)
+
+    vectorized = points == array_2d
+    allocate = True
+    vector_valued = (C.ndim==(len(grid)+1))
+
+    orders = eval(diffs)
+    
+    allocate = (isinstance(out, none))### strange...
+
+    grid_types = ['nonuniform' if isinstance(tt, Array) else 'uniform' for tt in grid.types]
+    
+    code = get_code_spline(d, k=kk,
+        vectorized=vectorized, allocate=allocate,
+        vector_valued=vector_valued, orders=orders,
+        extrap_mode=extrap_, grid_types=grid_types)
+
+    context = {'floor': floor, 'zeros': zeros, 'Cd': Ad, 'dCd': dAd, 'allocate_output': allocate_output, 'np': np}
+    f = source_to_function(code, context)
+        
+    return f
+
+@njit
+def eval_spline(grid, C, points, out=None, order=1, diff="None", extrap_mode="linear"):
+    """Do I get a docstring ?"""
+    dd = numba.literally(diff)
+    k = numba.literally(order)
+    extrap_ = numba.literally(extrap_mode)
+    return _eval_spline(grid, C, points, out=out, order=k, diff=dd, extrap_mode=extrap_)
+
+
+###
+### Compatibility calls:
+###
 
 def _eval_linear():
     pass
@@ -88,30 +144,11 @@ from .option_types import options, t_CONSTANT, t_LINEAR, t_NEAREST
 @overload(_eval_linear, **overload_options)
 def __eval_linear(grid,C,points):
     # print("We allocate with default extrapolation.")
-    d = len(grid)
-    n_x = len(grid.types)
-    vector_valued = (C.ndim==d+1)
-    vec_eval = (points.ndim==2)
-    from math import floor
-    from numpy import zeros
-    grid_types = ['nonuniform' if isinstance(tt, Array) else 'uniform' for tt in grid.types]
-    context = {'floor': floor, 'zeros': zeros, 'np': np} #, 'Cd': Ad, 'dCd': dAd}
-    code = get_code_linear(d, vector_valued=vector_valued, vectorized=vec_eval, allocate=True, grid_types=grid_types)
-    # print(code)
-    f = source_to_function(code, context)
-    return f
+    return lambda grid, C, points: eval_spline(grid, C, points, order=1, extrap_mode='linear', diff="None")
 
 @overload(_eval_linear, **overload_options)
 def __eval_linear(grid,C,points,extrap_mode):
 
-    d = len(grid)
-    n_x = len(grid.types)
-    vector_valued = (C.ndim==d+1)
-    vec_eval = (points.ndim==2)
-    from math import floor
-    from numpy import zeros
-    grid_types = ['nonuniform' if isinstance(tt, Array) else 'uniform' for tt in grid.types]
-    context = {'floor': floor, 'zeros': zeros, 'np': np} #, 'Cd': Ad, 'dCd': dAd}
     # print(f"We are going to extrapolate in {extrap_mode} mode.")
     if extrap_mode == t_NEAREST:
         extrap_ = 'nearest'
@@ -121,22 +158,14 @@ def __eval_linear(grid,C,points,extrap_mode):
         extrap_ = 'linear'
     else:
         return None
-    code = get_code_linear(d, vector_valued=vector_valued, vectorized=vec_eval, allocate=True, grid_types=grid_types, extrap_mode=extrap_)
-    f = source_to_function(code, context)
-    return f
 
+    return lambda grid, C, points, extrap_mode:  eval_spline(grid, C, points, order=1, diff="None",  extrap_mode=extrap_)
 
 
 @overload(_eval_linear, **overload_options)
 def __eval_linear(grid,C,points,out,extrap_mode):
 
     # print(f"We are going to do inplace, with {extrap_mode} extrapolation")
-    d = len(grid)
-    n_x = len(grid.types)
-    vector_valued = (C.ndim==d+1)
-    vec_eval = (points.ndim==2)
-    grid_types = ['nonuniform' if isinstance(tt, Array) else 'uniform' for tt in grid.types]
-    context = {'floor': floor, 'zeros': zeros, 'np': np} #, 'Cd': Ad, 'dCd': dAd}
     if extrap_mode == t_NEAREST:
         extrap_ = 'nearest'
     elif extrap_mode == t_CONSTANT:
@@ -145,26 +174,14 @@ def __eval_linear(grid,C,points,out,extrap_mode):
         extrap_ = 'linear'
     else:
         return None
-    code = get_code_linear(d, vector_valued=vector_valued, vectorized=vec_eval, allocate=False, grid_types=grid_types, extrap_mode=extrap_)
-    # print(code)
-    f = source_to_function(code, context)
-    return f
+    return lambda grid, C, points, out, extrap_mode: eval_spline(grid, C, points, out=out, order=1, diff="None", extrap_mode=extrap_)
+
 
 
 @overload(_eval_linear, **overload_options)
 def __eval_linear(grid,C,points,out):
 
-    # print("We are going to do inplace, with default extrapolation")
-    d = len(grid)
-    n_x = len(grid.types)
-    vector_valued = (C.ndim==d+1)
-    vec_eval = (points.ndim==2)
-    grid_types = ['nonuniform' if isinstance(tt, Array) else 'uniform' for tt in grid.types]
-    context = {'floor': floor, 'zeros': zeros, 'np': np} #, 'Cd': Ad, 'dCd': dAd}
-    code = get_code_linear(d, vector_valued=vector_valued, vectorized=vec_eval, allocate=False, grid_types=grid_types)
-    # print(code)
-    f = source_to_function(code, context)
-    return f
+    return lambda grid, C, points, out: eval_spline(grid, C, points, out=out, order=1, diff="None", extrap_mode='linear')
 
 @njit
 def eval_linear(*args):
@@ -184,91 +201,48 @@ from .option_types import options, t_CONSTANT, t_LINEAR, t_NEAREST
 @overload(_eval_cubic, **overload_options)
 def __eval_cubic(grid,C,points):
     # print("We allocate with default extrapolation.")
-    d = len(grid)
-    n_x = len(grid.types)
-    vector_valued = (C.ndim==d+1)
-    vec_eval = (points.ndim==2)
-    from math import floor
-    from numpy import zeros
-    grid_types = ['nonuniform' if isinstance(tt, Array) else 'uniform' for tt in grid.types]
-    context = {'floor': floor, 'zeros': zeros, 'Cd': Ad, 'dCd': dAd}
-    code = get_code_cubic(d, vector_valued=vector_valued, vectorized=vec_eval, allocate=True, grid_types=grid_types)
-    # print(code)
-    f = source_to_function(code, context)
-    return f
+    return lambda grid, C, points: eval_spline(grid, C, points, order=literally(3), extrap_mode=literally('linear'),  diff=literally("None"))
 
 @overload(_eval_cubic, **overload_options)
 def __eval_cubic(grid,C,points,extrap_mode):
 
-    d = len(grid)
-    n_x = len(grid.types)
-    vector_valued = (C.ndim==d+1)
-    vec_eval = (points.ndim==2)
-    from math import floor
-    from numpy import zeros
-    grid_types = ['nonuniform' if isinstance(tt, Array) else 'uniform' for tt in grid.types]
-    context = {'floor': floor, 'zeros': zeros, 'Cd': Ad, 'dCd': dAd}
-
     # print(f"We are going to extrapolate in {extrap_mode} mode.")
     if extrap_mode == t_NEAREST:
-        extrap_ = 'nearest'
+        extrap_ = literally('nearest')
     elif extrap_mode == t_CONSTANT:
-        extrap_ = 'constant'
-    elif extrap_mode == t_LINEAR:
-        extrap_ = 'linear'
+        extrap_ = literally('constant')
+    elif extrap_mode == t_cubic:
+        extrap_ = literally('cubic')
     else:
         return None
-    code = get_code_cubic(d, vector_valued=vector_valued, vectorized=vec_eval, allocate=True, grid_types=grid_types, extrap_mode=extrap_)
-    # print(code)
-    f = source_to_function(code, context)
-    return f
 
+    return lambda grid, C, points, extrap_mode:  eval_spline(grid, C, points, order=literally(3), diff=literally("None"),  extrap_mode=extrap_)
 
 
 @overload(_eval_cubic, **overload_options)
 def __eval_cubic(grid,C,points,out,extrap_mode):
 
-    # print(f"We are going to do inplace, with {extrap_mode} extrapolation")
-    d = len(grid)
-    n_x = len(grid.types)
-    vector_valued = (C.ndim==d+1)
-    vec_eval = (points.ndim==2)
-    grid_types = ['nonuniform' if isinstance(tt, Array) else 'uniform' for tt in grid.types]
-    context = {'floor': floor, 'zeros': zeros, 'Cd': Ad, 'dCd': dAd}
     if extrap_mode == t_NEAREST:
-        extrap_ = 'nearest'
+        extrap_ = literally('nearest')
     elif extrap_mode == t_CONSTANT:
-        extrap_ = 'constant'
-    elif extrap_mode == t_LINEAR:
-        extrap_ = 'linear'
+        extrap_ = literally('constant')
+    elif extrap_mode == t_cubic:
+        extrap_ = literally('cubic')
     else:
         return None
-    code = get_code_cubic(d, vector_valued=vector_valued, vectorized=vec_eval, allocate=False, grid_types=grid_types, extrap_mode=extrap_)
-    # print(code)
-    f = source_to_function(code, context)
-    return f
+    return lambda grid, C, points, out, extrap_mode: eval_spline(grid, C, points, out=out, order=literally(3), diff=literally("None"), extrap_mode=extrap_)
 
+
+from numba import literally
 
 @overload(_eval_cubic, **overload_options)
 def __eval_cubic(grid,C,points,out):
 
-    # print("We are going to do inplace, with default extrapolation")
-    d = len(grid)
-    n_x = len(grid.types)
-    vector_valued = (C.ndim==d+1)
-    vec_eval = (points.ndim==2)
-    grid_types = ['nonuniform' if isinstance(tt, Array) else 'uniform' for tt in grid.types]
-    context = {'floor': floor, 'zeros': zeros, 'Cd': Ad, 'dCd': dAd}
-    code = get_code_cubic(d, vector_valued=vector_valued, vectorized=vec_eval, allocate=False, grid_types=grid_types)
-    # print(code)
-    f = source_to_function(code, context)
-    return f
-
-
-
-
+    return lambda grid, C, points, out: eval_spline(grid, C, points, out=out, order=literally(3), diff=literally("None"), extrap_mode=literally('linear'))
 
 @njit
 def eval_cubic(*args):
     """Do I get a docstring ?"""
     return _eval_cubic(*args)
+
+
