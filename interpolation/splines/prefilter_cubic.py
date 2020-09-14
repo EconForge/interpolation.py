@@ -324,6 +324,9 @@ def _ov_prefilter(grid, V, k, out=None):
                     return prefilter_cubic(grid, V, out)
             return _impl_prefilter
 
+    else:
+        return None
+
 # # this is super slow
 # @njit
 # def prefilter1(grid, V, out=None, k=3):

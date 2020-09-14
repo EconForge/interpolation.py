@@ -18,7 +18,6 @@ numba = "=0.50"
 numpy = ">=1.18.1"
 tempita = ">=0.5.2"
 scipy = ">=1.4.1"
-ipython = "^7.18.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
