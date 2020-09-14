@@ -324,17 +324,20 @@ def _ov_prefilter(grid, V, k, out=None):
                     return prefilter_cubic(grid, V, out)
             return _impl_prefilter
 
-@njit
-def prefilter1(grid, V, out=None, k=3):
+# # this is super slow
+# @njit
+# def prefilter1(grid, V, out=None, k=3):
+#     return _prefilter(grid, V, numba.literally(k), out=out)
 
-    return _prefilter(grid, V, numba.literally(k), out=out)
-
 @njit
-def prefilter2(grid, V, out=None, k=3):
+def prefilter(grid, V, out=None, k=3):
     if k==1:
-        return V
+        if out is None:
+            return V.copy()
+        else:
+            out[...] = V
     elif k==3:
         if out is None:
             return prefilter_cubic(grid, V)
         else:
-            return prefilter_cubic(grid, V, out)
+            prefilter_cubic(grid, V, out)

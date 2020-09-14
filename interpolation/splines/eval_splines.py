@@ -45,7 +45,8 @@ array_1d = numba.typeof(np.zeros(2))
 ### eval spline (main function)
 
 
-@generated_jit
+# @generated_jit(inline='always', nopython=True) # doens't work
+@generated_jit( nopython=True)
 def allocate_output(G, C, P, O):
     if C.ndim == len(G)+1:
         # vector valued
@@ -55,13 +56,15 @@ def allocate_output(G, C, P, O):
                 return lambda G,C,P,O: np.zeros((P.shape[0], C.shape[C.ndim-1]))
             else:
                 n_o = len(O)
-                return lambda G,C,P,O: np.zeros((P.shape[0], C.shape[C.ndim-1], n_o))
+                s = f"lambda G,C,P,O: np.zeros( (P.shape[0], C.shape[C.ndim-1], {n_o}) )"
+                return eval(s)
         else:
             if isinstance(O,none):
                 return lambda G,C,P,O: np.zeros(P.shape[0])
             else:
-                n_o = len(O) # hopefully it gets "frozen"
-                return lambda G,C,P,O: np.zeros((P.shape[0], C.shape[C.ndim-1], n_o))
+                n_o = len(O)
+                s = f"lambda G,C,P,O: np.zeros( (P.shape[0], C.shape[C.ndim-1], {n_o}) )"
+                return eval(s)
             # points.ndim == 1
     else:
         if P.ndim == 2:
@@ -69,14 +72,16 @@ def allocate_output(G, C, P, O):
             if isinstance(O,none):
                 return lambda G,C,P,O: np.zeros(P.shape[0])
             else:
-                n_o = len(O) # hopefully it gets "frozen"
-                return lambda G,C,P,O: np.zeros((P.shape[0], n_o))
+                n_o = len(O)
+                s = f"lambda G,C,P,O: np.zeros( (P.shape[0], {n_o}) )"
+                return eval(s)
         else:
             if isinstance(O,none):
                 raise Exception("Makes no sense")
             else:
-                n_o = len(O) # hopefully it gets "frozen"
-                return lambda G,C,P,O: np.zeros(n_o) # makes no sense either
+                n_o = len(O)
+                s = f"lambda G,C,P,O: np.zeros({n_o})"
+                return eval(s) # makes no sense either
             # points.ndim == 1
 
 
@@ -194,43 +199,44 @@ from .option_types import options, t_CONSTANT, t_LINEAR, t_NEAREST
 @overload(_eval_cubic, **overload_options)
 def __eval_cubic(grid,C,points):
     # print("We allocate with default extrapolation.")
-    return lambda grid, C, points: eval_spline(grid, C, points, order=3, extrap_mode='linear',  diff="None",)
+    return lambda grid, C, points: eval_spline(grid, C, points, order=literally(3), extrap_mode=literally('linear'),  diff=literally("None"))
 
 @overload(_eval_cubic, **overload_options)
 def __eval_cubic(grid,C,points,extrap_mode):
 
     # print(f"We are going to extrapolate in {extrap_mode} mode.")
     if extrap_mode == t_NEAREST:
-        extrap_ = 'nearest'
+        extrap_ = literally('nearest')
     elif extrap_mode == t_CONSTANT:
-        extrap_ = 'constant'
+        extrap_ = literally('constant')
     elif extrap_mode == t_cubic:
-        extrap_ = 'cubic'
+        extrap_ = literally('cubic')
     else:
         return None
 
-    return lambda grid, C, points, extrap_mode:  eval_spline(grid, C, points, order=3, diff="None",  extrap_mode=extrap_)
+    return lambda grid, C, points, extrap_mode:  eval_spline(grid, C, points, order=literally(3), diff=literally("None"),  extrap_mode=extrap_)
 
 
 @overload(_eval_cubic, **overload_options)
 def __eval_cubic(grid,C,points,out,extrap_mode):
 
     if extrap_mode == t_NEAREST:
-        extrap_ = 'nearest'
+        extrap_ = literally('nearest')
     elif extrap_mode == t_CONSTANT:
-        extrap_ = 'constant'
+        extrap_ = literally('constant')
     elif extrap_mode == t_cubic:
-        extrap_ = 'cubic'
+        extrap_ = literally('cubic')
     else:
         return None
-    return lambda grid, C, points, out, extrap_mode: eval_spline(grid, C, points, out=out, order=3, diff="None", extrap_mode=extrap_)
+    return lambda grid, C, points, out, extrap_mode: eval_spline(grid, C, points, out=out, order=literally(3), diff=literally("None"), extrap_mode=extrap_)
 
 
+from numba import literally
 
 @overload(_eval_cubic, **overload_options)
 def __eval_cubic(grid,C,points,out):
 
-    return lambda grid, C, points, out: eval_spline(grid, C, points, out=out, order=3, diff="None", extrap_mode='linear')
+    return lambda grid, C, points, out: eval_spline(grid, C, points, out=out, order=literally(3), diff=literally("None"), extrap_mode=literally('linear'))
 
 @njit
 def eval_cubic(*args):
