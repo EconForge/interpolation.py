@@ -1,6 +1,7 @@
 # Optimized interpolation routines in Python / numba
 
-![CI](https://github.com/EconForge/interpolation.py/workflows/CI/badge.svg?branch=master)
+![CI](https://github.com/EconForge/interpolation.py/workflows/CI/badge.svg?branch=master) ![DOC](https://github.com/EconForge/interpolation.py/workflows/DOC/badge.svg?branch=master)
+
 
 The library contains:
 - `splines.*`: fast numba-compatible multilinear and cubic interpolation
@@ -194,7 +195,6 @@ More details are available as an example [notebook](https://github.com/EconForge
 
 Missing but available soon:
 - splines at any order
-- derivative
 
 Feasible (some experiments)
 - evaluation on the GPU (with numba.cuda)
