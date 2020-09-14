@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "interpolation"
-version = "2.1.6"
+version = "2.2.0"
 description = "Interpolation in Python"
 authors = [
     "Pablo Winant <pablo.winant@gmail.com>",
