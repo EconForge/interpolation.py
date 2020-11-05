@@ -38,6 +38,11 @@ points = row_stack([[0.5, 0.5]]*N)
 
 
 def test_cubic_spline():
+    """
+    Interpolate a cubic coefficients.
+
+    Args:
+    """
 
     from interpolation.splines.filter_cubic import filter_coeffs
     from interpolation.splines.eval_cubic import eval_cubic_spline, vec_eval_cubic_spline
@@ -52,6 +57,11 @@ def test_cubic_spline():
     assert(iii.ndim==1)
 
 def test_cubic_multi_spline():
+    """
+    Interpolate multiple gaussian filter.
+
+    Args:
+    """
 
     from interpolation.splines.filter_cubic import filter_mcoeffs
     from interpolation.splines.eval_cubic import eval_cubic_splines, vec_eval_cubic_splines
@@ -66,6 +76,11 @@ def test_cubic_multi_spline():
     assert(iii.ndim==2)
 
 def test_cubic_spline_object():
+    """
+    Interpolate the objective function of a convexd object.
+
+    Args:
+    """
 
     from interpolation.splines import CubicSpline
 
@@ -79,6 +94,11 @@ def test_cubic_spline_object():
     assert(tuple(iii.shape)==(N,))
 
 def test_cubic_multi_spline_object():
+    """
+    Determine the objective function.
+
+    Args:
+    """
 
     from interpolation.splines import CubicSplines
 

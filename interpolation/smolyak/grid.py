@@ -706,6 +706,16 @@ class SmolyakGrid(object):
     """
 
     def __init__(self, d, mu, lb=None, ub=None):
+        """
+        Initialize the network.
+
+        Args:
+            self: (todo): write your description
+            d: (int): write your description
+            mu: (array): write your description
+            lb: (float): write your description
+            ub: (todo): write your description
+        """
         self.d = d
 
         if lb is None:  # default is [-1, 1]^d
@@ -768,6 +778,12 @@ class SmolyakGrid(object):
         self.B_U = u
 
     def __repr__(self):
+        """
+        Return a representation of the cube cube.
+
+        Args:
+            self: (todo): write your description
+        """
         npoints = self.cube_grid.shape[0]
         nz_pts = np.count_nonzero(self.B)
         pct_nz = nz_pts / (npoints**2.)
@@ -784,6 +800,12 @@ class SmolyakGrid(object):
             return msg.format(self.d, mu_str, self.cube_grid.shape[0], pct_nz)
 
     def __str__(self):
+        """
+        Return a string representation of this object.
+
+        Args:
+            self: (todo): write your description
+        """
         return self.__repr__()
 
     def dom2cube(self, pts):

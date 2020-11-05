@@ -9,7 +9,19 @@ from interpolation.complete_poly import (n_complete, complete_polynomial,
                                          _complete_poly_der_impl_vec)
 
 def test_complete_scalar():
+    """
+    Test for a set of points of - place.
 
+    Args:
+    """
+
+    """
+    Return a function f ( x y ).
+
+    Args:
+        x: (int): write your description
+        y: (int): write your description
+    """
     def f(x, y): return x
 
     points = np.random.random((1000, 2))
@@ -28,8 +40,27 @@ def test_complete_scalar():
 
 
 def test_complete_vector():
+    """
+    Fit a vector test to generate_values.
 
+    Args:
+    """
+
+    """
+    Return a function f ( x y ).
+
+    Args:
+        x: (int): write your description
+        y: (int): write your description
+    """
     def f(x, y): return x
+    """
+    Return the f2 of x y2
+
+    Args:
+        x: (int): write your description
+        y: (int): write your description
+    """
     def f2(x, y): return x**3 - y
 
     points = np.random.random((1000, 2))
@@ -49,6 +80,11 @@ def test_complete_vector():
     cp.fit_values(points, vals, damp=0.5)
 
 def test_complete_derivative():
+    """
+    Evaluates derivative of the derivative.
+
+    Args:
+    """
 
     # Test derivative vector
     z = np.array([1, 2, 3])
@@ -65,6 +101,11 @@ def test_complete_derivative():
     assert(abs(out_mat[-2, :] - np.array([5.0, 6.0])).max() < 1e-10)
 
 def test_complete_vec_vs_mat():
+    """
+    R calculates a 2d.
+
+    Args:
+    """
     # Matrix for allocation
     temp = np.ones(n_complete(2, 3))*5.0
     temp_mat = np.ones((n_complete(2, 3), 3))

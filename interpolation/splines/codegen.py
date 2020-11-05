@@ -26,6 +26,16 @@ def gen_trex(l, c: Callable, inds=[]):
         return str.join( ' + ', exprs )
 
 def get_values(d, multispline=False, k=4, i_x='i_x', diffs=None):
+    """
+    Return a string representation of d from d.
+
+    Args:
+        d: (str): write your description
+        multispline: (str): write your description
+        k: (str): write your description
+        i_x: (str): write your description
+        diffs: (str): write your description
+    """
 
     if diffs is None:
         diffs = (0,)*d
@@ -41,10 +51,22 @@ def get_values(d, multispline=False, k=4, i_x='i_x', diffs=None):
         l.append(tt)
     if multispline:
         def c(*arg):
+            """
+            Convert a string to a string
+
+            Args:
+                arg: (str): write your description
+            """
             inds = [(f'i_{i} + {j}' if j>0 else f'i_{i}') for i,j in enumerate(arg)]
             return f'C[{str.join(", ", [str(e) for e in inds])}, {i_x}]'
     else:
         def c(*arg):
+            """
+            Convert a string to a string
+
+            Args:
+                arg: (str): write your description
+            """
             inds = [(f'i_{i} + {j}' if j>0 else f'i_{i}') for i,j in enumerate(arg)]
             return f'C[{str.join(", ", [str(e) for e in inds])}]'
     s = gen_trex(l, c)
@@ -52,6 +74,13 @@ def get_values(d, multispline=False, k=4, i_x='i_x', diffs=None):
 
 
 def source_to_function(source, context={}):
+    """
+    Return the source and return the ast.
+
+    Args:
+        source: (str): write your description
+        context: (todo): write your description
+    """
     # if context is None:
     #     d = {}
     # else:
@@ -409,6 +438,19 @@ import tempita
 
 
 def get_code_spline(d, k=1, vector_valued=False, vectorized=False, allocate=False, grid_types=None, extrap_mode=None, orders=None):
+    """
+    Return a spline for given code.
+
+    Args:
+        d: (str): write your description
+        k: (str): write your description
+        vector_valued: (str): write your description
+        vectorized: (int): write your description
+        allocate: (bool): write your description
+        grid_types: (str): write your description
+        extrap_mode: (str): write your description
+        orders: (str): write your description
+    """
 
 
     if orders is None:
@@ -437,12 +479,24 @@ def get_code_spline(d, k=1, vector_valued=False, vectorized=False, allocate=Fals
     return (code)[1:]
 
 def get_code_linear(d, **kwargs):
+    """
+    Get code function
+
+    Args:
+        d: (todo): write your description
+    """
     kw = {}
     kw.update(**kwargs)
 
     return get_code_spline(d, **kw)
 
 def get_code_cubic(d, **kwargs):
+    """
+    Returns a cubic code object.
+
+    Args:
+        d: (str): write your description
+    """
     kw = {}
     kw.update(**kwargs)
 
@@ -450,4 +504,11 @@ def get_code_cubic(d, **kwargs):
 
 
 def indent(txt,levels=1):
+    """
+    Indent text
+
+    Args:
+        txt: (str): write your description
+        levels: (str): write your description
+    """
     return str.join('\n', ['    '*levels + e for e in str.split( txt,"\n")])

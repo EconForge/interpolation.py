@@ -20,6 +20,14 @@ t_array = numba.typeof(np.array([4.0, 3.9]))  # type of an unevenly spaced dimen
 
 @njit
 def clamp(x,a,b):
+    """
+    Clamp a and b.
+
+    Args:
+        x: (int): write your description
+        a: (int): write your description
+        b: (int): write your description
+    """
     return min(b,max(a,x))
 
 
@@ -28,9 +36,23 @@ def clamp(x,a,b):
 # returns the index of a 1d point along a 1d dimension
 @generated_jit(nopython=True)
 def get_index(gc, x):
+    """
+    Returns the index of the index x.
+
+    Args:
+        gc: (todo): write your description
+        x: (todo): write your description
+    """
     if gc == t_coord:
         # regular coordinate
         def fun(gc,x):
+            """
+            Evaluate the function
+
+            Args:
+                gc: (array): write your description
+                x: (array): write your description
+            """
             δ = (gc[1]-gc[0])/(gc[2]-1)
             d = x-gc[0]
             ii = d // δ
@@ -43,6 +65,13 @@ def get_index(gc, x):
     else:
         # irregular coordinate
         def fun(gc,x):
+            """
+            Returns the function
+
+            Args:
+                gc: (array): write your description
+                x: (array): write your description
+            """
             N = gc.shape[0]
             i = int(np.searchsorted(gc, x))-1
             i = clamp(i, 0, N-2)
@@ -53,14 +82,32 @@ def get_index(gc, x):
 # returns number of dimension of a dimension
 @generated_jit(nopython=True)
 def get_size(gc):
+    """
+    Return the size of a function
+
+    Args:
+        gc: (todo): write your description
+    """
     if gc == t_coord:
         # regular coordinate
         def fun(gc):
+            """
+            Return a list of functions
+
+            Args:
+                gc: (array): write your description
+            """
             return gc[2]
         return fun
     else:
         # irregular coordinate
         def fun(gc):
+            """
+            Returns the length of the first.
+
+            Args:
+                gc: (array): write your description
+            """
             return len(gc)
         return fun
 
@@ -83,10 +130,20 @@ def get_size(gc):
 
 
 def fmap():
+    """
+    Fmap a function call the function fmap.
+
+    Args:
+    """
     pass
 
 @overload(fmap, **overload_options)
 def _map(*args):
+    """
+    Map a dictionary to a dictionary.
+
+    Args:
+    """
 
     if len(args)==2 and isinstance(args[1], (Tuple, UniTuple)):
         k = len(args[1])
@@ -135,9 +192,21 @@ def _map(*args):
 
 @generated_jit(nopython=True)
 def funzip(t):
+    """
+    Evaluate a function
+
+    Args:
+        t: (int): write your description
+    """
     k = t.count
     assert(len(set([e.count for e in t.types]))==1)
     l = t.types[0].count
+    """
+    Prints a tuple. tuple.
+
+    Args:
+        t: (int): write your description
+    """
     def print_tuple(t): return "({},)".format(str.join(", ", t))
     tab =  [ [ 't[{}][{}]'.format(i,j) for i in range(k)] for j in range(l) ]
     s = "def funzip(t): return {}".format(print_tuple( [print_tuple(e) for e in tab] ))
@@ -156,6 +225,13 @@ def funzip(t):
 
 @generated_jit(nopython=True)
 def get_coeffs(X,I):
+    """
+    Compute coefficients from matrix
+
+    Args:
+        X: (str): write your description
+        I: (str): write your description
+    """
     if X.ndim>len(I):
         print("not implemented yet")
     else:
@@ -176,6 +252,14 @@ def get_coeffs(X,I):
 
 # this one is a temporary implementation (should be merged with old gen_splines* code)
 def gen_tensor_reduction(X, symbs, inds=[]):
+    """
+    Generate a matrix.
+
+    Args:
+        X: (todo): write your description
+        symbs: (todo): write your description
+        inds: (todo): write your description
+    """
     if len(symbs) == 0:
         return '{}[{}]'.format(X, str.join('][',[str(e) for e in inds]))
     else:
@@ -187,6 +271,13 @@ def gen_tensor_reduction(X, symbs, inds=[]):
 
 @generated_jit(nopython=True)
 def tensor_reduction(C,l):
+    """
+    R compile a tensor.
+
+    Args:
+        C: (todo): write your description
+        l: (todo): write your description
+    """
     d = len(l.types)
     ex = gen_tensor_reduction('C', ['l[{}]'.format(i) for i in range(d)])
     dd = dict()
@@ -196,6 +287,14 @@ def tensor_reduction(C,l):
 
 @generated_jit(nopython=True)
 def extract_row(a, n, tup):
+    """
+    Extract a table
+
+    Args:
+        a: (todo): write your description
+        n: (todo): write your description
+        tup: (todo): write your description
+    """
     d = len(tup.types)
     dd = {}
     s = "def extract_row(a, n, tup): return ({},)".format(str.join(', ', [f"a[n,{i}]" for i in range(d)]))
@@ -207,6 +306,13 @@ def extract_row(a, n, tup):
 # find closest point inside the grid domain
 @generated_jit
 def project(grid, point):
+    """
+    Projects a grid of grid
+
+    Args:
+        grid: (todo): write your description
+        point: (array): write your description
+    """
     s = "def __project(grid, point):\n"
     d = len(grid.types)
     for i in range(d):

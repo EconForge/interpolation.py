@@ -5,6 +5,14 @@ import numpy as np
 
 
 def mlinspace(smin,smax,orders):
+    """
+    Generate a sparse array with a mesh.
+
+    Args:
+        smin: (float): write your description
+        smax: (int): write your description
+        orders: (todo): write your description
+    """
     if len(orders) == 1:
         res = np.atleast_2d( np.linspace(np.array(smin),np.array(smax),np.array(orders)) )
         return res.copy() ## workaround for strange bug
@@ -58,6 +66,19 @@ class LinearSpline:
     __grid__ = None
 
     def __init__(self, smin, smax, orders, values=None, dtype=numpy.float64):
+        """
+        Initialize the array.
+
+        Args:
+            self: (todo): write your description
+            smin: (int): write your description
+            smax: (int): write your description
+            orders: (list): write your description
+            values: (todo): write your description
+            dtype: (todo): write your description
+            numpy: (int): write your description
+            float64: (todo): write your description
+        """
         self.smin = numpy.array( smin, dtype=dtype )
         self.smax = numpy.array( smax, dtype=dtype )
         self.orders = numpy.array( orders, dtype=numpy.int )
@@ -68,16 +89,36 @@ class LinearSpline:
 
     @property
     def grid(self):
+        """
+        Return a grid of this grid
+
+        Args:
+            self: (todo): write your description
+        """
         if self.__grid__ is None:
             self.__grid__ = mlinspace(self.smin, self.smax, self.orders)
         return self.__grid__
 
     def set_values(self,values):
+        """
+        Set the values
+
+        Args:
+            self: (todo): write your description
+            values: (array): write your description
+        """
         values = values.reshape(self.orders)
         self.values = numpy.ascontiguousarray(values,dtype=self.dtype)
 
 
     def interpolate(self,s):
+        """
+        Interpolate the interpolated values.
+
+        Args:
+            self: (todo): write your description
+            s: (array): write your description
+        """
 
         from .eval_splines import eval_linear
 
@@ -87,6 +128,13 @@ class LinearSpline:
         return a
 
     def __call__(self,s):
+        """
+        Interpolate.
+
+        Args:
+            self: (todo): write your description
+            s: (array): write your description
+        """
 
         if s.ndim == 1:
             res = self.__call__( numpy.atleast_2d(s) )
@@ -140,6 +188,19 @@ class LinearSplines:
     __grid__ = None
 
     def __init__(self, smin, smax, orders, mvalues=None, dtype=numpy.float64):
+        """
+        Initialize an array.
+
+        Args:
+            self: (todo): write your description
+            smin: (int): write your description
+            smax: (int): write your description
+            orders: (list): write your description
+            mvalues: (todo): write your description
+            dtype: (todo): write your description
+            numpy: (int): write your description
+            float64: (todo): write your description
+        """
         self.smin = numpy.array( smin, dtype=dtype )
         self.smax = numpy.array( smax, dtype=dtype )
         self.orders = numpy.array( orders, dtype=numpy.int )
@@ -150,11 +211,24 @@ class LinearSplines:
 
     @property
     def grid(self):
+        """
+        Return a grid of this grid
+
+        Args:
+            self: (todo): write your description
+        """
         if self.__grid__ is None:
             self.__grid__ = mlinspace(self.smin, self.smax, self.orders)
         return self.__grid__
 
     def set_values(self,mvalues):
+        """
+        Set the values
+
+        Args:
+            self: (todo): write your description
+            mvalues: (array): write your description
+        """
 
         n_x = mvalues.shape[-1]
         new_orders = list(self.orders) + [n_x]
@@ -163,6 +237,13 @@ class LinearSplines:
 
 
     def interpolate(self,s):
+        """
+        Interpolate a linear interpolation.
+
+        Args:
+            self: (todo): write your description
+            s: (array): write your description
+        """
 
         from .multilinear_numba import eval_linear
         grid = tuple((self.smin[i], self.smax[i], self.orders[i]) for i in range(len(self.smin)))
@@ -171,6 +252,13 @@ class LinearSplines:
         return a
 
     def __call__(self,s):
+        """
+        Interpolate s.
+
+        Args:
+            self: (todo): write your description
+            s: (array): write your description
+        """
 
         if s.ndim == 1:
             res = self.__call__( numpy.atleast_2d(s) )

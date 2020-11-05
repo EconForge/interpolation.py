@@ -45,6 +45,12 @@ points = row_stack([[0.5, 0.5]]*N)
 
 
 def ttest_object_api(Obj):
+    """
+    Calculate the difference between two points.
+
+    Args:
+        Obj: (todo): write your description
+    """
 
     cs = Obj(a,b,orders,vals)
     ii = cs(point)
@@ -56,6 +62,12 @@ def ttest_object_api(Obj):
 
 
 def ttest_object_vector_api(Obj):
+    """
+    Calculate the api vector.
+
+    Args:
+        Obj: (todo): write your description
+    """
 
     cs = Obj(a,b,orders,mvals)
 
@@ -75,6 +87,12 @@ def ttest_object_vector_api(Obj):
     assert(tuple(iii.shape)==(N,n_splines))
 
 def ttest_object_vector_diff_api(Obj):
+    """
+    Compute the difference between two objects.
+
+    Args:
+        Obj: (todo): write your description
+    """
 
     cs = Obj(a,b,orders,mvals)
 
@@ -87,6 +105,11 @@ def ttest_object_vector_diff_api(Obj):
     assert(tuple(d_iii.shape)==(N,d,n_splines))
 
 def test_objects():
+    """
+    Create objects.
+
+    Args:
+    """
 
     from interpolation.splines import CubicSpline
     ttest_object_api(CubicSpline)

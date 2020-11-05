@@ -48,6 +48,18 @@ for i in range(1,4):
 
 @njit(cache=True)
 def eval_cubic_spline_3(a, b, orders, coefs, point, Ad, dAd):
+    """
+    Evaluate the b - spline b.
+
+    Args:
+        a: (todo): write your description
+        b: (todo): write your description
+        orders: (int): write your description
+        coefs: (todo): write your description
+        point: (array): write your description
+        Ad: (todo): write your description
+        dAd: (todo): write your description
+    """
 
     M0 = orders[0]
     start0 = a[0]
@@ -144,6 +156,17 @@ def eval_cubic_spline_3(a, b, orders, coefs, point, Ad, dAd):
 
 @njit(cache=True)
 def vec_eval_cubic_spline_3(a, b, orders, coefs, points, values):
+    """
+    Evaluate a 2d polynomial of 2d polynomial.
+
+    Args:
+        a: (todo): write your description
+        b: (todo): write your description
+        orders: (int): write your description
+        coefs: (todo): write your description
+        points: (array): write your description
+        values: (str): write your description
+    """
 
     N = points.shape[0]
 
@@ -153,6 +176,17 @@ def vec_eval_cubic_spline_3(a, b, orders, coefs, points, values):
 
 @njit(cache=True)
 def vec_eval_cubic_spline_3_inlined(a, b, orders, coefs, points, values):
+    """
+    Vec_eval_evalicic regularization.
+
+    Args:
+        a: (todo): write your description
+        b: (todo): write your description
+        orders: (int): write your description
+        coefs: (todo): write your description
+        points: (array): write your description
+        values: (array): write your description
+    """
 
     N = points.shape[0]
 
@@ -257,6 +291,17 @@ def vec_eval_cubic_spline_3_inlined(a, b, orders, coefs, points, values):
 
 @njit(cache=True)
 def vec_eval_cubic_spline_3_inlined_columns(a, b, orders, coefs, points, values):
+    """
+    R evaluate_cub_columnic_columns ( a b c dinv ).
+
+    Args:
+        a: (todo): write your description
+        b: (todo): write your description
+        orders: (int): write your description
+        coefs: (todo): write your description
+        points: (array): write your description
+        values: (array): write your description
+    """
 
     # N = points.shape[0]
     N = points.shape[1]
@@ -363,6 +408,17 @@ def vec_eval_cubic_spline_3_inlined_columns(a, b, orders, coefs, points, values)
 
 @njit(cache=True)
 def vec_eval_cubic_spline_3_inlined_lesswork(orders, coefs, points, values, Ad, dAd):
+    """
+    Evaluate the cubic regularization.
+
+    Args:
+        orders: (int): write your description
+        coefs: (todo): write your description
+        points: (array): write your description
+        values: (str): write your description
+        Ad: (todo): write your description
+        dAd: (todo): write your description
+    """
 
     N = points.shape[0]
     M0 = orders[0]
@@ -419,6 +475,18 @@ def vec_eval_cubic_spline_3_inlined_lesswork(orders, coefs, points, values, Ad, 
 
 @njit(cache=True)
 def kernel(n, a, b, orders, coefs, points, values):
+    """
+    Create a kernel of a and b
+
+    Args:
+        n: (array): write your description
+        a: (array): write your description
+        b: (array): write your description
+        orders: (int): write your description
+        coefs: (array): write your description
+        points: (array): write your description
+        values: (str): write your description
+    """
 
     x0 = points[n,0]
     x1 = points[n,1]
@@ -520,6 +588,17 @@ def kernel(n, a, b, orders, coefs, points, values):
 
 @njit(cache=True)
 def vec_eval_cubic_spline_3_kernel(a, b, orders, coefs, points, values):
+    """
+    Evaluates_eval_kernel_3_3 ).
+
+    Args:
+        a: (todo): write your description
+        b: (todo): write your description
+        orders: (int): write your description
+        coefs: (todo): write your description
+        points: (array): write your description
+        values: (str): write your description
+    """
 
     N = points.shape[0]
     for n in range(N):

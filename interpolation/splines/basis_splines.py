@@ -1,5 +1,13 @@
 
 def B0(u, i, x):
+    """
+    Return the value of a and u.
+
+    Args:
+        u: (int): write your description
+        i: (int): write your description
+        x: (int): write your description
+    """
 
     if (u[i] <= x < u[i + 1]):
         return 1.0
@@ -8,6 +16,15 @@ def B0(u, i, x):
 
 
 def B(p, u, i, x):
+    """
+    Evaluates function p ) = ( u.
+
+    Args:
+        p: (int): write your description
+        u: (int): write your description
+        i: (int): write your description
+        x: (int): write your description
+    """
 
     if (p == 0):
         return B0(u, i, x)

@@ -22,6 +22,14 @@ msg = "mean abs diff is {}\nmax abs diff is {}\nmin abs diff is {}"
 
 
 def interp_2d(d, mu, f):
+    """
+    Interpolate 2d ( d : param d : array.
+
+    Args:
+        d: (todo): write your description
+        mu: (array): write your description
+        f: (todo): write your description
+    """
     lb = -2 * np.ones(d)
     ub = 2 * np.ones(d)
     sg = SmolyakGrid(d, mu, lb, ub)
@@ -47,6 +55,14 @@ def interp_2d(d, mu, f):
 
 
 def interp_2d1(d, mu, f):
+    """
+    Interp_2d1d1d
+
+    Args:
+        d: (array): write your description
+        mu: (array): write your description
+        f: (array): write your description
+    """
     sg = SmolyakGrid(d, mu, np.array([-1, -1.]), np.array([1., 1.]))
 
     f_on_grid = f(sg.grid)
@@ -70,6 +86,17 @@ def interp_2d1(d, mu, f):
 
 
 def interp2d_derivs(d, mu, f, f_prime, bds=1, verbose=True):
+    """
+    Interp2d derivative
+
+    Args:
+        d: (todo): write your description
+        mu: (array): write your description
+        f: (todo): write your description
+        f_prime: (todo): write your description
+        bds: (array): write your description
+        verbose: (bool): write your description
+    """
     sg = SmolyakGrid(d, mu, -bds, bds)
 
     f_on_grid = f(sg.grid)
@@ -109,9 +136,19 @@ def interp2d_derivs(d, mu, f, f_prime, bds=1, verbose=True):
 # discovered and automatically run by nosetests
 
 def test_interp_2d():
+    """
+    Compute the 2d vectors of the two points.
+
+    Args:
+    """
 
     interp_2d(2, 3, func1)
 
 def test_interp_2d1():
+    """
+    Returns the difference between two sets.
+
+    Args:
+    """
 
     interp_2d1(2, 3, func1)
