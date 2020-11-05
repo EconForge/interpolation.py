@@ -42,6 +42,12 @@ interp(x,y,u)
 from numba import njit
 @njit
 def vec_eval(u):
+    """
+    Evaluate the numpy array.
+
+    Args:
+        u: (array): write your description
+    """
     N = u.shape[0]
     out = np.zeros(N)
     for n in range(N):
@@ -74,6 +80,12 @@ interp(x1,x2,y,points)
 from numba import njit
 @njit
 def vec_eval(p):
+    """
+    Evaluates_eval operator
+
+    Args:
+        p: (array): write your description
+    """
     N = p.shape[0]
     out = np.zeros(N)
     for n in range(N):

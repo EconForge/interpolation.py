@@ -17,6 +17,13 @@ basis = (1.0 / 6.0, 2.0 / 3.0, 1.0 / 6.0, 0.0)
 #
 @njit
 def solve_deriv_interp_1d(bands, coefs):
+    """
+    Solve the derivative of the eigenvalue m.
+
+    Args:
+        bands: (array): write your description
+        coefs: (array): write your description
+    """
 
     M = coefs.shape[0] - 2
 
@@ -63,6 +70,15 @@ def solve_deriv_interp_1d(bands, coefs):
 
 @njit
 def find_coefs_1d(δ, data, coefs, bands):
+    """
+    Find the coefficient coefficient coefficient coefficient.
+
+    Args:
+        δ: (array): write your description
+        data: (array): write your description
+        coefs: (array): write your description
+        bands: (list): write your description
+    """
 
     M = bands.shape[0]-2
 
@@ -96,18 +112,39 @@ def find_coefs_1d(δ, data, coefs, bands):
 
 
 def _filter_cubic():
+    """
+    Filter out the cubicic filter.
+
+    Args:
+    """
     pass
 
 
 # non allocating version
 @overload(_filter_cubic, **overload_options)
 def __filter_cubic(grid, D, C):
+    """
+    Filter out the grid with the given grid.
+
+    Args:
+        grid: (array): write your description
+        D: (array): write your description
+        C: (array): write your description
+    """
 
     d = len(grid.types)
 
     if D.ndim>d:
 
         def ___filter_cubic(grid, D, C):
+            """
+            Filter a grid by a grid
+
+            Args:
+                grid: (array): write your description
+                D: (array): write your description
+                C: (array): write your description
+            """
 
             n_x = C.shape[-1]
             for i_x in range(n_x):
@@ -118,6 +155,14 @@ def __filter_cubic(grid, D, C):
     if d==1:
 
         def ___filter_cubic(grid, D, C):
+            """
+            Finds a 2dinvic grid.
+
+            Args:
+                grid: (array): write your description
+                D: (array): write your description
+                C: (array): write your description
+            """
 
             dinv_0 = (grid[0][1]-grid[0][0])/grid[0][2]
 
@@ -134,6 +179,14 @@ def __filter_cubic(grid, D, C):
     if d==2:
 
         def ___filter_cubic(grid, D, C):
+            """
+            Filter out a 2dinvic matrix.
+
+            Args:
+                grid: (array): write your description
+                D: (array): write your description
+                C: (array): write your description
+            """
 
             dinv_0 = (grid[0][1]-grid[0][0])/grid[0][2]
             dinv_1 = (grid[1][1]-grid[1][0])/grid[1][2]
@@ -159,6 +212,14 @@ def __filter_cubic(grid, D, C):
     if d==3:
 
         def ___filter_cubic(grid, D, C):
+            """
+            Finds a 2dinvic filter.
+
+            Args:
+                grid: (array): write your description
+                D: (array): write your description
+                C: (array): write your description
+            """
 
             dinv_0 = (grid[0][1]-grid[0][0])/grid[0][2]
             dinv_1 = (grid[1][1]-grid[1][0])/grid[1][2]
@@ -194,6 +255,14 @@ def __filter_cubic(grid, D, C):
     if d==4:
 
         def ___filter_cubic(grid, D, C):
+            """
+            Filter out the grid with a given grid.
+
+            Args:
+                grid: (array): write your description
+                D: (array): write your description
+                C: (array): write your description
+            """
 
             dinv_0 = (grid[0][1]-grid[0][0])/grid[0][2]
             dinv_1 = (grid[1][1]-grid[1][0])/grid[1][2]
@@ -245,26 +314,61 @@ def __filter_cubic(grid, D, C):
 # allocating version
 @overload(_filter_cubic)
 def __filter_cubic(grid, D):
+    """
+    Filter a 2d grid with the given grid.
+
+    Args:
+        grid: (array): write your description
+        D: (array): write your description
+    """
 
     d = len(grid.types)
     if D.ndim == d:
         if D.ndim == 1:
             def ___filter_cubic(grid, D):
+                """
+                Return a 2dubic filter
+
+                Args:
+                    grid: (array): write your description
+                    D: (array): write your description
+                """
                 C = np.zeros(D.shape[0]+2)
                 _filter_cubic(grid, D, C)
                 return C
         if D.ndim == 2:
             def ___filter_cubic(grid, D):
+                """
+                Return a 2d grid with a 2d array.
+
+                Args:
+                    grid: (array): write your description
+                    D: (array): write your description
+                """
                 C = np.zeros((D.shape[0]+2,D.shape[1]+2))
                 _filter_cubic(grid, D, C)
                 return C
         if D.ndim == 3:
             def ___filter_cubic(grid, D):
+                """
+                Return a 2d grid with a 2d array.
+
+                Args:
+                    grid: (array): write your description
+                    D: (array): write your description
+                """
                 C = np.zeros((D.shape[0]+2,D.shape[1]+2,D.shape[2]+2))
                 _filter_cubic(grid, D, C)
                 return C
         if D.ndim == 4:
             def ___filter_cubic(grid, D):
+                """
+                Return a 2d grid with a 2d array.
+
+                Args:
+                    grid: (array): write your description
+                    D: (array): write your description
+                """
                 C = np.zeros((D.shape[0]+2,D.shape[1]+2,D.shape[2]+2,D.shape[3]+2))
                 _filter_cubic(grid, D, C)
                 return C
@@ -272,21 +376,49 @@ def __filter_cubic(grid, D):
     elif D.ndim == d+1:
         if d== 1:
             def ___filter_cubic(grid, D):
+                """
+                Return a 2d grid with a 2d array.
+
+                Args:
+                    grid: (array): write your description
+                    D: (array): write your description
+                """
                 C = np.zeros((D.shape[0]+2,D.shape[1]))
                 _filter_cubic(grid, D, C)
                 return C
         if d == 2:
             def ___filter_cubic(grid, D):
+                """
+                Return a 2d grid with a 2d array.
+
+                Args:
+                    grid: (array): write your description
+                    D: (array): write your description
+                """
                 C = np.zeros((D.shape[0]+2,D.shape[1]+2,D.shape[2]))
                 _filter_cubic(grid, D, C)
                 return C
         if d == 3:
             def ___filter_cubic(grid, D):
+                """
+                Return a 2d grid with a 2d array.
+
+                Args:
+                    grid: (array): write your description
+                    D: (array): write your description
+                """
                 C = np.zeros((D.shape[0]+2,D.shape[1]+2,D.shape[2]+2,D.shape[3]))
                 _filter_cubic(grid, D, C)
                 return C
         if d == 4:
             def ___filter_cubic(grid, D):
+                """
+                Return a 2d grid with a 2d array.
+
+                Args:
+                    grid: (array): write your description
+                    D: (array): write your description
+                """
                 C = np.zeros((D.shape[0]+2,D.shape[1]+2,D.shape[2]+2,D.shape[3]+2,D.shape[4]))
                 _filter_cubic(grid, D, C)
                 return C
@@ -295,12 +427,22 @@ def __filter_cubic(grid, D):
 
 @njit
 def prefilter_cubic(*args):
+    """
+    Return a cubiccubic filter.
+
+    Args:
+    """
     return _filter_cubic(*args)
 
 filter_cubic = prefilter_cubic
 
 
 def _prefilter():
+    """
+    Prefilter the prefilter.
+
+    Args:
+    """
     pass
 
 import numba
@@ -308,16 +450,43 @@ none = numba.typeof(None)
 
 @numba.extending.overload(_prefilter)
 def _ov_prefilter(grid, V, k, out=None):
+    """
+    Evaluates a prefilter to - defined grid.
+
+    Args:
+        grid: (array): write your description
+        V: (array): write your description
+        k: (array): write your description
+        out: (array): write your description
+    """
 
     if isinstance(k, numba.types.Literal):
         
         if k.literal_value==1:
             def _impl_prefilter(grid, V, k, out=None):
+                """
+                Return the filter
+
+                Args:
+                    grid: (todo): write your description
+                    V: (array): write your description
+                    k: (array): write your description
+                    out: (array): write your description
+                """
                 return V # should we copy it here ?
             return _impl_prefilter
 
         if k.literal_value==3:
             def _impl_prefilter(grid, V, k, out=None):
+                """
+                Return a prefilter.
+
+                Args:
+                    grid: (todo): write your description
+                    V: (array): write your description
+                    k: (array): write your description
+                    out: (array): write your description
+                """
                 if out is None:
                     return prefilter_cubic(grid, V)
                 else:
@@ -325,9 +494,27 @@ def _ov_prefilter(grid, V, k, out=None):
             return _impl_prefilter
     else:
         def ugly_workaround(grid, V, k, out=None):
+            """
+            Calculate k k k k
+
+            Args:
+                grid: (todo): write your description
+                V: (todo): write your description
+                k: (todo): write your description
+                out: (array): write your description
+            """
             return (numba.literally(k),)^(k/2)
 
 
 @njit
 def prefilter(grid, V, out=None, k=3):
+    """
+    Prefilter with a prefilter.
+
+    Args:
+        grid: (bool): write your description
+        V: (array): write your description
+        out: (array): write your description
+        k: (array): write your description
+    """
     return _prefilter(grid, V, numba.literally(k), out=out)

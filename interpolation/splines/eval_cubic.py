@@ -16,6 +16,15 @@ from .codegen import source_to_function
 
 @generated_jit
 def get_grid(a,b,n,C):
+    """
+    Returns a grid of the given number of lines
+
+    Args:
+        a: (int): write your description
+        b: (int): write your description
+        n: (int): write your description
+        C: (int): write your description
+    """
     d = C.ndim
     s = "({},)".format(str.join(", ", [f"(a[{k}],b[{k}],n[{k}])" for k in range(d)]))
     txt = "def get_grid(a,b,n,C): return {}".format(s)
@@ -155,6 +164,18 @@ def vec_eval_cubic_splines_G(a,
                              points,
                              values=None,
                              dvalues=None):
+    """
+    Evaluate the complex cub polynomial.
+
+    Args:
+        a: (todo): write your description
+        b: (todo): write your description
+        orders: (int): write your description
+        mcoefs: (todo): write your description
+        points: (array): write your description
+        values: (str): write your description
+        dvalues: (list): write your description
+    """
 
     a = numpy.array(a, dtype=float)
     b = numpy.array(b, dtype=float)

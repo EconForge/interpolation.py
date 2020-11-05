@@ -35,8 +35,24 @@ from numba import generated_jit
 
 @generated_jit
 def mlinterp(grid, c, u):
+    """
+    Mlinter ( u ).
+
+    Args:
+        grid: (todo): write your description
+        c: (todo): write your description
+        u: (todo): write your description
+    """
     if isinstance(u, UniTuple):
         def mlininterp(grid: Tuple, c: Array, u: Tuple)->float:
+            """
+            Mlininterpian tensor.
+
+            Args:
+                grid: (todo): write your description
+                c: (todo): write your description
+                u: (todo): write your description
+            """
             # get indices and barycentric coordinates
             tmp = fmap(get_index, grid, u)
             indices, barycenters = funzip(tmp)
@@ -45,6 +61,14 @@ def mlinterp(grid, c, u):
             return v
     elif isinstance(u, Array) and u.ndim==2:
         def mlininterp(grid: Tuple, c: Array, u: Array)->float:
+            """
+            Mlininterpian tensor.
+
+            Args:
+                grid: (todo): write your description
+                c: (todo): write your description
+                u: (todo): write your description
+            """
             N = u.shape[0]
             res = np.zeros(N)
             for n in range(N):
@@ -66,6 +90,11 @@ itt = namedtuple("InterpType", ['d', 'values', 'eval'])
 
 
 def detect_types(args):
+    """
+    Detect_types of the given arguments.
+
+    Args:
+    """
 
     dims = [e.ndim if isinstance(e,Array) else -1 for e in args]
 
@@ -113,6 +142,13 @@ def detect_types(args):
 
 
 def make_mlinterp(it, funname):
+    """
+    Make a mlinter function from a string.
+
+    Args:
+        it: (todo): write your description
+        funname: (str): write your description
+    """
 
     if it.values =='vector':
         return None
@@ -201,6 +237,11 @@ from numba import generated_jit
 
 @generated_jit(nopython=True)
 def interp(*args):
+    """
+    Evaluate an ast )
+
+    Args:
+    """
 
     aa = args[0].types
 

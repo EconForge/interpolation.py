@@ -1,4 +1,9 @@
 def test_derivatives():
+    """
+    Derivative of the derivative of the covariance
+
+    Args:
+    """
 
     from ..interp import SmolyakInterp
     from ..grid import SmolyakGrid
@@ -38,6 +43,12 @@ def test_derivatives():
     si2 = SmolyakInterp(sg, values)
 
     def ff(y):
+        """
+        Interpolate the fft of - fft
+
+        Args:
+            y: (array): write your description
+        """
         x = y.reshape(values.shape)
         si2.update_theta(x)
         return si2.interpolate(gg).ravel()
@@ -58,6 +69,12 @@ def test_derivatives():
 
     theta_0 = si.theta.copy()
     def ff_c(y_c):
+        """
+        Interpolate 2d fourier transform.
+
+        Args:
+            y_c: (array): write your description
+        """
         si2.theta = y_c.reshape(theta_0.shape)
         return si2.interpolate(gg).ravel()
 

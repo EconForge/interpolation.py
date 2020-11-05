@@ -48,6 +48,15 @@ array_1d = numba.typeof(np.zeros(2))
 # @generated_jit(inline='always', nopython=True) # doens't work
 @generated_jit( nopython=True)
 def allocate_output(G, C, P, O):
+    """
+    Allocate the output of a matrix.
+
+    Args:
+        G: (todo): write your description
+        C: (todo): write your description
+        P: (todo): write your description
+        O: (todo): write your description
+    """
     if C.ndim == len(G)+1:
         # vector valued
         if P.ndim == 2:
@@ -87,15 +96,44 @@ def allocate_output(G, C, P, O):
 
 
 def _eval_spline():
+    """
+    Evaline a new spline.
+
+    Args:
+    """
     pass
 
 
 @overload(_eval_spline )
 def __eval_spline(grid, C, points, out=None, order=1, diff="None", extrap_mode='linear'):
+    """
+    Evaluate a spline spline
+
+    Args:
+        grid: (todo): write your description
+        C: (str): write your description
+        points: (array): write your description
+        out: (array): write your description
+        order: (int): write your description
+        diff: (str): write your description
+        extrap_mode: (str): write your description
+    """
 
     if not ( isinstance(order, numba.types.Literal) and isinstance(diff, numba.types.Literal) and isinstance(extrap_mode, numba.types.Literal) ):
         
         def ugly_workaround(grid, C, points, out=None, order=1, diff="None", extrap_mode='linear'):
+            """
+            Calculate the differences between two points.
+
+            Args:
+                grid: (todo): write your description
+                C: (todo): write your description
+                points: (array): write your description
+                out: (array): write your description
+                order: (todo): write your description
+                diff: (todo): write your description
+                extrap_mode: (str): write your description
+            """
             return (literally(order), literally(diff), literally(extrap_mode))
         # def __eval_spline(grid, C, points, out=None, order=1, diff="None", extrap_mode='linear'):
         #     return __eval_spline(grid, C, points, out=out, order=literally(order), diff=literally(diff), extrap_mode=literally(extrap_mode))
@@ -139,17 +177,39 @@ def eval_spline(grid, C, points, out=None, order=1, diff="None", extrap_mode="li
 ###
 
 def _eval_linear():
+    """
+    Evaluate the given function.
+
+    Args:
+    """
     pass
 
 from .option_types import options, t_CONSTANT, t_LINEAR, t_NEAREST
 
 @overload(_eval_linear, **overload_options)
 def __eval_linear(grid,C,points):
+    """
+    Evaluate a linear interpolation.
+
+    Args:
+        grid: (array): write your description
+        C: (array): write your description
+        points: (array): write your description
+    """
     # print("We allocate with default extrapolation.")
     return lambda grid, C, points: eval_spline(grid, C, points, order=1, extrap_mode='linear', diff="None")
 
 @overload(_eval_linear, **overload_options)
 def __eval_linear(grid,C,points,extrap_mode):
+    """
+    Evaluate a linear interpolation.
+
+    Args:
+        grid: (array): write your description
+        C: (array): write your description
+        points: (array): write your description
+        extrap_mode: (str): write your description
+    """
 
     # print(f"We are going to extrapolate in {extrap_mode} mode.")
     if extrap_mode == t_NEAREST:
@@ -166,6 +226,16 @@ def __eval_linear(grid,C,points,extrap_mode):
 
 @overload(_eval_linear, **overload_options)
 def __eval_linear(grid,C,points,out,extrap_mode):
+    """
+    Evaluate a linear interpolation.
+
+    Args:
+        grid: (array): write your description
+        C: (array): write your description
+        points: (array): write your description
+        out: (array): write your description
+        extrap_mode: (str): write your description
+    """
 
     # print(f"We are going to do inplace, with {extrap_mode} extrapolation")
     if extrap_mode == t_NEAREST:
@@ -182,6 +252,15 @@ def __eval_linear(grid,C,points,out,extrap_mode):
 
 @overload(_eval_linear, **overload_options)
 def __eval_linear(grid,C,points,out):
+    """
+    Evaluate a linear interpolation.
+
+    Args:
+        grid: (array): write your description
+        C: (array): write your description
+        points: (array): write your description
+        out: (array): write your description
+    """
 
     return lambda grid, C, points, out: eval_spline(grid, C, points, out=out, order=1, diff="None", extrap_mode='linear')
 
@@ -196,17 +275,39 @@ def eval_linear(*args):
 
 
 def _eval_cubic():
+    """
+    Evaluate a cubicic curve.
+
+    Args:
+    """
     pass
 
 from .option_types import options, t_CONSTANT, t_LINEAR, t_NEAREST
 
 @overload(_eval_cubic, **overload_options)
 def __eval_cubic(grid,C,points):
+    """
+    Evaluate a cubic curve.
+
+    Args:
+        grid: (todo): write your description
+        C: (todo): write your description
+        points: (array): write your description
+    """
     # print("We allocate with default extrapolation.")
     return lambda grid, C, points: eval_spline(grid, C, points, order=literally(3), extrap_mode=literally('linear'),  diff=literally("None"))
 
 @overload(_eval_cubic, **overload_options)
 def __eval_cubic(grid,C,points,extrap_mode):
+    """
+    Evaluate a 2d grid with the given grid.
+
+    Args:
+        grid: (todo): write your description
+        C: (todo): write your description
+        points: (array): write your description
+        extrap_mode: (str): write your description
+    """
 
     # print(f"We are going to extrapolate in {extrap_mode} mode.")
     if extrap_mode == t_NEAREST:
@@ -223,6 +324,16 @@ def __eval_cubic(grid,C,points,extrap_mode):
 
 @overload(_eval_cubic, **overload_options)
 def __eval_cubic(grid,C,points,out,extrap_mode):
+    """
+    Evaluate a 2d grid with the given grid.
+
+    Args:
+        grid: (todo): write your description
+        C: (todo): write your description
+        points: (array): write your description
+        out: (array): write your description
+        extrap_mode: (str): write your description
+    """
 
     if extrap_mode == t_NEAREST:
         extrap_ = literally('nearest')
@@ -239,6 +350,15 @@ from numba import literally
 
 @overload(_eval_cubic, **overload_options)
 def __eval_cubic(grid,C,points,out):
+    """
+    Evaluate a cubic curve.
+
+    Args:
+        grid: (todo): write your description
+        C: (todo): write your description
+        points: (array): write your description
+        out: (array): write your description
+    """
 
     return lambda grid, C, points, out: eval_spline(grid, C, points, out=out, order=literally(3), diff=literally("None"), extrap_mode=literally('linear'))
 

@@ -200,6 +200,14 @@ def _complete_poly_impl_vec(z, d, out):
 # @jit(nopython=True, cache=True)
 @jit(nopython=True)
 def _complete_poly_impl(z, d, out):
+    """
+    Complete the polynomial.
+
+    Args:
+        z: (todo): write your description
+        d: (todo): write your description
+        out: (array): write your description
+    """
     nvar = z.shape[0]
     nobs = z.shape[1]
 
@@ -442,6 +450,15 @@ def _complete_poly_der_impl_vec(z, d, der, out):
 # @jit(nopython=True, cache=True)
 @jit(nopython=True)
 def _complete_poly_der_impl(z, d, der, out):
+    """
+    Evaluates the derivative.
+
+    Args:
+        z: (todo): write your description
+        d: (todo): write your description
+        der: (int): write your description
+        out: (array): write your description
+    """
     nvar = z.shape[0]
     nobs = z.shape[1]
 
@@ -564,10 +581,27 @@ def _complete_poly_der_impl(z, d, der, out):
 class CompletePolynomial:
 
     def __init__(self, n, d):
+        """
+        Initialize the next instance.
+
+        Args:
+            self: (todo): write your description
+            n: (int): write your description
+            d: (int): write your description
+        """
         self.n = n
         self.d = d
 
     def fit_values(self, s, x, damp=0.0):
+        """
+        Fit the polynomial polynomial coefficients.
+
+        Args:
+            self: (todo): write your description
+            s: (array): write your description
+            x: (array): write your description
+            damp: (array): write your description
+        """
         Phi = complete_polynomial(s.T, self.d).T
         self.Phi = Phi
         if damp == 0.0:
@@ -577,10 +611,25 @@ class CompletePolynomial:
             self.coefs = (1 - damp) * new_coefs + damp * self.coefs
 
     def der(self, s, der):
+        """
+        Return the derivative of the polynomial s.
+
+        Args:
+            self: (todo): write your description
+            s: (todo): write your description
+            der: (todo): write your description
+        """
         dPhi = complete_polynomial_der(s.T, self.d, der).T
         return np.dot(dPhi, self.coefs)
 
     def __call__(self, s):
+        """
+        Evaluate the polynomial.
+
+        Args:
+            self: (todo): write your description
+            s: (array): write your description
+        """
 
         Phi = complete_polynomial(s.T, self.d).T
         return np.dot(Phi, self.coefs)

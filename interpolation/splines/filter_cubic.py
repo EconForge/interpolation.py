@@ -10,6 +10,13 @@ basis = np.array([1.0 / 6.0, 2.0 / 3.0, 1.0 / 6.0, 0.0])
 
 @njit(cache=True)
 def solve_deriv_interp_1d(bands, coefs):
+    """
+    Solve the derivative of the eigenvalue m.
+
+    Args:
+        bands: (array): write your description
+        coefs: (array): write your description
+    """
 
     M = coefs.shape[0] - 2
 
@@ -57,6 +64,15 @@ def solve_deriv_interp_1d(bands, coefs):
 
 @njit(cache=True)
 def find_coefs_1d(delta_inv, M, data, coefs):
+    """
+    Finds the coefficients between two matrices.
+
+    Args:
+        delta_inv: (float): write your description
+        M: (array): write your description
+        data: (array): write your description
+        coefs: (array): write your description
+    """
 
     bands = np.zeros((M + 2, 4))
 
@@ -90,6 +106,13 @@ def find_coefs_1d(delta_inv, M, data, coefs):
 
 @njit(cache=True)
 def filter_coeffs_1d(dinv, data):
+    """
+    Filter coefficients in - coefficients of the coefficients.
+
+    Args:
+        dinv: (todo): write your description
+        data: (array): write your description
+    """
 
     M = data.shape[0]
     N = M + 2
@@ -102,6 +125,13 @@ def filter_coeffs_1d(dinv, data):
 
 @njit(cache=True)
 def filter_coeffs_2d(dinv, data):
+    """
+    Filter coefficients by coefficients
+
+    Args:
+        dinv: (todo): write your description
+        data: (array): write your description
+    """
 
     Mx = data.shape[0]
     My = data.shape[1]
@@ -126,6 +156,13 @@ def filter_coeffs_2d(dinv, data):
 
 @njit(cache=True)
 def filter_coeffs_3d(dinv, data):
+    """
+    Filter coefficients to a 2d array of the coefficients.
+
+    Args:
+        dinv: (todo): write your description
+        data: (array): write your description
+    """
 
     Mx = data.shape[0]
     My = data.shape[1]
@@ -156,6 +193,13 @@ def filter_coeffs_3d(dinv, data):
 
 @njit(cache=True)
 def filter_coeffs_4d(dinv, data):
+    """
+    Filter coefficients in the coefficients
+
+    Args:
+        dinv: (todo): write your description
+        data: (array): write your description
+    """
 
     Mx = data.shape[0]
     My = data.shape[1]
@@ -197,6 +241,15 @@ def filter_coeffs_4d(dinv, data):
 
 
 def filter_coeffs(smin, smax, orders, data):
+    """
+    Filter the coefficients filter
+
+    Args:
+        smin: (float): write your description
+        smax: (int): write your description
+        orders: (int): write your description
+        data: (array): write your description
+    """
     smin = np.array(smin, dtype=float)
     smax = np.array(smax, dtype=float)
     dinv = (smax - smin) / orders
@@ -204,6 +257,15 @@ def filter_coeffs(smin, smax, orders, data):
     return filter_data(dinv, data)
 
 def filter_mcoeffs(smin, smax, orders, data):
+    """
+    Filter coefficients by a sparse filter
+
+    Args:
+        smin: (float): write your description
+        smax: (int): write your description
+        orders: (int): write your description
+        data: (array): write your description
+    """
 
     order = len(smin)
     n_splines = data.shape[-1]
@@ -214,6 +276,13 @@ def filter_mcoeffs(smin, smax, orders, data):
 
 
 def filter_data(dinv, data):
+    """
+    Filter the data according to dinv filter.
+
+    Args:
+        dinv: (array): write your description
+        data: (todo): write your description
+    """
     if len(dinv) == 1:
         return filter_coeffs_1d(dinv, data)
     elif len(dinv) == 2:

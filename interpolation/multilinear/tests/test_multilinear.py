@@ -6,6 +6,11 @@ import numpy as np
 from interpolation.multilinear.fungen import get_index
 
 def test_barycentric_indexes():
+    """
+    Test if the bary indexes.
+
+    Args:
+    """
 
     # irregular grid
     gg = np.array([0.0, 1.0])
@@ -70,6 +75,11 @@ from interpolation.multilinear.mlinterp import mlinterp, interp
 
 
 def test_mlinterp():
+    """
+    Perform a linear interpolation.
+
+    Args:
+    """
 
     # simple multilinear interpolation api
 
@@ -91,6 +101,11 @@ def test_mlinterp():
 
 
 def test_multilinear():
+    """
+    Test for multilinear
+
+    Args:
+    """
 
     # flat flexible api
 

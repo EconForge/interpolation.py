@@ -27,11 +27,26 @@ class SmolyakInterp(object):
     evaluated at the grid points
     """
     def __init__(self, sg, f_on_grid):
+        """
+        Initialize f_on_grid
+
+        Args:
+            self: (todo): write your description
+            sg: (str): write your description
+            f_on_grid: (todo): write your description
+        """
         self.sg = sg
         self.f_on_grid = f_on_grid
         self.theta = find_theta(sg, self.f_on_grid)
 
     def update_theta(self, f_on_grid):
+        """
+        Update f_on
+
+        Args:
+            self: (todo): write your description
+            f_on_grid: (str): write your description
+        """
         self.f_on_grid = f_on_grid
         self.theta = find_theta(self.sg, self.f_on_grid)
 
