@@ -1,6 +1,6 @@
 import numba
 
-from numba import jitclass
+# from numba import jitclass
 
 
 # Extrapolation types
