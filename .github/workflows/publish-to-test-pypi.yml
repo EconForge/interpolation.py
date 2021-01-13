@@ -19,19 +19,13 @@ jobs:
         python-version: 3.7
 
     - name: Install Poetry
-      uses: Gr1N/setup-poetry@v2
+      uses: Gr1N/setup-poetry@v4
 
     - name: Install build dependencies
       run: poetry install
 
     - name: Build a source tarball
       run: poetry build
-
-    # - name: Publish distribution 📦 to Test PyPI
-    #   uses: pypa/gh-action-pypi-publish@master
-    #   with:
-    #       password: ${{ secrets.pypitest_password }}
-    #       repository_url: https://test.pypi.org/legacy/
 
     - name: Publish distribution 📦 to PyPI
       uses: pypa/gh-action-pypi-publish@master
