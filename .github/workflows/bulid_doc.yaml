@@ -19,7 +19,7 @@ jobs:
           python-version: 3.7
 
       - name: Install Poetry
-        uses: Gr1N/setup-poetry@v2
+        uses: Gr1N/setup-poetry@v4
 
       - name: Deploy docs (1)
         run: |
