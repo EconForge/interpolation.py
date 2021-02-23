@@ -2,7 +2,7 @@
 def test_readonly_vec():
 
     import numpy as np
-    from interpolation.splines import eval_cubic
+    from interpolation.splines.eval_splines import eval_cubic
 
     vals = np.random.random((7,7,2))
     grid = ((-0.053333333333333344, 0.053333333333333344, 5), (5.0, 15.0, 5))
@@ -20,7 +20,7 @@ def test_readonly_vec():
 def test_readonly():
     
     import numpy as np
-    from interpolation.splines import eval_cubic
+    from interpolation.splines.eval_splines import eval_cubic
 
     vals = np.random.random((7,7,2))
     grid = ((-0.053333333333333344, 0.053333333333333344, 5), (5.0, 15.0, 5))
