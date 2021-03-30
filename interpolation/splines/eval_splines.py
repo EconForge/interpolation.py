@@ -39,9 +39,13 @@ for i in range(1,4):
     dAd[:,i] = Ad[:,i-1]*(4-i)
 
 array_2d = numba.typeof(np.zeros((2,2)))
+array_2d_F = numba.typeof(np.zeros((2,2)).T)
 tt = np.zeros((2,2))
 tt.flags.writeable=False
 array_2d_readonly = numba.typeof(tt)
+tt = np.zeros((2,2)).T
+tt.flags.writeable=False
+array_2d_F_readonly = numba.typeof(tt)
 array_1d = numba.typeof(np.zeros(2))
 del tt
 
@@ -108,7 +112,7 @@ def __eval_spline(grid, C, points, out=None, order=1, diff="None", extrap_mode='
     extrap_ = (extrap_mode).literal_value
     d = len(grid)
 
-    vectorized = (points == array_2d) or (points == array_2d_readonly)
+    vectorized = (points in (array_2d, array_2d_F, array_2d_readonly, array_2d_F_readonly))
     allocate = True
     vector_valued = (C.ndim==(len(grid)+1))
 
