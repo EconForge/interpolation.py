@@ -4,17 +4,22 @@ import numpy
 import numpy as np
 
 
-def mlinspace(smin,smax,orders):
+def mlinspace(smin, smax, orders):
     if len(orders) == 1:
-        res = np.atleast_2d( np.linspace(np.array(smin),np.array(smax),np.array(orders)) )
-        return res.copy() ## workaround for strange bug
+        res = np.atleast_2d(
+            np.linspace(np.array(smin), np.array(smax), np.array(orders))
+        )
+        return res.copy()  ## workaround for strange bug
     else:
-        meshes = np.meshgrid( *[numpy.linspace(smin[i],smax[i],orders[i]) for i in range(len(orders))], indexing='ij' )
-        return np.row_stack( [l.flatten() for l in meshes])
+        meshes = np.meshgrid(
+            *[numpy.linspace(smin[i], smax[i], orders[i]) for i in range(len(orders))],
+            indexing="ij"
+        )
+        return np.row_stack([l.flatten() for l in meshes])
 
 
 class LinearSpline:
-    '''Multilinear interpolation
+    """Multilinear interpolation
 
     Methods
     -------
@@ -53,14 +58,14 @@ class LinearSpline:
 
     interpolated_values = interp(random_points)
     exact_values = f(random_points)
-    '''
+    """
 
     __grid__ = None
 
     def __init__(self, smin, smax, orders, values=None, dtype=numpy.float64):
-        self.smin = numpy.array( smin, dtype=dtype )
-        self.smax = numpy.array( smax, dtype=dtype )
-        self.orders = numpy.array( orders, dtype=numpy.int )
+        self.smin = numpy.array(smin, dtype=dtype)
+        self.smax = numpy.array(smax, dtype=dtype)
+        self.orders = numpy.array(orders, dtype=numpy.int)
         self.d = len(orders)
         self.dtype = dtype
         if values is not None:
@@ -72,31 +77,31 @@ class LinearSpline:
             self.__grid__ = mlinspace(self.smin, self.smax, self.orders)
         return self.__grid__
 
-    def set_values(self,values):
+    def set_values(self, values):
         values = values.reshape(self.orders)
-        self.values = numpy.ascontiguousarray(values,dtype=self.dtype)
+        self.values = numpy.ascontiguousarray(values, dtype=self.dtype)
 
-
-    def interpolate(self,s):
+    def interpolate(self, s):
 
         from .eval_splines import eval_linear
 
         s = numpy.ascontiguousarray(s, dtype=self.dtype)
-        grid = tuple((self.smin[i], self.smax[i], self.orders[i]) for i in range(len(self.smin)))
-        a = eval_linear(grid,self.values,s)
+        grid = tuple(
+            (self.smin[i], self.smax[i], self.orders[i]) for i in range(len(self.smin))
+        )
+        a = eval_linear(grid, self.values, s)
         return a
 
-    def __call__(self,s):
+    def __call__(self, s):
 
         if s.ndim == 1:
-            res = self.__call__( numpy.atleast_2d(s) )
+            res = self.__call__(numpy.atleast_2d(s))
             return res[0]
         return self.interpolate(s)
 
 
-
 class LinearSplines:
-    '''Multilinear interpolation
+    """Multilinear interpolation
 
     Methods
     -------
@@ -135,14 +140,14 @@ class LinearSplines:
 
     interpolated_values = interp(random_points)
     exact_values = f(random_points)
-    '''
+    """
 
     __grid__ = None
 
     def __init__(self, smin, smax, orders, mvalues=None, dtype=numpy.float64):
-        self.smin = numpy.array( smin, dtype=dtype )
-        self.smax = numpy.array( smax, dtype=dtype )
-        self.orders = numpy.array( orders, dtype=numpy.int )
+        self.smin = numpy.array(smin, dtype=dtype)
+        self.smax = numpy.array(smax, dtype=dtype)
+        self.orders = numpy.array(orders, dtype=numpy.int)
         self.d = len(orders)
         self.dtype = dtype
         if mvalues is not None:
@@ -154,26 +159,28 @@ class LinearSplines:
             self.__grid__ = mlinspace(self.smin, self.smax, self.orders)
         return self.__grid__
 
-    def set_values(self,mvalues):
+    def set_values(self, mvalues):
 
         n_x = mvalues.shape[-1]
         new_orders = list(self.orders) + [n_x]
-        mvalues = mvalues.reshape( new_orders)
-        self.mvalues = numpy.ascontiguousarray(mvalues,dtype=self.dtype)
+        mvalues = mvalues.reshape(new_orders)
+        self.mvalues = numpy.ascontiguousarray(mvalues, dtype=self.dtype)
 
-
-    def interpolate(self,s):
+    def interpolate(self, s):
 
         from .multilinear_numba import eval_linear
-        grid = tuple((self.smin[i], self.smax[i], self.orders[i]) for i in range(len(self.smin)))
+
+        grid = tuple(
+            (self.smin[i], self.smax[i], self.orders[i]) for i in range(len(self.smin))
+        )
         s = numpy.ascontiguousarray(s, dtype=self.dtype)
-        a = eval_linear(grid,self.mvalues,s)
+        a = eval_linear(grid, self.mvalues, s)
         return a
 
-    def __call__(self,s):
+    def __call__(self, s):
 
         if s.ndim == 1:
-            res = self.__call__( numpy.atleast_2d(s) )
+            res = self.__call__(numpy.atleast_2d(s))
             return res.ravel()
 
         return self.interpolate(s)

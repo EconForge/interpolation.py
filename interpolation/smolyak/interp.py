@@ -9,7 +9,7 @@ import numpy as np
 import numpy.linalg as la
 from .grid import build_B
 
-__all__ = ['find_theta', 'SmolyakInterp']
+__all__ = ["find_theta", "SmolyakInterp"]
 
 
 def find_theta(sg, f_on_grid):
@@ -26,6 +26,7 @@ class SmolyakInterp(object):
     SmolyakGrid object to be passed in and the values of the function
     evaluated at the grid points
     """
+
     def __init__(self, sg, f_on_grid):
         self.sg = sg
         self.f_on_grid = f_on_grid
@@ -35,8 +36,7 @@ class SmolyakInterp(object):
         self.f_on_grid = f_on_grid
         self.theta = find_theta(self.sg, self.f_on_grid)
 
-    def interpolate(self, pts, interp=True, deriv=False, deriv_th=False,
-                    deriv_X=False):
+    def interpolate(self, pts, interp=True, deriv=False, deriv_th=False, deriv_X=False):
         """
         Basic Lagrange interpolation, with optional first derivatives
         (gradient)
@@ -107,8 +107,8 @@ class SmolyakInterp(object):
             if interp:
                 rets.append(vals)
 
-            radii = 2/(sg.ub - sg.lb)
-            rets.append( d_vals*radii[None,:] )
+            radii = 2 / (sg.ub - sg.lb)
+            rets.append(d_vals * radii[None, :])
 
         elif not deriv and interp:  # No derivs in build_B. Just do vals
             new_B = build_B(d, sg.mu, trans_points, sg.pinds)
@@ -134,30 +134,30 @@ class SmolyakInterp(object):
 
 
 # if __name__ == '__main__':
-    # from grid import SmolyakGrid
-    # d = 2
-    # mu = 3
-    # f = lambda x: np.sum(x ** 2, axis=1)
-    # f_prime = lambda x: 2 * x
-    # sg = SmolyakGrid(d, mu, np.array([-1, -1.]), np.array([1., 1.]))
+# from grid import SmolyakGrid
+# d = 2
+# mu = 3
+# f = lambda x: np.sum(x ** 2, axis=1)
+# f_prime = lambda x: 2 * x
+# sg = SmolyakGrid(d, mu, np.array([-1, -1.]), np.array([1., 1.]))
 
-    # f_on_grid = f(sg.grid)
+# f_on_grid = f(sg.grid)
 
-    # si = SmolyakInterp(sg, f_on_grid)
+# si = SmolyakInterp(sg, f_on_grid)
 
-    # np.random.seed(42)
-    # test_points = np.random.randn(100, 2)
-    # # Make sure it is bounded by -2, 2
-    # test_points = test_points/np.max(np.abs(test_points))
+# np.random.seed(42)
+# test_points = np.random.randn(100, 2)
+# # Make sure it is bounded by -2, 2
+# test_points = test_points/np.max(np.abs(test_points))
 
-    # true_vals = f(test_points)
-    # interp_vals = si.interpolate(test_points)
+# true_vals = f(test_points)
+# interp_vals = si.interpolate(test_points)
 
-    # mean_ad = np.mean(np.abs(interp_vals - true_vals))
-    # max_ad = np.max(np.abs(interp_vals - true_vals))
-    # min_ad = np.min(np.abs(interp_vals - true_vals))
+# mean_ad = np.mean(np.abs(interp_vals - true_vals))
+# max_ad = np.max(np.abs(interp_vals - true_vals))
+# min_ad = np.min(np.abs(interp_vals - true_vals))
 
-    # msg = "The mean abs diff is {}\nThe max abs diff is {}\n"
-    # msg += "The min abs diff is {}"
+# msg = "The mean abs diff is {}\nThe max abs diff is {}\n"
+# msg += "The min abs diff is {}"
 
-    # print(msg.format(mean_ad, max_ad, min_ad))
+# print(msg.format(mean_ad, max_ad, min_ad))

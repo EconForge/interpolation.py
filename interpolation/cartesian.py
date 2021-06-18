@@ -9,8 +9,9 @@ Implements cartesian products and regular cartesian grids.
 import numpy
 from numba import njit
 
-def cartesian(nodes, order='C'):
-    '''Cartesian product of a list of arrays
+
+def cartesian(nodes, order="C"):
+    """Cartesian product of a list of arrays
 
     Parameters:
     -----------
@@ -20,7 +21,7 @@ def cartesian(nodes, order='C'):
     Returns:
     --------
     out: (2d-array) each line corresponds to one point of the product space
-    '''
+    """
 
     nodes = [numpy.array(e) for e in nodes]
     shapes = [e.shape[0] for e in nodes]
@@ -29,8 +30,7 @@ def cartesian(nodes, order='C'):
     l = numpy.prod(shapes)
     out = numpy.zeros((l, n))
 
-
-    if order == 'C':
+    if order == "C":
         repetitions = numpy.cumprod([1] + shapes[:-1])
     else:
         shapes.reverse()
@@ -40,12 +40,13 @@ def cartesian(nodes, order='C'):
         repetitions.reverse()
 
     for i in range(n):
-        _repeat_1d(nodes[i], repetitions[i], out[:,i])
+        _repeat_1d(nodes[i], repetitions[i], out[:, i])
 
     return out
 
-def mlinspace(a, b, nums, order='C'):
-    '''Constructs a regular cartesian grid
+
+def mlinspace(a, b, nums, order="C"):
+    """Constructs a regular cartesian grid
 
     Parameters:
     -----------
@@ -57,11 +58,11 @@ def mlinspace(a, b, nums, order='C'):
     Returns:
     --------
     out: (2d-array) each line corresponds to one point of the product space
-    '''
+    """
 
-    a = numpy.array(a, dtype='float64')
-    b = numpy.array(b, dtype='float64')
-    nums = numpy.array(nums, dtype='int64')
+    a = numpy.array(a, dtype="float64")
+    b = numpy.array(b, dtype="float64")
+    nums = numpy.array(nums, dtype="int64")
     nodes = [numpy.linspace(a[i], b[i], nums[i]) for i in range(len(nums))]
 
     return cartesian(nodes, order=order)
@@ -69,7 +70,7 @@ def mlinspace(a, b, nums, order='C'):
 
 @njit(cache=True)
 def _repeat_1d(x, K, out):
-    '''Repeats each element of a vector many times and repeats the whole result many times
+    """Repeats each element of a vector many times and repeats the whole result many times
 
     Parameters
     ----------
@@ -81,10 +82,10 @@ def _repeat_1d(x, K, out):
     Returns
     -------
     None
-    '''
+    """
 
     N = x.shape[0]
-    L = out.shape[0] // (K*N) # number of outer iterations
+    L = out.shape[0] // (K * N)  # number of outer iterations
     # K                       # number of inner iterations
 
     # the result out should enumerate in C-order the elements
@@ -95,5 +96,5 @@ def _repeat_1d(x, K, out):
         val = x[n]
         for k in range(K):
             for l in range(L):
-                ind = k*N*L + n*L + l
+                ind = k * N * L + n * L + l
                 out[ind] = val

@@ -15,14 +15,13 @@ from ..compat import overload_options
 # Dimension helper #
 ####################
 
-t_coord = numba.typeof((2.3,2.4,1))           # type of an evenly spaced dimension
+t_coord = numba.typeof((2.3, 2.4, 1))  # type of an evenly spaced dimension
 t_array = numba.typeof(np.array([4.0, 3.9]))  # type of an unevenly spaced dimension
 
+
 @njit
-def clamp(x,a,b):
-    return min(b,max(a,x))
-
-
+def clamp(x, a, b):
+    return min(b, max(a, x))
 
 
 # returns the index of a 1d point along a 1d dimension
@@ -30,25 +29,28 @@ def clamp(x,a,b):
 def get_index(gc, x):
     if gc == t_coord:
         # regular coordinate
-        def fun(gc,x):
-            δ = (gc[1]-gc[0])/(gc[2]-1)
-            d = x-gc[0]
+        def fun(gc, x):
+            δ = (gc[1] - gc[0]) / (gc[2] - 1)
+            d = x - gc[0]
             ii = d // δ
             i = int(ii)
-            i = clamp(i, 0, gc[2]-2)
-            r = d-i*δ
-            λ = r/δ
+            i = clamp(i, 0, gc[2] - 2)
+            r = d - i * δ
+            λ = r / δ
             return (i, λ)
+
         return fun
     else:
         # irregular coordinate
-        def fun(gc,x):
+        def fun(gc, x):
             N = gc.shape[0]
-            i = int(np.searchsorted(gc, x))-1
-            i = clamp(i, 0, N-2)
-            λ = (x-gc[i])/(gc[i+1]-gc[i])
+            i = int(np.searchsorted(gc, x)) - 1
+            i = clamp(i, 0, N - 2)
+            λ = (x - gc[i]) / (gc[i + 1] - gc[i])
             return (i, λ)
+
         return fun
+
 
 # returns number of dimension of a dimension
 @generated_jit(nopython=True)
@@ -57,12 +59,15 @@ def get_size(gc):
         # regular coordinate
         def fun(gc):
             return gc[2]
+
         return fun
     else:
         # irregular coordinate
         def fun(gc):
             return len(gc)
+
         return fun
+
 
 #####################
 # Generator helpers #
@@ -85,26 +90,33 @@ def get_size(gc):
 def fmap():
     pass
 
+
 @overload(fmap, **overload_options)
 def _map(*args):
 
-    if len(args)==2 and isinstance(args[1], (Tuple, UniTuple)):
+    if len(args) == 2 and isinstance(args[1], (Tuple, UniTuple)):
         k = len(args[1])
-        s = "def __map(f, t): return ({}, )".format(str.join(', ',['f(t[{}])'.format(i) for i in range(k)]))
-    elif len(args)==3 and isinstance(args[1], (Tuple, UniTuple)):
+        s = "def __map(f, t): return ({}, )".format(
+            str.join(", ", ["f(t[{}])".format(i) for i in range(k)])
+        )
+    elif len(args) == 3 and isinstance(args[1], (Tuple, UniTuple)):
         k = len(args[1])
         if isinstance(args[2], (Tuple, UniTuple)):
             if len(args[2]) != k:
                 # we don't know what to do in this case
                 return None
-            s = "def __map(f, t1, t2): return ({}, )".format(str.join(', ',['f(t1[{}], t2[{}])'.format(i,i) for i in range(k)]))
+            s = "def __map(f, t1, t2): return ({}, )".format(
+                str.join(", ", ["f(t1[{}], t2[{}])".format(i, i) for i in range(k)])
+            )
         else:
-            s = "def __map(f, t1, x): return ({}, )".format(str.join(', ',['f(t1[{}], x)'.format(i,i) for i in range(k)]))
+            s = "def __map(f, t1, x): return ({}, )".format(
+                str.join(", ", ["f(t1[{}], x)".format(i, i) for i in range(k)])
+            )
     else:
         return None
     d = {}
-    eval(compile(ast.parse(s),'<string>','exec'), d)
-    return d['__map']
+    eval(compile(ast.parse(s), "<string>", "exec"), d)
+    return d["__map"]
 
 
 # not that `fmap` does nothing in python mode...
@@ -133,17 +145,21 @@ def _map(*args):
 #
 # funzip(((1,2), (2,3), (4,3))) -> ((1,2,4),(2,3,3))
 
+
 @generated_jit(nopython=True)
 def funzip(t):
     k = t.count
-    assert(len(set([e.count for e in t.types]))==1)
+    assert len(set([e.count for e in t.types])) == 1
     l = t.types[0].count
-    def print_tuple(t): return "({},)".format(str.join(", ", t))
-    tab =  [ [ 't[{}][{}]'.format(i,j) for i in range(k)] for j in range(l) ]
-    s = "def funzip(t): return {}".format(print_tuple( [print_tuple(e) for e in tab] ))
+
+    def print_tuple(t):
+        return "({},)".format(str.join(", ", t))
+
+    tab = [["t[{}][{}]".format(i, j) for i in range(k)] for j in range(l)]
+    s = "def funzip(t): return {}".format(print_tuple([print_tuple(e) for e in tab]))
     d = {}
-    eval(compile(ast.parse(s),'<string>','exec'), d)
-    return d['funzip']
+    eval(compile(ast.parse(s), "<string>", "exec"), d)
+    return d["funzip"]
 
 
 #####
@@ -155,20 +171,31 @@ def funzip(t):
 
 
 @generated_jit(nopython=True)
-def get_coeffs(X,I):
-    if X.ndim>len(I):
+def get_coeffs(X, I):
+    if X.ndim > len(I):
         print("not implemented yet")
     else:
         from itertools import product
+
         d = len(I)
-        mat = np.array( ["X[{}]".format(str.join(',', e)) for e in product(*[(f"I[{j}]", f"I[{j}]+1") for j in range(d)])] ).reshape((2,)*d)
-        mattotup = lambda mat: mat if isinstance(mat,str) else "({})".format(str.join(',',[mattotup(e) for e in mat]))
+        mat = np.array(
+            [
+                "X[{}]".format(str.join(",", e))
+                for e in product(*[(f"I[{j}]", f"I[{j}]+1") for j in range(d)])
+            ]
+        ).reshape((2,) * d)
+        mattotup = (
+            lambda mat: mat
+            if isinstance(mat, str)
+            else "({})".format(str.join(",", [mattotup(e) for e in mat]))
+        )
         t = mattotup(mat)
         s = "def get_coeffs(X,I): return {}".format(t)
         dd = {}
-        eval(compile(ast.parse(s),'<string>','exec'), dd)
-        return dd['get_coeffs']
+        eval(compile(ast.parse(s), "<string>", "exec"), dd)
+        return dd["get_coeffs"]
         return fun
+
 
 # tensor_reduction(C,l)
 # (in 2d) computes the equivalent of np.einsum('ij,i,j->', C, [1-l[0],l[0]], [1-l[1],l[1]])`
@@ -177,31 +204,39 @@ def get_coeffs(X,I):
 # this one is a temporary implementation (should be merged with old gen_splines* code)
 def gen_tensor_reduction(X, symbs, inds=[]):
     if len(symbs) == 0:
-        return '{}[{}]'.format(X, str.join('][',[str(e) for e in inds]))
+        return "{}[{}]".format(X, str.join("][", [str(e) for e in inds]))
     else:
         h = symbs[0]
         q = symbs[1:]
-        exprs = [  '{}*({})'.format(h if i==1 else '(1-{})'.format(h),gen_tensor_reduction(X, q,inds + [i])) for i in range(2)]
-        return str.join( ' + ', exprs )
+        exprs = [
+            "{}*({})".format(
+                h if i == 1 else "(1-{})".format(h),
+                gen_tensor_reduction(X, q, inds + [i]),
+            )
+            for i in range(2)
+        ]
+        return str.join(" + ", exprs)
 
 
 @generated_jit(nopython=True)
-def tensor_reduction(C,l):
+def tensor_reduction(C, l):
     d = len(l.types)
-    ex = gen_tensor_reduction('C', ['l[{}]'.format(i) for i in range(d)])
+    ex = gen_tensor_reduction("C", ["l[{}]".format(i) for i in range(d)])
     dd = dict()
     s = "def tensor_reduction(C,l): return {}".format(ex)
-    eval(compile(ast.parse(s),'<string>','exec'), dd)
-    return dd['tensor_reduction']
+    eval(compile(ast.parse(s), "<string>", "exec"), dd)
+    return dd["tensor_reduction"]
+
 
 @generated_jit(nopython=True)
 def extract_row(a, n, tup):
     d = len(tup.types)
     dd = {}
-    s = "def extract_row(a, n, tup): return ({},)".format(str.join(', ', [f"a[n,{i}]" for i in range(d)]))
-    eval(compile(ast.parse(s),'<string>','exec'), dd)
-    return dd['extract_row']
-
+    s = "def extract_row(a, n, tup): return ({},)".format(
+        str.join(", ", [f"a[n,{i}]" for i in range(d)])
+    )
+    eval(compile(ast.parse(s), "<string>", "exec"), dd)
+    return dd["extract_row"]
 
 
 # find closest point inside the grid domain
@@ -216,5 +251,5 @@ def project(grid, point):
             s += f"    x_{i} = min(max(point[{i}], grid[{i}][0]), grid[{i}][1])\n"
     s += f"    return ({str.join(', ', ['x_{}'.format(i) for i in range(d)])},)"
     d = {}
-    eval(compile(ast.parse(s),'<string>','exec'), d)
-    return d['__project']
+    eval(compile(ast.parse(s), "<string>", "exec"), d)
+    return d["__project"]

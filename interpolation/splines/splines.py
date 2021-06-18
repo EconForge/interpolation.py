@@ -35,32 +35,30 @@ class CubicSpline:
             `spline(y)`
         """
 
-
         self.d = len(a)
-        assert(len(b) == self.d)
-        assert(len(orders) == self.d)
+        assert len(b) == self.d
+        assert len(orders) == self.d
         self.a = np.array(a, dtype=float)
         self.b = np.array(b, dtype=float)
         self.orders = np.array(orders, dtype=int)
-        self.dtype =  self.a.dtype
+        self.dtype = self.a.dtype
         self.__coeffs__ = None
 
         if values is not None:
             self.set_values(values)
 
-
     def set_values(self, values):
-        '''Set values on the nodes for the function to interpolate.'''
+        """Set values on the nodes for the function to interpolate."""
 
         values = np.array(values, dtype=float)
 
         from .filter_cubic import filter_coeffs
 
-        if not np.all( np.isfinite(values)):
-            raise Exception('Trying to interpolate non-finite values')
+        if not np.all(np.isfinite(values)):
+            raise Exception("Trying to interpolate non-finite values")
 
         sh = self.orders.tolist()
-        sh2 = [ e+2 for e in self.orders]
+        sh2 = [e + 2 for e in self.orders]
 
         values = values.reshape(sh)
 
@@ -69,10 +67,8 @@ class CubicSpline:
         # this should be done without temporary memory allocation
         self.__coeffs__ = filter_coeffs(self.a, self.b, self.orders, values)
 
-
-
     def interpolate(self, points, values=None, with_derivatives=False):
-        '''Interpolate spline at a list of points.
+        """Interpolate spline at a list of points.
 
         Parameters
         ----------
@@ -82,7 +78,7 @@ class CubicSpline:
         Returns
         -------
         values : (array-like) list of point where the spline is evaluated.
-        '''
+        """
 
         import time
 
@@ -90,8 +86,8 @@ class CubicSpline:
 
         grid = tuple((self.a[i], self.b[i], self.orders[i]) for i in range(len(self.a)))
 
-        if not np.all( np.isfinite(points)):
-            raise Exception('Spline interpolator evaluated at non-finite points.')
+        if not np.all(np.isfinite(points)):
+            raise Exception("Spline interpolator evaluated at non-finite points.")
 
         if not with_derivatives:
             if points.ndim == 1:
@@ -100,7 +96,7 @@ class CubicSpline:
             else:
 
                 N, d = points.shape
-                assert(d==self.d)
+                assert d == self.d
                 if values is None:
                     values = np.empty(N, dtype=self.dtype)
                 eval_cubic(grid, self.__coeffs__, points, values)
@@ -108,7 +104,6 @@ class CubicSpline:
 
         else:
             raise Exception("Not implemented.")
-
 
     @property
     def grid(self):
@@ -122,7 +117,7 @@ class CubicSpline:
         """Interpolate the spline at one or many points"""
 
         if s.ndim == 1:
-            res = self.__call__( numpy.atleast_2d(s) )
+            res = self.__call__(numpy.atleast_2d(s))
             return res[0]
 
         return self.interpolate(s)
@@ -138,10 +133,9 @@ class CubicSplines:
     def __init__(self, a, b, orders, values=None):
         """Creates a cubic multi-spline interpolator for many functions on a regular cartesian grid."""
 
-
         self.d = len(a)
-        assert(len(b) == self.d)
-        assert(len(orders) == self.d)
+        assert len(b) == self.d
+        assert len(orders) == self.d
         self.a = np.array(a, dtype=float)
         self.b = np.array(b, dtype=float)
         self.orders = np.array(orders, dtype=int)
@@ -155,18 +149,16 @@ class CubicSplines:
         mvalues = np.array(mvalues, dtype=float)
         n_sp = mvalues.shape[-1]
 
-        mvalues = mvalues.reshape( list(self.orders)+[n_sp])
+        mvalues = mvalues.reshape(list(self.orders) + [n_sp])
 
-        if not np.all( np.isfinite(mvalues)):
-            raise Exception('Trying to interpolate non-finite values')
+        if not np.all(np.isfinite(mvalues)):
+            raise Exception("Trying to interpolate non-finite values")
 
         from .filter_cubic import filter_mcoeffs
-
 
         # number of splines
         self.__mcoeffs__ = filter_mcoeffs(self.a, self.b, self.orders, mvalues)
         self.__mvalues__ = mvalues
-
 
     def interpolate(self, points, diff=False):
         """Interpolate splines at manu points."""
@@ -174,11 +166,15 @@ class CubicSplines:
         import time
 
         if points.ndim == 1:
-            raise Exception('Expected 2d array. Received {}d array'.format(points.ndim))
+            raise Exception("Expected 2d array. Received {}d array".format(points.ndim))
         if points.shape[1] != self.d:
-            raise Exception('Second dimension should be {}. Received : {}.'.format(self.d, points.shape[0]))
-        if not np.all( np.isfinite(points)):
-            raise Exception('Spline interpolator evaluated at non-finite points.')
+            raise Exception(
+                "Second dimension should be {}. Received : {}.".format(
+                    self.d, points.shape[0]
+                )
+            )
+        if not np.all(np.isfinite(points)):
+            raise Exception("Spline interpolator evaluated at non-finite points.")
 
         n_sp = self.__mcoeffs__.shape[-1]
 
@@ -187,20 +183,24 @@ class CubicSplines:
 
         from .eval_splines import eval_cubic
 
-
         if not diff:
-            grid = tuple((self.a[i], self.b[i], self.orders[i]) for i in range(len(self.a)))
+            grid = tuple(
+                (self.a[i], self.b[i], self.orders[i]) for i in range(len(self.a))
+            )
             from .eval_splines import eval_cubic
-            values = np.empty((N,n_sp), dtype=float)
+
+            values = np.empty((N, n_sp), dtype=float)
             eval_cubic(grid, self.__mcoeffs__, points, values)
             return values
         else:
             from .eval_cubic import vec_eval_cubic_splines_G
-            values = np.empty((N,n_sp), dtype=float)
-            dvalues = np.empty((N,d,n_sp), dtype=float)
-            vec_eval_cubic_splines_G(self.a, self.b, self.orders, self.__mcoeffs__, points, values, dvalues)
-            return [values, dvalues]
 
+            values = np.empty((N, n_sp), dtype=float)
+            dvalues = np.empty((N, d, n_sp), dtype=float)
+            vec_eval_cubic_splines_G(
+                self.a, self.b, self.orders, self.__mcoeffs__, points, values, dvalues
+            )
+            return [values, dvalues]
 
     @property
     def grid(self):
@@ -225,7 +225,7 @@ class CubicSplines:
         """
 
         if s.ndim == 1:
-            res = self.__call__( numpy.atleast_2d(s) )
+            res = self.__call__(numpy.atleast_2d(s))
             return res.ravel()
 
         return self.interpolate(s)

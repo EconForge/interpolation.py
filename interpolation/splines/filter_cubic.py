@@ -54,7 +54,6 @@ def solve_deriv_interp_1d(bands, coefs):
     coefs[0] = bands[0, 3] - bands[0, 1] * coefs[1] - bands[0, 2] * coefs[2]
 
 
-
 @njit(cache=True)
 def find_coefs_1d(delta_inv, M, data, coefs):
 
@@ -119,7 +118,7 @@ def filter_coeffs_2d(dinv, data):
 
     # Now, solve in the Y-direction
     for ix in range(Nx):
-        find_coefs_1d(dinv[1], My, coefs[ix,:], coefs[ix,:])
+        find_coefs_1d(dinv[1], My, coefs[ix, :], coefs[ix, :])
 
     return coefs
 
@@ -144,12 +143,12 @@ def filter_coeffs_3d(dinv, data):
     # Now, solve in the Y-direction
     for ix in range(Nx):
         for iz in range(Mz):
-            find_coefs_1d(dinv[1], My, coefs[ix,:, iz], coefs[ix,:, iz])
+            find_coefs_1d(dinv[1], My, coefs[ix, :, iz], coefs[ix, :, iz])
 
     # Now, solve in the Z-direction
     for ix in range(Nx):
         for iy in range(Ny):
-            find_coefs_1d(dinv[2], Mz, coefs[ix, iy,:], coefs[ix, iy,:])
+            find_coefs_1d(dinv[2], Mz, coefs[ix, iy, :], coefs[ix, iy, :])
 
     return coefs
 
@@ -165,7 +164,7 @@ def filter_coeffs_4d(dinv, data):
     Nx = Mx + 2
     Ny = My + 2
     Nz = Mz + 2
-    Nz4 = Mz4 +2
+    Nz4 = Mz4 + 2
 
     coefs = np.zeros((Nx, Ny, Nz, Nz4))
 
@@ -203,13 +202,14 @@ def filter_coeffs(smin, smax, orders, data):
     data = data.reshape(orders)
     return filter_data(dinv, data)
 
+
 def filter_mcoeffs(smin, smax, orders, data):
 
     order = len(smin)
     n_splines = data.shape[-1]
-    coefs = np.zeros(tuple([i + 2 for i in orders])+(n_splines,) )
+    coefs = np.zeros(tuple([i + 2 for i in orders]) + (n_splines,))
     for i in range(n_splines):
-        coefs[...,i] = filter_coeffs(smin, smax, orders, data[..., i])
+        coefs[..., i] = filter_coeffs(smin, smax, orders, data[..., i])
     return coefs
 
 
@@ -222,20 +222,20 @@ def filter_data(dinv, data):
         return filter_coeffs_3d(dinv, data)
     elif len(dinv) == 4:
         return filter_coeffs_4d(dinv, data)
+
+
 #
-
-
-
 
 
 if __name__ == "__main__":
 
     import numpy
-    dinv = numpy.ones(3, dtype=float)*0.5
-    coeffs_0 = numpy.random.random([10,10,10])
-    coeffs_1 = numpy.random.random([100,100,100])
 
-    print(coeffs_0[:2,:2,:2])
+    dinv = numpy.ones(3, dtype=float) * 0.5
+    coeffs_0 = numpy.random.random([10, 10, 10])
+    coeffs_1 = numpy.random.random([100, 100, 100])
+
+    print(coeffs_0[:2, :2, :2])
     import time
 
     t1 = time.time()
@@ -245,5 +245,5 @@ if __name__ == "__main__":
     filter_coeffs_3d(dinv, coeffs_1)
     t3 = time.time()
 
-    print('Elapsed : {}'.format(t2-t1))
-    print('Elapsed : {}'.format(t3-t2))
+    print("Elapsed : {}".format(t2 - t1))
+    print("Elapsed : {}".format(t3 - t2))
