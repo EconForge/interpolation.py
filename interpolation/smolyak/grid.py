@@ -33,12 +33,20 @@ from functools import reduce
 from .util import *
 
 ## --------------- ##
-#- Building Blocks -#
+# - Building Blocks -#
 ## --------------- ##
 
 __all__ = [
-    'num_grid_points', 'm_i', 'cheby2n', 's_n', 'a_chain', 'phi_chain',
-    'smol_inds', 'build_grid', 'build_B', 'SmolyakGrid'
+    "num_grid_points",
+    "m_i",
+    "cheby2n",
+    "s_n",
+    "a_chain",
+    "phi_chain",
+    "smol_inds",
+    "build_grid",
+    "build_B",
+    "SmolyakGrid",
 ]
 
 
@@ -65,11 +73,10 @@ def num_grid_points(d, mu):
         return 2 * d + 1
 
     if mu == 2:
-        return 1 + 4 * d + 4 * d * (d - 1) / 2.
+        return 1 + 4 * d + 4 * d * (d - 1) / 2.0
 
     if mu == 3:
-        return 1 + 8 * d + 12 * d * (d - 1) / 2. + 8 * d * (d - 1) * (
-            d - 2) / 6.
+        return 1 + 8 * d + 12 * d * (d - 1) / 2.0 + 8 * d * (d - 1) * (d - 2) / 6.0
 
 
 def m_i(i):
@@ -97,16 +104,16 @@ def m_i(i):
 
     """
     if i < 0:
-        raise ValueError('i must be positive')
+        raise ValueError("i must be positive")
     elif i == 0:
         return 0
     elif i == 1:
         return 1
     else:
-        return 2**(i - 1) + 1
+        return 2 ** (i - 1) + 1
 
 
-def chebyvalto(x, n, kind=1.):
+def chebyvalto(x, n, kind=1.0):
     """
     Computes first :math:`n` Chebychev polynomials of the first kind
     evaluated at each point in :math:`x` and places them side by side
@@ -143,16 +150,18 @@ def chebyvalto(x, n, kind=1.):
 
     init = np.ones((row, col))
     ret_matrix[:, :col] = x * kind
-    ret_matrix[:, col:2 * col] = 2 * x * ret_matrix[:, :col] - init
+    ret_matrix[:, col : 2 * col] = 2 * x * ret_matrix[:, :col] - init
 
     for i in range(3, n):
-        ret_matrix[:, col*(i-1): col*(i)] = 2 * x * ret_matrix[:, col*(i-2):col*(i-1)] \
-                                         - ret_matrix[:, col*(i-3): col*(i-2)]
+        ret_matrix[:, col * (i - 1) : col * (i)] = (
+            2 * x * ret_matrix[:, col * (i - 2) : col * (i - 1)]
+            - ret_matrix[:, col * (i - 3) : col * (i - 2)]
+        )
 
     return ret_matrix
 
 
-def cheby2n(x, n, kind=1.):
+def cheby2n(x, n, kind=1.0):
     """
     Computes the first :math:`n+1` Chebychev polynomials of the first
     kind evaluated at each point in :math:`x` .
@@ -183,7 +192,7 @@ def cheby2n(x, n, kind=1.):
     """
     x = np.asarray(x)
     dim = x.shape
-    results = np.zeros((n + 1, ) + dim)
+    results = np.zeros((n + 1,) + dim)
     results[0, ...] = np.ones(dim)
     results[1, ...] = x * kind
     for i in range(2, n + 1):
@@ -210,17 +219,17 @@ def s_n(n):
     """
 
     if n == 1:
-        return np.array([0.])
+        return np.array([0.0])
 
     # Apply the necessary transformation to get the nested sequence
-    m_i = 2**(n - 1) + 1
+    m_i = 2 ** (n - 1) + 1
 
     # Create an array of values that will be passed in to calculate
     # the set of values
-    comp_vals = np.arange(1., m_i + 1.)
+    comp_vals = np.arange(1.0, m_i + 1.0)
 
     # Values are - cos(pi(j-1)/(n-1)) for j in [1, 2, ..., n]
-    vals = -1. * np.cos(np.pi * (comp_vals - 1.) / (m_i - 1.))
+    vals = -1.0 * np.cos(np.pi * (comp_vals - 1.0) / (m_i - 1.0))
     vals[np.where(np.abs(vals) < 1e-14)] = 0.0
 
     return vals
@@ -253,8 +262,8 @@ def a_chain(n):
     Sn = s_n(n)
 
     A_chain = {}
-    A_chain[1] = [0.]
-    A_chain[2] = [-1., 1.]
+    A_chain[1] = [0.0]
+    A_chain[2] = [-1.0, 1.0]
 
     # Need a for loop to extract remaining elements
     for seq in range(n, 2, -1):
@@ -296,7 +305,7 @@ def phi_chain(n):
 
     curr_val = 4
     for i in range(3, n + 1):
-        end_val = 2**(i - 1) + 1
+        end_val = 2 ** (i - 1) + 1
         temp = range(curr_val, end_val + 1)
         aphi_chain[i] = temp
         curr_val = end_val + 1
@@ -305,7 +314,7 @@ def phi_chain(n):
 
 
 ## ---------------------- ##
-#- Construction Utilities -#
+# - Construction Utilities -#
 ## ---------------------- ##
 
 
@@ -347,15 +356,17 @@ def smol_inds(d, mu):
     # find all (i1, i2, ... id) such that their sum is in range
     # we want; this will cut down on later iterations
     poss_inds = [
-        el for el in combinations_with_replacement(possible_values, d)
+        el
+        for el in combinations_with_replacement(possible_values, d)
         if d < sum(el) <= d + max_mu
     ]
 
     if isinstance(mu, int):
         true_inds = [[el for el in permute(list(val))] for val in poss_inds]
     else:
-        true_inds = [[el for el in permute(list(val)) if all(el <= mu + 1)]
-                     for val in poss_inds]
+        true_inds = [
+            [el for el in permute(list(val)) if all(el <= mu + 1)] for val in poss_inds
+        ]
 
     # Add the d dimension 1 array so that we don't repeat it a bunch
     # of times
@@ -520,7 +531,7 @@ def build_B(d, mu, pts, b_inds=None, deriv=False):
     Ts = cheby2n(pts.T, m_i(max_mu + 1))
     npolys = len(b_inds)
     npts = pts.shape[0]
-    B = np.empty((npts, npolys), order='F')
+    B = np.empty((npts, npolys), order="F")
     for ind, comb in enumerate(b_inds):
         B[:, ind] = reduce(mul, [Ts[comb[i] - 1, i, :] for i in range(d)])
 
@@ -536,9 +547,12 @@ def build_B(d, mu, pts, b_inds=None, deriv=False):
         for i in range(d):
             for ind, comb in enumerate(b_inds):
                 der_B[ind, i, :] = reduce(
-                    mul, [(Ts[comb[k] - 1, k, :]
-                           if i != k else Us[comb[k] - 1, k, :])
-                          for k in range(d)])
+                    mul,
+                    [
+                        (Ts[comb[k] - 1, k, :] if i != k else Us[comb[k] - 1, k, :])
+                        for k in range(d)
+                    ],
+                )
 
         return B, der_B
 
@@ -633,7 +647,7 @@ def build_B(d, mu, pts, b_inds=None, deriv=False):
 #     return B
 
 ## ------------------ ##
-#- Class: SmolyakGrid -#
+# - Class: SmolyakGrid -#
 ## ------------------ ##
 
 
@@ -717,8 +731,9 @@ class SmolyakGrid(object):
             if lb.size == d:
                 self.lb = lb
             else:
-                raise ValueError("lb must be a scalar or array-like object" +
-                                 "with d elements.")
+                raise ValueError(
+                    "lb must be a scalar or array-like object" + "with d elements."
+                )
 
         if ub is None:  # default is [-1, 1]^d
             self.ub = 1 * np.ones(d)
@@ -729,15 +744,16 @@ class SmolyakGrid(object):
             if ub.size == d:
                 self.ub = ub
             else:
-                raise ValueError("lb must be a scalar or array-like object" +
-                                 "with d elements.")
+                raise ValueError(
+                    "lb must be a scalar or array-like object" + "with d elements."
+                )
 
         if d <= 1:
-            raise ValueError('Number of dimensions must be >= 2')
+            raise ValueError("Number of dimensions must be >= 2")
 
         if isinstance(mu, int):  # Isotropic case
             if mu < 1:
-                raise ValueError('The parameter mu needs to be > 1.')
+                raise ValueError("The parameter mu needs to be > 1.")
 
             self.mu = mu
             self.inds = smol_inds(d, mu)
@@ -750,7 +766,7 @@ class SmolyakGrid(object):
             mu = np.asarray(mu)
 
             if any(mu < 1):
-                raise ValueError('Each element in mu needs to be > 1.')
+                raise ValueError("Each element in mu needs to be > 1.")
 
             if len(mu) != d:
                 raise ValueError("For Anisotropic grid, mu must have len d ")
@@ -770,7 +786,7 @@ class SmolyakGrid(object):
     def __repr__(self):
         npoints = self.cube_grid.shape[0]
         nz_pts = np.count_nonzero(self.B)
-        pct_nz = nz_pts / (npoints**2.)
+        pct_nz = nz_pts / (npoints ** 2.0)
 
         if isinstance(self.mu, int):
             msg = "Smolyak Grid:\n\td: {0} \n\tmu: {1} \n\tnpoints: {2}"
@@ -844,23 +860,21 @@ class SmolyakGrid(object):
             ys = grid[:, 1]
             fig = plt.figure()
             ax = fig.add_subplot(111)
-            ax.set_xlim(xs.min() - .5, xs.max() + .5)
-            ax.set_ylim(ys.min() - .5, ys.max() + .5)
-            ax.plot(xs, ys, '.', markersize=6)
-            ax.set_title("Smolyak grid: $d=%i, \; \\mu=%i$" % (self.d,
-                                                               self.mu))
+            ax.set_xlim(xs.min() - 0.5, xs.max() + 0.5)
+            ax.set_ylim(ys.min() - 0.5, ys.max() + 0.5)
+            ax.plot(xs, ys, ".", markersize=6)
+            ax.set_title("Smolyak grid: $d=%i, \; \\mu=%i$" % (self.d, self.mu))
             plt.show()
         elif grid.shape[1] == 3:
             xs = grid[:, 0]
             ys = grid[:, 1]
             zs = grid[:, 2]
             fig = plt.figure()
-            ax = fig.add_subplot(111, projection='3d')
+            ax = fig.add_subplot(111, projection="3d")
             ax.scatter(xs, ys, zs)
-            ax.set_title("Smolyak grid: $d=%i, \; \\mu=%i$" % (self.d,
-                                                               self.mu))
+            ax.set_title("Smolyak grid: $d=%i, \; \\mu=%i$" % (self.d, self.mu))
             plt.show()
         else:
-            raise ValueError('Can only plot 2 or 3 dimensional problems')
+            raise ValueError("Can only plot 2 or 3 dimensional problems")
 
         return fig

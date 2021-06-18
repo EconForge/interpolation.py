@@ -1,7 +1,6 @@
-
 def B0(u, i, x):
 
-    if (u[i] <= x < u[i + 1]):
+    if u[i] <= x < u[i + 1]:
         return 1.0
     else:
         return 0.0
@@ -9,10 +8,13 @@ def B0(u, i, x):
 
 def B(p, u, i, x):
 
-    if (p == 0):
+    if p == 0:
         return B0(u, i, x)
     else:
-        return (((x - u[i]) / (u[i + p] - u[i])) * B(p - 1, u, i, x) + ((u[i + p + 1] - x) / (u[i + p + 1] - u[i + 1])) * B(p - 1, u, i + 1, x))
+        return ((x - u[i]) / (u[i + p] - u[i])) * B(p - 1, u, i, x) + (
+            (u[i + p + 1] - x) / (u[i + p + 1] - u[i + 1])
+        ) * B(p - 1, u, i + 1, x)
+
 
 #
 # from pylab import *

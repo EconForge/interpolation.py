@@ -6,6 +6,7 @@ from numba import njit
 from typing import Callable
 from math import floor
 
+
 def gen_trex(l, c: Callable, inds=[]):
 
     """Generate expression for tensor reduction"""
@@ -16,37 +17,44 @@ def gen_trex(l, c: Callable, inds=[]):
     # c = lambda i,j: 'C_{}_{}'.format(i,j)
     # gen_tr(l, c)
 
-    if len(l)==0:
+    if len(l) == 0:
         return c(*inds)
     else:
         h = l[0]
         q = l[1:]
         k = len(h)
-        exprs = [  '{}*({})'.format(h[i],gen_trex(q,c, inds=inds + [i])) for i in range(k)]
-        return str.join( ' + ', exprs )
+        exprs = [
+            "{}*({})".format(h[i], gen_trex(q, c, inds=inds + [i])) for i in range(k)
+        ]
+        return str.join(" + ", exprs)
 
-def get_values(d, multispline=False, k=4, i_x='i_x', diffs=None):
+
+def get_values(d, multispline=False, k=4, i_x="i_x", diffs=None):
 
     if diffs is None:
-        diffs = (0,)*d
+        diffs = (0,) * d
 
     l = []
-    for i,diff in enumerate(diffs):
-        if diff==0:
-            tt = tuple(['Φ_{}_{}'.format(i, ik) for ik in range(k)])
-        elif diff==1:
-            tt = tuple(['d_Φ_{}_{}'.format(i, ik) for ik in range(k)])
-        elif diff>=2:
-            tt = tuple(['d_{}_Φ_{}_{}'.format(diff, i,  ik) for ik in range(k)])
+    for i, diff in enumerate(diffs):
+        if diff == 0:
+            tt = tuple(["Φ_{}_{}".format(i, ik) for ik in range(k)])
+        elif diff == 1:
+            tt = tuple(["d_Φ_{}_{}".format(i, ik) for ik in range(k)])
+        elif diff >= 2:
+            tt = tuple(["d_{}_Φ_{}_{}".format(diff, i, ik) for ik in range(k)])
         l.append(tt)
     if multispline:
+
         def c(*arg):
-            inds = [(f'i_{i} + {j}' if j>0 else f'i_{i}') for i,j in enumerate(arg)]
+            inds = [(f"i_{i} + {j}" if j > 0 else f"i_{i}") for i, j in enumerate(arg)]
             return f'C[{str.join(", ", [str(e) for e in inds])}, {i_x}]'
+
     else:
+
         def c(*arg):
-            inds = [(f'i_{i} + {j}' if j>0 else f'i_{i}') for i,j in enumerate(arg)]
+            inds = [(f"i_{i} + {j}" if j > 0 else f"i_{i}") for i, j in enumerate(arg)]
             return f'C[{str.join(", ", [str(e) for e in inds])}]'
+
     s = gen_trex(l, c)
     return s
 
@@ -63,13 +71,15 @@ def source_to_function(source, context={}):
     fundef = tree.body[0]
     funname = fundef.name
     tree = ast.fix_missing_locations(tree)
-    code = compile(tree,'<string>','exec')
+    code = compile(tree, "<string>", "exec")
     exec(code, context, context)
     return context[funname]
+
 
 ###
 # Template to compute basis functions
 ###
+
 
 def blending_formula(k=1, l=0, i=0):
     """
@@ -77,12 +87,12 @@ def blending_formula(k=1, l=0, i=0):
     l: diff order
     i: current dimension
     """
-    if k==1:
-        if l==0:
+    if k == 1:
+        if l == 0:
             s = f"""\
 Φ_{i}_{0} = 1.0 - λ_{i}
 Φ_{i}_{1} = λ_{i}"""
-        elif l==1:
+        elif l == 1:
             s = f"""\
 d_Φ_{i}_{0} = -1.0*δ_{i}
 d_Φ_{i}_{1} = 1.0*δ_{i}"""
@@ -91,22 +101,25 @@ d_Φ_{i}_{1} = 1.0*δ_{i}"""
 d_{l}_Φ_{i}_{0} = 0.0
 d_{l}_Φ_{i}_{1} = 0.0"""
 
-    elif k==3:
+    elif k == 3:
 
         import tempita
-        if l==0:
+
+        if l == 0:
             template_0 = """
 μ_{{i}}_0 = λ_{{i}}*λ_{{i}}*λ_{{i}};  μ_{{i}}_1 = λ_{{i}}*λ_{{i}};  μ_{{i}}_2 = λ_{{i}};  μ_{{i}}_3 = 1.0;
         """
-            phi = lambda i,j: "Φ_{}_{}".format(i,j)
-        elif l==1:
+            phi = lambda i, j: "Φ_{}_{}".format(i, j)
+        elif l == 1:
             template_0 = """
 μ_{{i}}_0 = 3*λ_{{i}}*λ_{{i}}*δ_{{i}};  μ_{{i}}_1 = 2*λ_{{i}}*δ_{{i}};  μ_{{i}}_2 = δ_{{i}};  μ_{{i}}_3 = 0.0;
         """
-            phi = lambda i,j: "d_Φ_{}_{}".format(i,j)
+            phi = lambda i, j: "d_Φ_{}_{}".format(i, j)
         else:
             raise Exception("Not implemented")
-        template = tempita.Template(template_0 + """
+        template = tempita.Template(
+            template_0
+            + """
 {{for j in range(4)}}
 {{phi(i,j)}}= 0.0
 {{endfor}}
@@ -122,7 +135,8 @@ else:
     {{for j in range(4)}}
     {{phi(i,j)}} = (Cd[{{j}},0]*μ_{{i}}_0 + Cd[{{j}},1]*μ_{{i}}_1 + Cd[{{j}},2]*μ_{{i}}_2 + Cd[{{j}},3]*μ_{{i}}_3)
     {{endfor}}
-""")
+"""
+        )
         s = template.substitute(i=i, phi=phi)
 
     else:
@@ -407,21 +421,27 @@ def eval_spline(grid, C, points, out=None, order=1, diff="None", extrap_mode='li
 import tempita
 
 
-
-def get_code_spline(d, k=1, vector_valued=False, vectorized=False, allocate=False, grid_types=None, extrap_mode=None, orders=None):
-
+def get_code_spline(
+    d,
+    k=1,
+    vector_valued=False,
+    vectorized=False,
+    allocate=False,
+    grid_types=None,
+    extrap_mode=None,
+    orders=None,
+):
 
     if orders is None:
-        bases_orders = [(0,)]*d
+        bases_orders = [(0,)] * d
     else:
         bases_orders = [sorted(list(set(e))) for e in zip(*orders)]
 
     if grid_types is None:
-        grid_types = ['uniform']*d
+        grid_types = ["uniform"] * d
 
-    if set(grid_types) != set(['uniform']) and k>1:
+    if set(grid_types) != set(["uniform"]) and k > 1:
         raise Exception("Nonuniform grids are only supported for linear splines.")
-
 
     templ = tempita.Template(eval_template)
     templ_vec = tempita.Template(eval_template_vectorized)
@@ -430,17 +450,29 @@ def get_code_spline(d, k=1, vector_valued=False, vectorized=False, allocate=Fals
     else:
         template = templ
 
-    code = ( template.substitute(d=d, vector_valued=vector_valued, get_values=get_values,
-            allocate=allocate, grid_types=grid_types, extrap_mode=extrap_mode, orders=orders, bases_orders=bases_orders,
-        blending_formula=blending_formula, indent=indent, k=k) )
+    code = template.substitute(
+        d=d,
+        vector_valued=vector_valued,
+        get_values=get_values,
+        allocate=allocate,
+        grid_types=grid_types,
+        extrap_mode=extrap_mode,
+        orders=orders,
+        bases_orders=bases_orders,
+        blending_formula=blending_formula,
+        indent=indent,
+        k=k,
+    )
 
     return (code)[1:]
+
 
 def get_code_linear(d, **kwargs):
     kw = {}
     kw.update(**kwargs)
 
     return get_code_spline(d, **kw)
+
 
 def get_code_cubic(d, **kwargs):
     kw = {}
@@ -449,5 +481,5 @@ def get_code_cubic(d, **kwargs):
     return get_code_spline(d, k=3, **kw)
 
 
-def indent(txt,levels=1):
-    return str.join('\n', ['    '*levels + e for e in str.split( txt,"\n")])
+def indent(txt, levels=1):
+    return str.join("\n", ["    " * levels + e for e in str.split(txt, "\n")])

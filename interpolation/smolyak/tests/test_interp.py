@@ -5,11 +5,11 @@ from ..interp import SmolyakInterp
 import numpy as np
 
 # func = lambda x, y: np.exp(x**2 - y**2)
-func = lambda x, y: x**2 - y**2
+func = lambda x, y: x ** 2 - y ** 2
 
 
 func1 = lambda points: func(points[:, 0], points[:, 1])
-func1_prime = lambda x: np.column_stack([2 * x[:, 0], -2*x[:, 1]])
+func1_prime = lambda x: np.column_stack([2 * x[:, 0], -2 * x[:, 1]])
 
 func2 = lambda x: np.sum(x ** 2, axis=1)
 func2_prime = lambda x: 2 * x
@@ -33,7 +33,7 @@ def interp_2d(d, mu, f):
     np.random.seed(42)
     test_points = np.random.randn(100, d)
     # Make sure it is bounded by -2, 2
-    test_points = 2*test_points/np.max(np.abs(test_points))
+    test_points = 2 * test_points / np.max(np.abs(test_points))
 
     true_vals = f(test_points)
     interp_vals = si.interpolate(test_points)
@@ -47,7 +47,7 @@ def interp_2d(d, mu, f):
 
 
 def interp_2d1(d, mu, f):
-    sg = SmolyakGrid(d, mu, np.array([-1, -1.]), np.array([1., 1.]))
+    sg = SmolyakGrid(d, mu, np.array([-1, -1.0]), np.array([1.0, 1.0]))
 
     f_on_grid = f(sg.grid)
 
@@ -56,7 +56,7 @@ def interp_2d1(d, mu, f):
     np.random.seed(42)
     test_points = np.random.randn(100, 2)
     # Make sure it is bounded by -2, 2
-    test_points = test_points/np.max(np.abs(test_points))
+    test_points = test_points / np.max(np.abs(test_points))
 
     true_vals = f(test_points)
     interp_vals = si.interpolate(test_points)
@@ -78,7 +78,7 @@ def interp2d_derivs(d, mu, f, f_prime, bds=1, verbose=True):
     np.random.seed(42)
     test_points = np.random.randn(100, d)
     # Make sure it is bounded by -2, 2
-    test_points = (bds - 0.05) * test_points/np.max(np.abs(test_points))
+    test_points = (bds - 0.05) * test_points / np.max(np.abs(test_points))
 
     true_vals = f(test_points)
     true_vals_prime = f_prime(test_points)
@@ -104,13 +104,14 @@ def interp2d_derivs(d, mu, f, f_prime, bds=1, verbose=True):
     # return i_vals_prime
 
 
-
 # functions starting with test_ are
 # discovered and automatically run by nosetests
+
 
 def test_interp_2d():
 
     interp_2d(2, 3, func1)
+
 
 def test_interp_2d1():
 

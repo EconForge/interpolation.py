@@ -8,8 +8,13 @@ from .option_types import options as extrap_options
 # dummy functions
 def UCGrid(*args):
     return tuple(args)
+
+
 def CGrid(*args):
     return tuple(args)
+
+
 def nodes(grid):
     from interpolation.cartesian import mlinspace
-    return mlinspace([g[0] for g in grid],[g[1] for g in grid],[g[2] for g in grid])
+
+    return mlinspace([g[0] for g in grid], [g[1] for g in grid], [g[2] for g in grid])

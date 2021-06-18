@@ -66,7 +66,7 @@ def n_complete(n, d):
         tmp = 1
         denom *= i + 1
         for j in range(i + 1):
-            tmp *= (n + j)
+            tmp *= n + j
 
         # out += tmp // math.factorial(i + 1)
         out += tmp // denom
@@ -255,8 +255,7 @@ def _complete_poly_impl(z, d, out):
                     for i4 in range(i3, nvar):
                         ix += 1
                         for k in range(nobs):
-                            out[ix, k] = (z[i1, k] * z[i2, k] * z[i3, k] *
-                                          z[i4, k])
+                            out[ix, k] = z[i1, k] * z[i2, k] * z[i3, k] * z[i4, k]
 
         return
 
@@ -275,14 +274,14 @@ def _complete_poly_impl(z, d, out):
                     for i4 in range(i3, nvar):
                         ix += 1
                         for k in range(nobs):
-                            out[ix, k] = (z[i1, k] * z[i2, k] * z[i3, k] *
-                                          z[i4, k])
+                            out[ix, k] = z[i1, k] * z[i2, k] * z[i3, k] * z[i4, k]
 
                         for i5 in range(i4, nvar):
                             ix += 1
                             for k in range(nobs):
-                                out[ix, k] = (z[i1, k] * z[i2, k] * z[i3, k] *
-                                              z[i4, k] * z[i5, k])
+                                out[ix, k] = (
+                                    z[i1, k] * z[i2, k] * z[i3, k] * z[i4, k] * z[i5, k]
+                                )
 
         return
 
@@ -354,8 +353,8 @@ def _complete_poly_der_impl_vec(z, d, der, out):
     if d >= 1:
         # All linear terms except for one (the variable itself) are 0
         for i in range(nvar):
-            out[i+1] = 0.0
-        out[der+1] = 1.0
+            out[i + 1] = 0.0
+        out[der + 1] = 1.0
 
     if d == 1:
         return
@@ -365,76 +364,88 @@ def _complete_poly_der_impl_vec(z, d, der, out):
     if d == 2:
         for i1 in range(nvar):
             # Get coefficients and values
-            (c1, t1) = (1, 1.0) if i1==der else (0, z[i1])
+            (c1, t1) = (1, 1.0) if i1 == der else (0, z[i1])
             for i2 in range(i1, nvar):
-                (c2, t2) = (c1+1, 1.0) if i2==der else (c1, z[i2])
+                (c2, t2) = (c1 + 1, 1.0) if i2 == der else (c1, z[i2])
 
                 # Update index and out
                 ix += 1
-                out[ix] = c2 * t1*t2 * z[der]**(c2-1) if c2>0 else 0.0
+                out[ix] = c2 * t1 * t2 * z[der] ** (c2 - 1) if c2 > 0 else 0.0
 
         return
 
     if d == 3:
         for i1 in range(nvar):
             # Get coefficients and values
-            (c1, t1) = (1, 1.0) if i1==der else (0, z[i1])
+            (c1, t1) = (1, 1.0) if i1 == der else (0, z[i1])
             for i2 in range(i1, nvar):
-                (c2, t2) = (c1+1, 1.0) if i2==der else (c1, z[i2])
+                (c2, t2) = (c1 + 1, 1.0) if i2 == der else (c1, z[i2])
                 ix += 1
-                out[ix] = c2 * t1*t2 * z[der]**(c2-1) if c2>0 else 0.0
+                out[ix] = c2 * t1 * t2 * z[der] ** (c2 - 1) if c2 > 0 else 0.0
 
                 for i3 in range(i2, nvar):
-                    (c3, t3) = (c2+1, 1.0) if i3==der else (c2, z[i3])
+                    (c3, t3) = (c2 + 1, 1.0) if i3 == der else (c2, z[i3])
                     ix += 1
-                    out[ix] = c3 * t1*t2*t3 * z[der]**(c3-1) if c3>0 else 0.0
+                    out[ix] = c3 * t1 * t2 * t3 * z[der] ** (c3 - 1) if c3 > 0 else 0.0
 
         return
 
     if d == 4:
         for i1 in range(nvar):
             # Get coefficients and values
-            (c1, t1) = (1, 1.0) if i1==der else (0, z[i1])
+            (c1, t1) = (1, 1.0) if i1 == der else (0, z[i1])
             for i2 in range(i1, nvar):
-                (c2, t2) = (c1+1, 1.0) if i2==der else (c1, z[i2])
+                (c2, t2) = (c1 + 1, 1.0) if i2 == der else (c1, z[i2])
                 ix += 1
-                out[ix] = c2 * t1*t2* z[der]**(c2-1) if c2>0 else 0.0
+                out[ix] = c2 * t1 * t2 * z[der] ** (c2 - 1) if c2 > 0 else 0.0
 
                 for i3 in range(i2, nvar):
-                    (c3, t3) = (c2+1, 1.0) if i3==der else (c2, z[i3])
+                    (c3, t3) = (c2 + 1, 1.0) if i3 == der else (c2, z[i3])
                     ix += 1
-                    out[ix] = c3*t1*t2*t3*z[der]**(c3-1) if c3>0 else 0.0
+                    out[ix] = c3 * t1 * t2 * t3 * z[der] ** (c3 - 1) if c3 > 0 else 0.0
 
                     for i4 in range(i3, nvar):
-                        (c4, t4) = (c3+1, 1.0) if i4==der else (c3, z[i4])
+                        (c4, t4) = (c3 + 1, 1.0) if i4 == der else (c3, z[i4])
                         ix += 1
-                        out[ix] = c4*t1*t2*t3*t4*z[der]**(c4-1) if c4>0 else 0.0
+                        out[ix] = (
+                            c4 * t1 * t2 * t3 * t4 * z[der] ** (c4 - 1)
+                            if c4 > 0
+                            else 0.0
+                        )
 
         return
 
     if d == 5:
         for i1 in range(nvar):
             # Get coefficients and values
-            (c1, t1) = (1, 1.0) if i1==der else (0, z[i1])
+            (c1, t1) = (1, 1.0) if i1 == der else (0, z[i1])
             for i2 in range(i1, nvar):
-                (c2, t2) = (c1+1, 1.0) if i2==der else (c1, z[i2])
+                (c2, t2) = (c1 + 1, 1.0) if i2 == der else (c1, z[i2])
                 ix += 1
-                out[ix] = c2 * t1*t2* z[der]**(c2-1) if c2>0 else 0.0
+                out[ix] = c2 * t1 * t2 * z[der] ** (c2 - 1) if c2 > 0 else 0.0
 
                 for i3 in range(i2, nvar):
-                    (c3, t3) = (c2+1, 1.0) if i3==der else (c2, z[i3])
+                    (c3, t3) = (c2 + 1, 1.0) if i3 == der else (c2, z[i3])
                     ix += 1
-                    out[ix] = c3 * t1*t2*t3* z[der]**(c3-1) if c3>0 else 0.0
+                    out[ix] = c3 * t1 * t2 * t3 * z[der] ** (c3 - 1) if c3 > 0 else 0.0
 
                     for i4 in range(i3, nvar):
-                        (c4, t4) = (c3+1, 1.0) if i4==der else (c3, z[i4])
+                        (c4, t4) = (c3 + 1, 1.0) if i4 == der else (c3, z[i4])
                         ix += 1
-                        out[ix] = c4*t1*t2*t3*t4*z[der]**(c4-1) if c4>0 else 0.0
+                        out[ix] = (
+                            c4 * t1 * t2 * t3 * t4 * z[der] ** (c4 - 1)
+                            if c4 > 0
+                            else 0.0
+                        )
 
                         for i5 in range(i4, nvar):
-                            (c5, t5) = (c4+1, 1.0) if i5==der else (c4, z[i5])
+                            (c5, t5) = (c4 + 1, 1.0) if i5 == der else (c4, z[i5])
                             ix += 1
-                            out[ix] = c5*t1*t2*t3*t4*t5*z[der]**(c5-1) if c5>0 else 0.0
+                            out[ix] = (
+                                c5 * t1 * t2 * t3 * t4 * t5 * z[der] ** (c5 - 1)
+                                if c5 > 0
+                                else 0.0
+                            )
 
         return
 
@@ -453,11 +464,11 @@ def _complete_poly_der_impl(z, d, der, out):
         # Make sure everything has zeros in it
         for i in range(nvar):
             for k in range(nobs):
-                out[i+1, k] = 0.0
+                out[i + 1, k] = 0.0
 
         # Then place ones where they belong in variable
         for k in range(nobs):
-            out[der+1, k] = 1.0
+            out[der + 1, k] = 1.0
 
     if d == 1:
         return
@@ -469,9 +480,9 @@ def _complete_poly_der_impl(z, d, der, out):
             for i2 in range(i1, nvar):
                 ix += 1
                 for k in range(nobs):
-                    c1, t1 = (1, 1.0) if i1==der else (0, z[i1, k])
-                    c2, t2 = (c1+1, 1.0) if i2==der else (c1, z[i2, k])
-                    out[ix, k] = c2*t1*t2*z[der, k]**(c2-1) if c2>0 else 0.0
+                    c1, t1 = (1, 1.0) if i1 == der else (0, z[i1, k])
+                    c2, t2 = (c1 + 1, 1.0) if i2 == der else (c1, z[i2, k])
+                    out[ix, k] = c2 * t1 * t2 * z[der, k] ** (c2 - 1) if c2 > 0 else 0.0
 
         return
 
@@ -480,17 +491,19 @@ def _complete_poly_der_impl(z, d, der, out):
             for i2 in range(i1, nvar):
                 ix += 1
                 for k in range(nobs):
-                    c1, t1 = (1, 1.0) if i1==der else (0, z[i1, k])
-                    c2, t2 = (c1+1, 1.0) if i2==der else (c1, z[i2, k])
-                    out[ix, k] = c2*t1*t2*z[der, k]**(c2-1) if c2>0 else 0.0
+                    c1, t1 = (1, 1.0) if i1 == der else (0, z[i1, k])
+                    c2, t2 = (c1 + 1, 1.0) if i2 == der else (c1, z[i2, k])
+                    out[ix, k] = c2 * t1 * t2 * z[der, k] ** (c2 - 1) if c2 > 0 else 0.0
 
                 for i3 in range(i2, nvar):
                     ix += 1
                     for k in range(nobs):
-                        c1, t1 = (1, 1.0) if i1==der else (0, z[i1, k])
-                        c2, t2 = (c1+1, 1.0) if i2==der else (c1, z[i2, k])
-                        c3, t3 = (c2+1, 1.0) if i3==der else (c2, z[i3, k])
-                        out[ix, k] = c3*t1*t2*t3*z[der, k]**(c3-1) if c3>0 else 0.0
+                        c1, t1 = (1, 1.0) if i1 == der else (0, z[i1, k])
+                        c2, t2 = (c1 + 1, 1.0) if i2 == der else (c1, z[i2, k])
+                        c3, t3 = (c2 + 1, 1.0) if i3 == der else (c2, z[i3, k])
+                        out[ix, k] = (
+                            c3 * t1 * t2 * t3 * z[der, k] ** (c3 - 1) if c3 > 0 else 0.0
+                        )
 
         return
 
@@ -499,26 +512,32 @@ def _complete_poly_der_impl(z, d, der, out):
             for i2 in range(i1, nvar):
                 ix += 1
                 for k in range(nobs):
-                    c1, t1 = (1, 1.0) if i1==der else (0, z[i1, k])
-                    c2, t2 = (c1+1, 1.0) if i2==der else (c1, z[i2, k])
-                    out[ix, k] = c2*t1*t2*z[der, k]**(c2-1) if c2>0 else 0.0
+                    c1, t1 = (1, 1.0) if i1 == der else (0, z[i1, k])
+                    c2, t2 = (c1 + 1, 1.0) if i2 == der else (c1, z[i2, k])
+                    out[ix, k] = c2 * t1 * t2 * z[der, k] ** (c2 - 1) if c2 > 0 else 0.0
 
                 for i3 in range(i2, nvar):
                     ix += 1
                     for k in range(nobs):
-                        c1, t1 = (1, 1.0) if i1==der else (0, z[i1, k])
-                        c2, t2 = (c1+1, 1.0) if i2==der else (c1, z[i2, k])
-                        c3, t3 = (c2+1, 1.0) if i3==der else (c2, z[i3, k])
-                        out[ix, k] = c3*t1*t2*t3*z[der, k]**(c3-1) if c3>0 else 0.0
+                        c1, t1 = (1, 1.0) if i1 == der else (0, z[i1, k])
+                        c2, t2 = (c1 + 1, 1.0) if i2 == der else (c1, z[i2, k])
+                        c3, t3 = (c2 + 1, 1.0) if i3 == der else (c2, z[i3, k])
+                        out[ix, k] = (
+                            c3 * t1 * t2 * t3 * z[der, k] ** (c3 - 1) if c3 > 0 else 0.0
+                        )
 
                     for i4 in range(i3, nvar):
                         ix += 1
                         for k in range(nobs):
-                            c1, t1 = (1, 1.0) if i1==der else (0, z[i1, k])
-                            c2, t2 = (c1+1, 1.0) if i2==der else (c1, z[i2, k])
-                            c3, t3 = (c2+1, 1.0) if i3==der else (c2, z[i3, k])
-                            c4, t4 = (c3+1, 1.0) if i4==der else (c3, z[i4, k])
-                            out[ix, k] = c4*t1*t2*t3*t4*z[der, k]**(c4-1) if c4>0 else 0.0
+                            c1, t1 = (1, 1.0) if i1 == der else (0, z[i1, k])
+                            c2, t2 = (c1 + 1, 1.0) if i2 == der else (c1, z[i2, k])
+                            c3, t3 = (c2 + 1, 1.0) if i3 == der else (c2, z[i3, k])
+                            c4, t4 = (c3 + 1, 1.0) if i4 == der else (c3, z[i4, k])
+                            out[ix, k] = (
+                                c4 * t1 * t2 * t3 * t4 * z[der, k] ** (c4 - 1)
+                                if c4 > 0
+                                else 0.0
+                            )
 
         return
 
@@ -527,42 +546,51 @@ def _complete_poly_der_impl(z, d, der, out):
             for i2 in range(i1, nvar):
                 ix += 1
                 for k in range(nobs):
-                    c1, t1 = (1, 1.0) if i1==der else (0, z[i1, k])
-                    c2, t2 = (c1+1, 1.0) if i2==der else (c1, z[i2, k])
-                    out[ix, k] = c2*t1*t2*z[der, k]**(c2-1) if c2>0 else 0.0
+                    c1, t1 = (1, 1.0) if i1 == der else (0, z[i1, k])
+                    c2, t2 = (c1 + 1, 1.0) if i2 == der else (c1, z[i2, k])
+                    out[ix, k] = c2 * t1 * t2 * z[der, k] ** (c2 - 1) if c2 > 0 else 0.0
 
                 for i3 in range(i2, nvar):
                     ix += 1
                     for k in range(nobs):
-                        c1, t1 = (1, 1.0) if i1==der else (0, z[i1, k])
-                        c2, t2 = (c1+1, 1.0) if i2==der else (c1, z[i2, k])
-                        c3, t3 = (c2+1, 1.0) if i3==der else (c2, z[i3, k])
-                        out[ix, k] = c3*t1*t2*t3*z[der, k]**(c3-1) if c3>0 else 0.0
+                        c1, t1 = (1, 1.0) if i1 == der else (0, z[i1, k])
+                        c2, t2 = (c1 + 1, 1.0) if i2 == der else (c1, z[i2, k])
+                        c3, t3 = (c2 + 1, 1.0) if i3 == der else (c2, z[i3, k])
+                        out[ix, k] = (
+                            c3 * t1 * t2 * t3 * z[der, k] ** (c3 - 1) if c3 > 0 else 0.0
+                        )
 
                     for i4 in range(i3, nvar):
                         ix += 1
                         for k in range(nobs):
-                            c1, t1 = (1, 1.0) if i1==der else (0, z[i1, k])
-                            c2, t2 = (c1+1, 1.0) if i2==der else (c1, z[i2, k])
-                            c3, t3 = (c2+1, 1.0) if i3==der else (c2, z[i3, k])
-                            c4, t4 = (c3+1, 1.0) if i4==der else (c3, z[i4, k])
-                            out[ix, k] = c4*t1*t2*t3*t4*z[der, k]**(c4-1) if c4>0 else 0.0
+                            c1, t1 = (1, 1.0) if i1 == der else (0, z[i1, k])
+                            c2, t2 = (c1 + 1, 1.0) if i2 == der else (c1, z[i2, k])
+                            c3, t3 = (c2 + 1, 1.0) if i3 == der else (c2, z[i3, k])
+                            c4, t4 = (c3 + 1, 1.0) if i4 == der else (c3, z[i4, k])
+                            out[ix, k] = (
+                                c4 * t1 * t2 * t3 * t4 * z[der, k] ** (c4 - 1)
+                                if c4 > 0
+                                else 0.0
+                            )
 
                         for i5 in range(i4, nvar):
                             ix += 1
                             for k in range(nobs):
-                                c1, t1 = (1, 1.0) if i1==der else (0, z[i1, k])
-                                c2, t2 = (c1+1, 1.0) if i2==der else (c1, z[i2, k])
-                                c3, t3 = (c2+1, 1.0) if i3==der else (c2, z[i3, k])
-                                c4, t4 = (c3+1, 1.0) if i4==der else (c3, z[i4, k])
-                                c5, t5 = (c4+1, 1.0) if i5==der else (c4, z[i5, k])
-                                out[ix, k] = c5*t1*t2*t3*t4*t5*z[der, k]**(c5-1) if c5>0 else 0.0
+                                c1, t1 = (1, 1.0) if i1 == der else (0, z[i1, k])
+                                c2, t2 = (c1 + 1, 1.0) if i2 == der else (c1, z[i2, k])
+                                c3, t3 = (c2 + 1, 1.0) if i3 == der else (c2, z[i3, k])
+                                c4, t4 = (c3 + 1, 1.0) if i4 == der else (c3, z[i4, k])
+                                c5, t5 = (c4 + 1, 1.0) if i5 == der else (c4, z[i5, k])
+                                out[ix, k] = (
+                                    c5 * t1 * t2 * t3 * t4 * t5 * z[der, k] ** (c5 - 1)
+                                    if c5 > 0
+                                    else 0.0
+                                )
 
         return
 
 
 class CompletePolynomial:
-
     def __init__(self, n, d):
         self.n = n
         self.d = d
@@ -584,4 +612,3 @@ class CompletePolynomial:
 
         Phi = complete_polynomial(s.T, self.d).T
         return np.dot(Phi, self.coefs)
-

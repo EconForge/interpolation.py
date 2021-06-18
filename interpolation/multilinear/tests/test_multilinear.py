@@ -5,62 +5,86 @@ from numba import typeof
 import numpy as np
 from interpolation.multilinear.fungen import get_index
 
+
 def test_barycentric_indexes():
 
     # irregular grid
     gg = np.array([0.0, 1.0])
-    assert(get_index(gg,-0.1) == (0,-0.1))
-    assert(get_index(gg,0.5) == (0, 0.5))
-    assert(get_index(gg,1.1) == (0, 1.1))
+    assert get_index(gg, -0.1) == (0, -0.1)
+    assert get_index(gg, 0.5) == (0, 0.5)
+    assert get_index(gg, 1.1) == (0, 1.1)
 
     # regular grid
-    gg = (0.0,1.0,2)
-    assert(get_index(gg,-0.1) == (0,-0.1))
-    assert(get_index(gg,0.5) == (0,0.5))
-    assert(get_index(gg,1.1) == (0,1.1))
+    gg = (0.0, 1.0, 2)
+    assert get_index(gg, -0.1) == (0, -0.1)
+    assert get_index(gg, 0.5) == (0, 0.5)
+    assert get_index(gg, 1.1) == (0, 1.1)
 
 
 # 2d-vecev-scalar
-a2 = (linspace(0,1,10), random((10)), random((200,1)))
+a2 = (linspace(0, 1, 10), random((10)), random((200, 1)))
 # 2d-pointev-scalar
-a3 = (linspace(0,1,10), random((10)), array([0.5]))
+a3 = (linspace(0, 1, 10), random((10)), array([0.5]))
 # 2d-tupev-scalar
-a4 = (linspace(0,1,10), random((10)), (0.5,))
+a4 = (linspace(0, 1, 10), random((10)), (0.5,))
 # 2d-fev-scalar
-a5 = (linspace(0,1,10), random((10)), 0.5)
+a5 = (linspace(0, 1, 10), random((10)), 0.5)
 
 # 2d-carev-vec
-b1 = (linspace(0,1,10), random((10,3)), linspace(0,1,200))
+b1 = (linspace(0, 1, 10), random((10, 3)), linspace(0, 1, 200))
 # 2d-vecev-vec
-b2 = (linspace(0,1,10), random((10,3)), random((200,1)))
+b2 = (linspace(0, 1, 10), random((10, 3)), random((200, 1)))
 # 2d-pointev-vec
-b3 = (linspace(0,1,10), random((10,3)), array([0.5]))
+b3 = (linspace(0, 1, 10), random((10, 3)), array([0.5]))
 # 2d-tupev-vec
-b4 = (linspace(0,1,10), random((10,3)), (0.5,)) # unsupported
+b4 = (linspace(0, 1, 10), random((10, 3)), (0.5,))  # unsupported
 # 2d-fev-vec
-b5 = (linspace(0,1,10), random((10,3)), 9.5) # unsupported
+b5 = (linspace(0, 1, 10), random((10, 3)), 9.5)  # unsupported
 
 
 # 2d-carev-scalar
-c1 = (linspace(0,1,10), linspace(0,1,20), random((10,20)), linspace(0,1,200), linspace(0,1,200))
+c1 = (
+    linspace(0, 1, 10),
+    linspace(0, 1, 20),
+    random((10, 20)),
+    linspace(0, 1, 200),
+    linspace(0, 1, 200),
+)
 # 2d-vecev-scalar
-c2 = (linspace(0,1,10), linspace(0,1,20), random((10,20)), random((200,2)))
+c2 = (linspace(0, 1, 10), linspace(0, 1, 20), random((10, 20)), random((200, 2)))
 # 2d-pointev-scalar
-c3 = (linspace(0,1,10), linspace(0,1,20), random((10,20)), array([0.5,2.0]))
+c3 = (linspace(0, 1, 10), linspace(0, 1, 20), random((10, 20)), array([0.5, 2.0]))
 # 2d-tupev-scalar
-c4 = (linspace(0,1,10), linspace(0,1,20), random((10,20)), (0.5,2.0))
+c4 = (linspace(0, 1, 10), linspace(0, 1, 20), random((10, 20)), (0.5, 2.0))
 # 2d-fev-scalar
-c5 = (linspace(0,1,10), linspace(0,1,20), random((10,20)), 0.5, 2.0)
+c5 = (linspace(0, 1, 10), linspace(0, 1, 20), random((10, 20)), 0.5, 2.0)
 
 # 2d-carev-vecvec
-d1 = (linspace(0,1,10), linspace(0,1,20), random((10,20,3)), linspace(0,1,200), linspace(0,1,200))
+d1 = (
+    linspace(0, 1, 10),
+    linspace(0, 1, 20),
+    random((10, 20, 3)),
+    linspace(0, 1, 200),
+    linspace(0, 1, 200),
+)
 # 2d-vecev-vec
-d2 = (linspace(0,1,10), linspace(0,1,20), random((10,20,3)), random((200,2)))
+d2 = (linspace(0, 1, 10), linspace(0, 1, 20), random((10, 20, 3)), random((200, 2)))
 # 2d-pointev-vec
-d3 = (linspace(0,1,10), linspace(0,1,20), random((10,20,3)), array([0.5,2.0]))
+d3 = (linspace(0, 1, 10), linspace(0, 1, 20), random((10, 20, 3)), array([0.5, 2.0]))
 # 2d-tupev-vec
-d4 = (linspace(0,1,10), linspace(0,1,20), random((10,20,3)), (0.5,2.0)) # unsupported (return type not known)
-d5 = (linspace(0,1,10), linspace(0,1,20), random((10,20,3)), 0.5, 2.0) # unsupported (return type not known)
+d4 = (
+    linspace(0, 1, 10),
+    linspace(0, 1, 20),
+    random((10, 20, 3)),
+    (0.5, 2.0),
+)  # unsupported (return type not known)
+d5 = (
+    linspace(0, 1, 10),
+    linspace(0, 1, 20),
+    random((10, 20, 3)),
+    0.5,
+    2.0,
+)  # unsupported (return type not known)
 
 
 tests = [a2, a3, a4, c1, c2, c3, c4]
@@ -77,17 +101,17 @@ def test_mlinterp():
     from interpolation import mlinterp
 
     # from interpolation.multilinear.mlinterp import mlininterp, mlininterp_vec
-    x1 = np.linspace(0,1,10)
-    x2 = np.linspace(0,1,20)
-    y = np.random.random((10,20))
+    x1 = np.linspace(0, 1, 10)
+    x2 = np.linspace(0, 1, 20)
+    y = np.random.random((10, 20))
 
-    z1 = np.linspace(0,1,30)
-    z2 = np.linspace(0,1,30)
+    z1 = np.linspace(0, 1, 30)
+    z2 = np.linspace(0, 1, 30)
 
-    pp = np.random.random((2000,2))
+    pp = np.random.random((2000, 2))
 
-    res0 = mlinterp((x1,x2), y, pp)
-    res0 = mlinterp((x1,x2), y, (0.1, 0.2))
+    res0 = mlinterp((x1, x2), y, pp)
+    res0 = mlinterp((x1, x2), y, (0.1, 0.2))
 
 
 def test_multilinear():
@@ -104,6 +128,7 @@ def test_multilinear():
             print(f"{tt}: {rr.shape}")
         except:
             print(f"{tt}: OK")
+
 
 #
 # exit()

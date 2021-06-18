@@ -26,9 +26,9 @@ import numba
 
 
 # this is a horrible workaround
-CONSTANT = ((None,),(None,)*1)
-LINEAR = ((None,),(None,)*2)
-NEAREST = ((None,),(None,)*3)
+CONSTANT = ((None,), (None,) * 1)
+LINEAR = ((None,), (None,) * 2)
+NEAREST = ((None,), (None,) * 3)
 
 
 t_CONSTANT = numba.typeof(CONSTANT)
@@ -43,5 +43,5 @@ tt = numba.typeof(CONSTANT)
 
 from collections import namedtuple
 
-_extrap = namedtuple("extrapolation_options", ["CONSTANT", 'LINEAR', 'NEAREST'])
+_extrap = namedtuple("extrapolation_options", ["CONSTANT", "LINEAR", "NEAREST"])
 options = _extrap(CONSTANT, LINEAR, NEAREST)
