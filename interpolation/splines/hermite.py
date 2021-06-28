@@ -29,8 +29,30 @@ def hermite_interp(x0, xk, xkn, pk, pkn, mk, mkn):
     t = (x0-xk)/(xkn-xk)
     hsplines = hermite_splines(t)
     return (pk*hsplines[0] + mk*(xkn-xk)*hsplines[1] + pkn*hsplines[2] + mkn*(xkn-xk)*hsplines[3])
-  
-  
+
+
+@jit(nopython=True)
+def HermiteInterpolation(x0, x, y, tang):
+    """Returns the interpolated value for x0
+    Inputs: - float: x0, abscissa of the point to interpolate
+            - np.ndarray: x, x-axis grid
+            - np.ndarray: y, values of elements in x
+            - np.ndarray: tang, tangents of the x elements
+    Output: - float: interpolated value"""
+    ###### Extrapolation case ######
+    if x0 <= np.min(x):
+        return y[0]
+    elif x0 >= np.max(x):
+        return y[-1]
+    
+    ###### Interpolation case ######
+    indx = np.searchsorted(x, x0)
+    xk, xkn = x[indx-1], x[indx]
+    pk, pkn = y[indx-1], y[indx]
+    mk, mkn = tang[indx-1], tang[indx]
+    return hermite_interp(x0, xk, xkn, pk, pkn, mk, mkn)
+
+
 @jit(nopython=True)
 def HermiteInterpolationVect(xvect, x, y, tang):
     """Returns the interpolated value for all elements in xvect
