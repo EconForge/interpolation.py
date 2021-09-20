@@ -3,3 +3,4 @@
 *.nbc
 dist*
 setup.py
+.venv/*
