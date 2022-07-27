@@ -94,8 +94,8 @@ def blending_formula(k=1, l=0, i=0):
 Φ_{i}_{1} = λ_{i}"""
         elif l == 1:
             s = f"""\
-d_Φ_{i}_{0} = -1.0*δ_{i}
-d_Φ_{i}_{1} = 1.0*δ_{i}"""
+d_Φ_{i}_{0} = -1.0/δ_{i}
+d_Φ_{i}_{1} = 1.0/δ_{i}"""
         else:
             s = f"""
 d_{l}_Φ_{i}_{0} = 0.0
@@ -463,6 +463,8 @@ def get_code_spline(
         indent=indent,
         k=k,
     )
+
+    print(code)
 
     return (code)[1:]
 
