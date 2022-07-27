@@ -464,8 +464,6 @@ def get_code_spline(
         k=k,
     )
 
-    print(code)
-
     return (code)[1:]
 
 
