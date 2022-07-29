@@ -5,7 +5,7 @@ from .eval_splines import options, eval_linear, eval_cubic, eval_spline
 from .prefilter_cubic import filter_cubic, prefilter
 from .option_types import options as extrap_options
 
-
+import numba
 import numpy as np
 
 # dummy functions
@@ -23,7 +23,7 @@ def UCGrid(*args):
 def CGrid(*args):
     tt = numba.typeof((10.0, 1.0, 1))
     for a in args:
-        if isinstance(a, np.array):
+        if isinstance(a, np.ndarray):
             assert(a.ndim==1)
             assert(a.shape[0]>2)
         elif (numba.typeof(a) == tt):
