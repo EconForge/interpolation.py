@@ -47,3 +47,34 @@ class Check1DDerivatives(unittest.TestCase):
         ).T
 
         self.assertTrue(np.allclose(grad, result))
+
+    def test_nonlinear(self):
+
+        # A non linear function on uniform grid
+        x = np.linspace(-10, 10, 21) * (1 / 2) * np.pi
+        y = np.sin(x)
+
+        eval_points = np.array([-1, -0.5, 0, 0.5, 1]) * np.pi
+
+        grad = eval_spline(
+            CGrid(x),
+            y,
+            eval_points[..., None],
+            out=None,
+            order=1,
+            diff=str(((0,), (1,), (2,))),
+            extrap_mode="linear",
+        )
+
+        # 0-order must be the function
+        # 1-order must be the + or - pi/2
+        # 2-order must be 0
+        result = np.vstack(
+            [
+                np.array([0, -1, 0, 1, 0]),
+                np.array([-1, -1, 1, 1, -1]) * 2 / np.pi,
+                np.array([0, 0, 0, 0, 0]),
+            ]
+        ).T
+
+        self.assertTrue(np.allclose(grad, result))
