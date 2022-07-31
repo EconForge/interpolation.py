@@ -29,7 +29,7 @@ class Check1DDerivatives(unittest.TestCase):
             eval_points[..., None],
             out=None,
             order=1,
-            diff=str(((0,), (1,), (2,))),
+            diff=str(((0,), (1,))),
             extrap_mode="linear",
         )
 
@@ -37,13 +37,8 @@ class Check1DDerivatives(unittest.TestCase):
 
         # 0-order must be the function
         # 1-order must be the slope
-        # 2-order must be 0
         result = np.vstack(
-            [
-                y0 + slope * eval_points,
-                np.ones_like(eval_points) * slope,
-                np.zeros_like(eval_points),
-            ]
+            [y0 + slope * eval_points, np.ones_like(eval_points) * slope,]
         ).T
 
         self.assertTrue(np.allclose(grad, result))
@@ -62,19 +57,40 @@ class Check1DDerivatives(unittest.TestCase):
             eval_points[..., None],
             out=None,
             order=1,
-            diff=str(((0,), (1,), (2,))),
+            diff=str(((0,), (1,))),
             extrap_mode="linear",
         )
 
         # 0-order must be the function
-        # 1-order must be the + or - pi/2
-        # 2-order must be 0
+        # 1-order must be + or - pi/2
         result = np.vstack(
-            [
-                np.array([0, -1, 0, 1, 0]),
-                np.array([-1, -1, 1, 1, -1]) * 2 / np.pi,
-                np.array([0, 0, 0, 0, 0]),
-            ]
+            [np.array([0, -1, 0, 1, 0]), np.array([-1, -1, 1, 1, -1]) * 2 / np.pi,]
         ).T
 
         self.assertTrue(np.allclose(grad, result))
+
+    def test_nonlinear_approx(self):
+
+        # A non linear function on uniform grid
+        x = np.linspace(-10, 10, 10000)
+        y = np.power(x, 3)
+
+        eval_points = np.linspace(-5, 5, 10)
+
+        grad = eval_spline(
+            CGrid(x),
+            y,
+            eval_points[..., None],
+            out=None,
+            order=1,
+            diff=str(((0,), (1,))),
+            extrap_mode="linear",
+        )
+
+        # 0-order must be x^3
+        # 1-order must be close to 3x^2
+        result = np.vstack(
+            [np.power(eval_points, 3), np.power(eval_points, 2) * 3.0,]
+        ).T
+
+        self.assertTrue(np.allclose(grad, result, atol=0.02))
