@@ -1,7 +1,6 @@
 import unittest
 from interpolation.splines import CGrid, eval_spline
 import numpy as np
-import numba
 
 
 class Check1DDerivatives(unittest.TestCase):
