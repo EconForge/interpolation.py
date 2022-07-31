@@ -32,8 +32,6 @@ class Check1DDerivatives(unittest.TestCase):
             extrap_mode="linear",
         )
 
-        print(grad)
-
         # 0-order must be the function
         # 1-order must be the slope
         result = np.vstack(
