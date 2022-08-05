@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "interpolation"
-version = "2.2.1"
+version = "2.2.2"
 readme = "README.md"
 description = "Interpolation in Python"
 authors = [
@@ -14,7 +14,7 @@ maintainers = [
 license = "BSD-2-Clause"
 
 [tool.poetry.dependencies]
-python = ">=3.7, <3.10"
+python = ">=3.7, <3.11"
 numba = ">=0.47"
 numpy = "^1.18.1"
 tempita = "^0.5.2"

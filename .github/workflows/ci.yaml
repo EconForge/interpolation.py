@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [ '3.7', '3.8']
+        python-version: [ '3.7', '3.8', '3.9', '3.10']
 
     name: Test Interpolation.py (Python ${{ matrix.python-version }})
     steps:
@@ -28,8 +28,8 @@ jobs:
       - name: Install dependencies
         run: poetry install
       
-      # - name: Code Quality
-      #   run: poetry run black . --check
+      - name: Code Quality
+        run: poetry run black . --check
 
       - name: Test with pytest
         run: poetry run pytest
