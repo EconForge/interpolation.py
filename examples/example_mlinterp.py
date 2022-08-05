@@ -62,7 +62,7 @@ from interpolation import interp
 
 x1 = np.linspace(0, 1, 100) ** 2  # non-uniform points
 x2 = np.linspace(0, 1, 100) ** 2  # non-uniform points
-y = np.array([[np.sqrt(u1 ** 2 + u2 ** 2) for u2 in x2] for u1 in x1])
+y = np.array([[np.sqrt(u1**2 + u2**2) for u2 in x2] for u1 in x1])
 # (y[i,j] = sqrt(x1[i]**2+x2[j]**2)
 
 
@@ -112,7 +112,7 @@ from interpolation import mlinterp
 x1 = np.linspace(0, 1, 100) ** 2  # non-uniform points for first dimensoin
 x2 = (0.0, 1.0, 100)  # uniform points for second dimension
 grid = (x1, x2)
-y = np.array([[np.sqrt(u1 ** 2 + u2 ** 2) for u2 in x2] for u1 in x1])
+y = np.array([[np.sqrt(u1**2 + u2**2) for u2 in x2] for u1 in x1])
 
 
 points = np.random.random((1000, 2))

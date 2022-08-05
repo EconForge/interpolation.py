@@ -4,7 +4,7 @@ import numpy as np
 
 
 class Check1DDerivatives(unittest.TestCase):
-    """ 
+    """
     Checks derivatives in a 1D interpolator
     """
 
@@ -35,7 +35,10 @@ class Check1DDerivatives(unittest.TestCase):
         # 0-order must be the function
         # 1-order must be the slope
         result = np.vstack(
-            [y0 + slope * eval_points, np.ones_like(eval_points) * slope,]
+            [
+                y0 + slope * eval_points,
+                np.ones_like(eval_points) * slope,
+            ]
         ).T
 
         self.assertTrue(np.allclose(grad, result))
@@ -61,7 +64,10 @@ class Check1DDerivatives(unittest.TestCase):
         # 0-order must be the function
         # 1-order must be + or - pi/2
         result = np.vstack(
-            [np.array([0, -1, 0, 1, 0]), np.array([-1, -1, 1, 1, -1]) * 2 / np.pi,]
+            [
+                np.array([0, -1, 0, 1, 0]),
+                np.array([-1, -1, 1, 1, -1]) * 2 / np.pi,
+            ]
         ).T
 
         self.assertTrue(np.allclose(grad, result))
@@ -87,14 +93,17 @@ class Check1DDerivatives(unittest.TestCase):
         # 0-order must be x^3
         # 1-order must be close to 3x^2
         result = np.vstack(
-            [np.power(eval_points, 3), np.power(eval_points, 2) * 3.0,]
+            [
+                np.power(eval_points, 3),
+                np.power(eval_points, 2) * 3.0,
+            ]
         ).T
 
         self.assertTrue(np.allclose(grad, result, atol=0.02))
 
 
 class Check2DDerivatives(unittest.TestCase):
-    """ 
+    """
     Checks derivatives in a 2D interpolator
     """
 

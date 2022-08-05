@@ -11,7 +11,7 @@ import numpy
 
 K = 50
 d = 2
-N = 10 ** 6
+N = 10**6
 # N = 100
 
 a = numpy.array([0.0] * d)

@@ -4,7 +4,7 @@ if True:
 
     d = 3
     K = 50
-    N = 10 ** 6
+    N = 10**6
     a = np.zeros(3)
     b = np.ones(3)
     orders = np.array([K for i in range(d)])

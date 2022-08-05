@@ -5,13 +5,13 @@ from ..interp import SmolyakInterp
 import numpy as np
 
 # func = lambda x, y: np.exp(x**2 - y**2)
-func = lambda x, y: x ** 2 - y ** 2
+func = lambda x, y: x**2 - y**2
 
 
 func1 = lambda points: func(points[:, 0], points[:, 1])
 func1_prime = lambda x: np.column_stack([2 * x[:, 0], -2 * x[:, 1]])
 
-func2 = lambda x: np.sum(x ** 2, axis=1)
+func2 = lambda x: np.sum(x**2, axis=1)
 func2_prime = lambda x: 2 * x
 
 

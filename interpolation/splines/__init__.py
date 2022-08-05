@@ -12,11 +12,11 @@ import numpy as np
 def UCGrid(*args):
     tt = numba.typeof((10.0, 1.0, 1))
     for a in args:
-        assert(numba.typeof(a) == tt)
+        assert numba.typeof(a) == tt
         min, max, n = a
-        assert(min<max)
-        assert(n>1)
-    
+        assert min < max
+        assert n > 1
+
     return tuple(args)
 
 
@@ -24,12 +24,12 @@ def CGrid(*args):
     tt = numba.typeof((10.0, 1.0, 1))
     for a in args:
         if isinstance(a, np.ndarray):
-            assert(a.ndim==1)
-            assert(a.shape[0]>2)
-        elif (numba.typeof(a) == tt):
+            assert a.ndim == 1
+            assert a.shape[0] > 2
+        elif numba.typeof(a) == tt:
             min, max, n = a
-            assert(min<max)
-            assert(n>1)
+            assert min < max
+            assert n > 1
         else:
             raise Exception(f"Unknown dimension specification: {a}")
 

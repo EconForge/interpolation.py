@@ -786,7 +786,7 @@ class SmolyakGrid(object):
     def __repr__(self):
         npoints = self.cube_grid.shape[0]
         nz_pts = np.count_nonzero(self.B)
-        pct_nz = nz_pts / (npoints ** 2.0)
+        pct_nz = nz_pts / (npoints**2.0)
 
         if isinstance(self.mu, int):
             msg = "Smolyak Grid:\n\td: {0} \n\tmu: {1} \n\tnpoints: {2}"

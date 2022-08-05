@@ -8,7 +8,7 @@ import numpy
 
 K = 50
 d = 3
-N = 10 ** 6
+N = 10**6
 T = 10  # number of repetitions
 dtype = numpy.float64
 

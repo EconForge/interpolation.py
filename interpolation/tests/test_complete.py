@@ -35,7 +35,7 @@ def test_complete_vector():
         return x
 
     def f2(x, y):
-        return x ** 3 - y
+        return x**3 - y
 
     points = np.random.random((1000, 2))
     vals = np.column_stack(
