@@ -1,4 +1,3 @@
-from curses import A_ALTCHARSET
 from .splines import CubicSpline, CubicSplines
 from .multilinear import LinearSpline, LinearSplines
 from .eval_splines import options, eval_linear, eval_cubic, eval_spline
@@ -25,7 +24,7 @@ def CGrid(*args):
     for a in args:
         if isinstance(a, np.ndarray):
             assert a.ndim == 1
-            assert a.shape[0] > 2
+            assert a.shape[0] >= 2
         elif numba.typeof(a) == tt:
             min, max, n = a
             assert min < max
