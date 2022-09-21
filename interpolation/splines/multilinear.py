@@ -65,7 +65,7 @@ class LinearSpline:
     def __init__(self, smin, smax, orders, values=None, dtype=numpy.float64):
         self.smin = numpy.array(smin, dtype=dtype)
         self.smax = numpy.array(smax, dtype=dtype)
-        self.orders = numpy.array(orders, dtype=numpy.int)
+        self.orders = numpy.array(orders, dtype=numpy.int64)
         self.d = len(orders)
         self.dtype = dtype
         if values is not None:
@@ -147,7 +147,7 @@ class LinearSplines:
     def __init__(self, smin, smax, orders, mvalues=None, dtype=numpy.float64):
         self.smin = numpy.array(smin, dtype=dtype)
         self.smax = numpy.array(smax, dtype=dtype)
-        self.orders = numpy.array(orders, dtype=numpy.int)
+        self.orders = numpy.array(orders, dtype=numpy.int64)
         self.d = len(orders)
         self.dtype = dtype
         if mvalues is not None:
