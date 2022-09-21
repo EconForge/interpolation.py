@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [ '3.7', '3.8', '3.9']
+        python-version: [ '3.7', '3.8', '3.9', '3.10']
 
     name: Test Interpolation.py (Python ${{ matrix.python-version }})
     steps:
@@ -23,7 +23,7 @@ jobs:
           architecture: x64
 
       - name: Install Poetry
-        uses: Gr1N/setup-poetry@v4
+        uses: Gr1N/setup-poetry@v7
 
       - name: Install dependencies
         run: poetry install
