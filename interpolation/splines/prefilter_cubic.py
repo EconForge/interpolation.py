@@ -4,10 +4,10 @@ from numba import generated_jit
 from numba.extending import overload
 
 
-from distutils.version import LooseVersion
+from packaging.version import parse
 from numba import __version__
 
-if LooseVersion(__version__) >= "0.43":
+if parse(__version__) >= parse("0.43"):
     overload_options = {"strict": False}
 else:
     overload_options = {}
