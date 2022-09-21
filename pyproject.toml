@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "interpolation"
-version = "2.2.3"
+version = "2.2.4"
 readme = "README.md"
 description = "Interpolation in Python"
 authors = [
