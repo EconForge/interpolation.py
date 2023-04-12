@@ -1,4 +1,4 @@
-import tempita
+from .. import tempita
 
 import numpy as np
 from numpy import floor
@@ -103,7 +103,7 @@ d_{l}_Φ_{i}_{1} = 0.0"""
 
     elif k == 3:
 
-        import tempita
+        from .. import tempita
 
         if l == 0:
             template_0 = """
@@ -417,8 +417,6 @@ def eval_spline(grid, C, points, out=None, order=1, diff="None", extrap_mode='li
     return out
     {{endif}}
 """
-
-import tempita
 
 
 def get_code_spline(

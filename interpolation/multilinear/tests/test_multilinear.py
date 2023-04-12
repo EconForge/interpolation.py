@@ -3,7 +3,7 @@ from numpy.random import random
 from numba import typeof
 
 import numpy as np
-from interpolation.multilinear.fungen import get_index
+from ..fungen import get_index
 
 
 def test_barycentric_indexes():
