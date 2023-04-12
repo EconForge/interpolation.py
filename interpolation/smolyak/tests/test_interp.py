@@ -109,10 +109,8 @@ def interp2d_derivs(d, mu, f, f_prime, bds=1, verbose=True):
 
 
 def test_interp_2d():
-
     interp_2d(2, 3, func1)
 
 
 def test_interp_2d1():
-
     interp_2d1(2, 3, func1)

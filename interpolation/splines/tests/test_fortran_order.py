@@ -1,5 +1,4 @@
 def test_eval_with_fortran_order():
-
     import numpy as np
 
     C_F = np.random.random((50, 50)).T
@@ -26,7 +25,6 @@ def test_eval_with_fortran_order():
 
 
 def test_guvectorize_compatilibity():
-
     ### this tests type dispatch when order='A'
 
     import numpy as np

@@ -8,7 +8,6 @@ from math import floor
 
 
 def gen_trex(l, c: Callable, inds=[]):
-
     """Generate expression for tensor reduction"""
     # l = [
     #     ('a_0', 'a_1'),
@@ -30,7 +29,6 @@ def gen_trex(l, c: Callable, inds=[]):
 
 
 def get_values(d, multispline=False, k=4, i_x="i_x", diffs=None):
-
     if diffs is None:
         diffs = (0,) * d
 
@@ -102,7 +100,6 @@ d_{l}_Φ_{i}_{0} = 0.0
 d_{l}_Φ_{i}_{1} = 0.0"""
 
     elif k == 3:
-
         from .. import tempita
 
         if l == 0:
@@ -429,7 +426,6 @@ def get_code_spline(
     extrap_mode=None,
     orders=None,
 ):
-
     if orders is None:
         bases_orders = [(0,)] * d
     else:

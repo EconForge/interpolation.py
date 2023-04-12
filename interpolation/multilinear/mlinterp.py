@@ -80,7 +80,6 @@ itt = namedtuple("InterpType", ["d", "values", "eval"])
 
 
 def detect_types(args):
-
     dims = [e.ndim if isinstance(e, Array) else -1 for e in args]
 
     md = max(dims)
@@ -127,7 +126,6 @@ def detect_types(args):
 
 
 def make_mlinterp(it, funname):
-
     if it.values == "vector":
         return None
 
@@ -220,7 +218,6 @@ from numba import generated_jit
 
 @generated_jit(nopython=True)
 def interp(*args):
-
     aa = args[0].types
 
     it = detect_types(aa)

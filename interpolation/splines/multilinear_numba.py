@@ -7,7 +7,6 @@ from .eval_cubic import get_grid
 
 
 def vec_multilinear_interpolation(smin, smax, orders, mvalues, s, out=None):
-
     grid = get_grid(smin, smax, orders, mvalues[..., 0])
 
     if out is None:
@@ -17,7 +16,6 @@ def vec_multilinear_interpolation(smin, smax, orders, mvalues, s, out=None):
 
 
 def multilinear_interpolation(smin, smax, orders, values, s, out=None):
-
     grid = get_grid(smin, smax, orders, values)
 
     if out is None:

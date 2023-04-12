@@ -1,5 +1,4 @@
 def test_derivatives():
-
     from interpolation.splines.eval_splines import eval_spline, eval_cubic, eval_linear
 
     import numpy as np

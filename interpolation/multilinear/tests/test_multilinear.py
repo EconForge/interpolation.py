@@ -7,7 +7,6 @@ from ..fungen import get_index
 
 
 def test_barycentric_indexes():
-
     # irregular grid
     gg = np.array([0.0, 1.0])
     assert get_index(gg, -0.1) == (0, -0.1)
@@ -94,7 +93,6 @@ from interpolation.multilinear.mlinterp import mlinterp, interp
 
 
 def test_mlinterp():
-
     # simple multilinear interpolation api
 
     import numpy as np
@@ -115,11 +113,9 @@ def test_mlinterp():
 
 
 def test_multilinear():
-
     # flat flexible api
 
     for t in tests:
-
         tt = [typeof(e) for e in t]
         print(tt)
         rr = interp(*t)

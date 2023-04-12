@@ -1,6 +1,6 @@
 import sys
 
-__all__ = ['PY3', 'b', 'basestring_', 'bytes', 'next', 'is_unicode']
+__all__ = ["PY3", "b", "basestring_", "bytes", "next", "is_unicode"]
 
 PY3 = True if sys.version_info[0] == 3 else False
 
@@ -11,8 +11,9 @@ else:
 
     def b(s):
         if isinstance(s, str):
-            return s.encode('latin1')
+            return s.encode("latin1")
         return bytes(s)
+
     basestring_ = (bytes, str)
     bytes = bytes
 text = str
@@ -21,6 +22,7 @@ if sys.version_info[0] < 3:
 
     def next(obj):
         return obj.next()
+
 else:
     next = next
 
@@ -35,9 +37,9 @@ def is_unicode(obj):
 def coerce_text(v):
     if not isinstance(v, basestring_):
         if sys.version_info[0] < 3:
-            attr = '__unicode__'
+            attr = "__unicode__"
         else:
-            attr = '__str__'
+            attr = "__str__"
         if hasattr(v, attr):
             return str(v)
         else:

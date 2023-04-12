@@ -609,6 +609,5 @@ class CompletePolynomial:
         return np.dot(dPhi, self.coefs)
 
     def __call__(self, s):
-
         Phi = complete_polynomial(s.T, self.d).T
         return np.dot(Phi, self.coefs)

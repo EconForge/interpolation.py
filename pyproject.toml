@@ -29,6 +29,7 @@ scipy = "<1.10.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.3.0"
+black = "^23.3.0"
 [build-system]
 requires = ["poetry>=1.2"]
 build-backend = "poetry.masonry.api"

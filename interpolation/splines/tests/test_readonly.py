@@ -1,5 +1,4 @@
 def test_readonly_vec():
-
     import numpy as np
     from interpolation.splines.eval_splines import eval_cubic
 
@@ -17,7 +16,6 @@ def test_readonly_vec():
 
 
 def test_readonly():
-
     import numpy as np
     from interpolation.splines.eval_splines import eval_cubic
 

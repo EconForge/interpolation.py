@@ -43,7 +43,6 @@ points = row_stack([[0.5, 0.5]] * N)
 
 
 def ttest_object_api(Obj):
-
     cs = Obj(a, b, orders, vals)
     ii = cs(point)
     iii = cs(points)
@@ -54,7 +53,6 @@ def ttest_object_api(Obj):
 
 
 def ttest_object_vector_api(Obj):
-
     cs = Obj(a, b, orders, mvals)
 
     ii = cs(point)
@@ -74,7 +72,6 @@ def ttest_object_vector_api(Obj):
 
 
 def ttest_object_vector_diff_api(Obj):
-
     cs = Obj(a, b, orders, mvals)
 
     # ii = cs(point, diff=True)
@@ -87,7 +84,6 @@ def ttest_object_vector_diff_api(Obj):
 
 
 def test_objects():
-
     from interpolation.splines import CubicSpline
 
     ttest_object_api(CubicSpline)
@@ -105,5 +101,4 @@ def test_objects():
 
 
 if __name__ == "__main__":
-
     test_objects()

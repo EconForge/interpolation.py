@@ -154,7 +154,6 @@ from .eval_cubic_numba import (
 
 
 def vec_eval_cubic_splines_G(a, b, orders, mcoefs, points, values=None, dvalues=None):
-
     a = numpy.array(a, dtype=float)
     b = numpy.array(b, dtype=float)
     orders = numpy.array(orders, dtype=int)
