@@ -1,5 +1,4 @@
 def test_derivatives():
-
     from ..interp import SmolyakInterp
     from ..grid import SmolyakGrid
 

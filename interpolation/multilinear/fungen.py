@@ -93,7 +93,6 @@ def fmap():
 
 @overload(fmap, **overload_options)
 def _map(*args):
-
     if len(args) == 2 and isinstance(args[1], (Tuple, UniTuple)):
         k = len(args[1])
         s = "def __map(f, t): return ({}, )".format(
@@ -200,6 +199,7 @@ def get_coeffs(X, I):
 # tensor_reduction(C,l)
 # (in 2d) computes the equivalent of np.einsum('ij,i,j->', C, [1-l[0],l[0]], [1-l[1],l[1]])`
 # but where l is a tuple and C a tuple of tuples.
+
 
 # this one is a temporary implementation (should be merged with old gen_splines* code)
 def gen_tensor_reduction(X, symbs, inds=[]):

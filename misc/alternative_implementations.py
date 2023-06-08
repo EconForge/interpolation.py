@@ -50,7 +50,6 @@ for i in range(1, 4):
 
 @njit(cache=True)
 def eval_cubic_spline_3(a, b, orders, coefs, point, Ad, dAd):
-
     M0 = orders[0]
     start0 = a[0]
     dinv0 = (orders[0] - 1.0) / (b[0] - a[0])
@@ -327,7 +326,6 @@ def eval_cubic_spline_3(a, b, orders, coefs, point, Ad, dAd):
 
 @njit(cache=True)
 def vec_eval_cubic_spline_3(a, b, orders, coefs, points, values):
-
     N = points.shape[0]
 
     for n in range(N):
@@ -337,11 +335,9 @@ def vec_eval_cubic_spline_3(a, b, orders, coefs, points, values):
 
 @njit(cache=True)
 def vec_eval_cubic_spline_3_inlined(a, b, orders, coefs, points, values):
-
     N = points.shape[0]
 
     for n in range(N):
-
         x0 = points[n, 0]
         x1 = points[n, 1]
         x2 = points[n, 2]
@@ -659,7 +655,6 @@ def vec_eval_cubic_spline_3_inlined(a, b, orders, coefs, points, values):
 
 @njit(cache=True)
 def vec_eval_cubic_spline_3_inlined_columns(a, b, orders, coefs, points, values):
-
     # N = points.shape[0]
     N = points.shape[1]
 
@@ -674,7 +669,6 @@ def vec_eval_cubic_spline_3_inlined_columns(a, b, orders, coefs, points, values)
     dinv2 = (orders[2] - 1.0) / (b[2] - a[2])
 
     for n in range(N):
-
         #        x0 = points[n,0]
         #        x1 = points[n,1]
         #        x2 = points[n,2]
@@ -982,7 +976,6 @@ def vec_eval_cubic_spline_3_inlined_columns(a, b, orders, coefs, points, values)
 
 @njit(cache=True)
 def vec_eval_cubic_spline_3_inlined_lesswork(orders, coefs, points, values, Ad, dAd):
-
     N = points.shape[0]
     M0 = orders[0]
     #    start0 = a[0]
@@ -995,7 +988,6 @@ def vec_eval_cubic_spline_3_inlined_lesswork(orders, coefs, points, values, Ad, 
     #    dinv2 = (orders[2]-1.0)/(b[2]-a[2])
 
     for n in range(N):
-
         u0 = points[n, 0]
         u1 = points[n, 1]
         u2 = points[n, 2]
@@ -1191,7 +1183,6 @@ def vec_eval_cubic_spline_3_inlined_lesswork(orders, coefs, points, values, Ad, 
 
 @njit(cache=True)
 def kernel(n, a, b, orders, coefs, points, values):
-
     x0 = points[n, 0]
     x1 = points[n, 1]
     x2 = points[n, 2]
@@ -1473,7 +1464,6 @@ def kernel(n, a, b, orders, coefs, points, values):
 
 @njit(cache=True)
 def vec_eval_cubic_spline_3_kernel(a, b, orders, coefs, points, values):
-
     N = points.shape[0]
     for n in range(N):
         kernel(n, a, b, orders, coefs, points, values)

@@ -94,7 +94,6 @@ class CubicSpline:
                 # evaluate only on one point
                 return eval_cubic(grid, self.__coeffs__, points)
             else:
-
                 N, d = points.shape
                 assert d == self.d
                 if values is None:
@@ -124,7 +123,6 @@ class CubicSpline:
 
 
 class CubicSplines:
-
     __grid__ = None
     __values__ = None
     __coeffs__ = None

@@ -1,5 +1,4 @@
 def test_hermite_splines():
-
     from interpolation.splines.hermite import HermiteInterpolationVect
     import numpy as np
 

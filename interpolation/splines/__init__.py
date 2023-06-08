@@ -7,6 +7,7 @@ from .option_types import options as extrap_options
 import numba
 import numpy as np
 
+
 # dummy functions
 def UCGrid(*args):
     tt = numba.typeof((10.0, 1.0, 1))

@@ -98,7 +98,6 @@ def _eval_spline():
 def __eval_spline(
     grid, C, points, out=None, order=1, diff="None", extrap_mode="linear"
 ):
-
     if not (
         isinstance(order, numba.types.Literal)
         and isinstance(diff, numba.types.Literal)
@@ -185,7 +184,6 @@ def __eval_linear(grid, C, points):
 
 @overload(_eval_linear, **overload_options)
 def __eval_linear(grid, C, points, extrap_mode):
-
     # print(f"We are going to extrapolate in {extrap_mode} mode.")
     if extrap_mode == t_NEAREST:
         extrap_ = "nearest"
@@ -203,7 +201,6 @@ def __eval_linear(grid, C, points, extrap_mode):
 
 @overload(_eval_linear, **overload_options)
 def __eval_linear(grid, C, points, out, extrap_mode):
-
     # print(f"We are going to do inplace, with {extrap_mode} extrapolation")
     if extrap_mode == t_NEAREST:
         extrap_ = "nearest"
@@ -220,7 +217,6 @@ def __eval_linear(grid, C, points, out, extrap_mode):
 
 @overload(_eval_linear, **overload_options)
 def __eval_linear(grid, C, points, out):
-
     return lambda grid, C, points, out: eval_spline(
         grid, C, points, out=out, order=1, diff="None", extrap_mode="linear"
     )
@@ -257,7 +253,6 @@ def __eval_cubic(grid, C, points):
 
 @overload(_eval_cubic, **overload_options)
 def __eval_cubic(grid, C, points, extrap_mode):
-
     # print(f"We are going to extrapolate in {extrap_mode} mode.")
     if extrap_mode == t_NEAREST:
         extrap_ = literally("nearest")
@@ -275,7 +270,6 @@ def __eval_cubic(grid, C, points, extrap_mode):
 
 @overload(_eval_cubic, **overload_options)
 def __eval_cubic(grid, C, points, out, extrap_mode):
-
     if extrap_mode == t_NEAREST:
         extrap_ = literally("nearest")
     elif extrap_mode == t_CONSTANT:
@@ -300,7 +294,6 @@ from numba import literally
 
 @overload(_eval_cubic, **overload_options)
 def __eval_cubic(grid, C, points, out):
-
     return lambda grid, C, points, out: eval_spline(
         grid,
         C,

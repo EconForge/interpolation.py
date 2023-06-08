@@ -1,5 +1,4 @@
 if True:
-
     import numpy as np
 
     d = 3

@@ -1,5 +1,4 @@
 def test_multilinear_extrap():
-
     import numpy as np
 
     N = 100000

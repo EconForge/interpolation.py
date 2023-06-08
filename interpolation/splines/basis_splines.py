@@ -1,5 +1,4 @@
 def B0(u, i, x):
-
     if u[i] <= x < u[i + 1]:
         return 1.0
     else:
@@ -7,7 +6,6 @@ def B0(u, i, x):
 
 
 def B(p, u, i, x):
-
     if p == 0:
         return B0(u, i, x)
     else:

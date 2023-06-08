@@ -10,7 +10,6 @@ basis = np.array([1.0 / 6.0, 2.0 / 3.0, 1.0 / 6.0, 0.0])
 
 @njit(cache=True)
 def solve_deriv_interp_1d(bands, coefs):
-
     M = coefs.shape[0] - 2
 
     # Solve interpolating equations
@@ -56,7 +55,6 @@ def solve_deriv_interp_1d(bands, coefs):
 
 @njit(cache=True)
 def find_coefs_1d(delta_inv, M, data, coefs):
-
     bands = np.zeros((M + 2, 4))
 
     # Setup boundary conditions
@@ -89,7 +87,6 @@ def find_coefs_1d(delta_inv, M, data, coefs):
 
 @njit(cache=True)
 def filter_coeffs_1d(dinv, data):
-
     M = data.shape[0]
     N = M + 2
 
@@ -101,7 +98,6 @@ def filter_coeffs_1d(dinv, data):
 
 @njit(cache=True)
 def filter_coeffs_2d(dinv, data):
-
     Mx = data.shape[0]
     My = data.shape[1]
 
@@ -125,7 +121,6 @@ def filter_coeffs_2d(dinv, data):
 
 @njit(cache=True)
 def filter_coeffs_3d(dinv, data):
-
     Mx = data.shape[0]
     My = data.shape[1]
     Mz = data.shape[2]
@@ -155,7 +150,6 @@ def filter_coeffs_3d(dinv, data):
 
 @njit(cache=True)
 def filter_coeffs_4d(dinv, data):
-
     Mx = data.shape[0]
     My = data.shape[1]
     Mz = data.shape[2]
@@ -204,7 +198,6 @@ def filter_coeffs(smin, smax, orders, data):
 
 
 def filter_mcoeffs(smin, smax, orders, data):
-
     order = len(smin)
     n_splines = data.shape[-1]
     coefs = np.zeros(tuple([i + 2 for i in orders]) + (n_splines,))
@@ -228,7 +221,6 @@ def filter_data(dinv, data):
 
 
 if __name__ == "__main__":
-
     import numpy
 
     dinv = numpy.ones(3, dtype=float) * 0.5

@@ -9,11 +9,9 @@ class Check1DDerivatives(unittest.TestCase):
     """
 
     def setUp(self):
-
         pass
 
     def test_linear(self):
-
         # A linear function on a non-uniform grid
         x = np.exp(np.linspace(0, 2, 6))
         y0 = 2
@@ -44,7 +42,6 @@ class Check1DDerivatives(unittest.TestCase):
         self.assertTrue(np.allclose(grad, result))
 
     def test_nonlinear(self):
-
         # A non linear function on uniform grid
         x = np.linspace(-10, 10, 21) * (1 / 2) * np.pi
         y = np.sin(x)
@@ -73,7 +70,6 @@ class Check1DDerivatives(unittest.TestCase):
         self.assertTrue(np.allclose(grad, result))
 
     def test_nonlinear_approx(self):
-
         # A non linear function on uniform grid
         x = np.linspace(-10, 10, 10000)
         y = np.power(x, 3)
@@ -108,11 +104,9 @@ class Check2DDerivatives(unittest.TestCase):
     """
 
     def setUp(self):
-
         pass
 
     def test_linear(self):
-
         # A linear function on a non-uniform grid
         x = np.exp(np.linspace(0, 2, 6))
         y = np.power(np.linspace(0, 5, 10), 2)
@@ -155,7 +149,6 @@ class Check2DDerivatives(unittest.TestCase):
         self.assertTrue(np.allclose(grad, result))
 
     def test_nonlinear_approx(self):
-
         # A non linear function on uniform grid
         n_grid = 100
         x = np.linspace(1, 5, n_grid)

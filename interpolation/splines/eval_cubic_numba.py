@@ -78,7 +78,6 @@ for i in range(1, 4):
 
 @njit(cache=True)
 def eval_cubic_spline_1(a, b, orders, coefs, point):
-
     M0 = orders[0]
     start0 = a[0]
     dinv0 = (orders[0] - 1.0) / (b[0] - a[0])
@@ -138,7 +137,6 @@ def eval_cubic_spline_1(a, b, orders, coefs, point):
 
 @njit(cache=True)
 def eval_cubic_spline_2(a, b, orders, coefs, point):
-
     M0 = orders[0]
     start0 = a[0]
     dinv0 = (orders[0] - 1.0) / (b[0] - a[0])
@@ -270,7 +268,6 @@ def eval_cubic_spline_2(a, b, orders, coefs, point):
 
 @njit(cache=True)
 def eval_cubic_spline_3(a, b, orders, coefs, point):
-
     M0 = orders[0]
     start0 = a[0]
     dinv0 = (orders[0] - 1.0) / (b[0] - a[0])
@@ -546,7 +543,6 @@ def eval_cubic_spline_3(a, b, orders, coefs, point):
 
 @njit(cache=True)
 def eval_cubic_spline_4(a, b, orders, coefs, point):
-
     M0 = orders[0]
     start0 = a[0]
     dinv0 = (orders[0] - 1.0) / (b[0] - a[0])
@@ -1254,12 +1250,10 @@ def eval_cubic_spline_4(a, b, orders, coefs, point):
 
 @njit(cache=True)
 def vec_eval_cubic_spline_1(a, b, orders, coefs, points, out):
-
     d = a.shape[0]
     N = points.shape[0]
 
     for n in range(N):
-
         x0 = points[n, 0]
         M0 = orders[0]
         start0 = a[0]
@@ -1330,12 +1324,10 @@ def vec_eval_cubic_spline_1(a, b, orders, coefs, points, out):
 
 @njit(cache=True)
 def vec_eval_cubic_spline_2(a, b, orders, coefs, points, out):
-
     d = a.shape[0]
     N = points.shape[0]
 
     for n in range(N):
-
         x0 = points[n, 0]
         x1 = points[n, 1]
         M0 = orders[0]
@@ -1490,12 +1482,10 @@ def vec_eval_cubic_spline_2(a, b, orders, coefs, points, out):
 
 @njit(cache=True)
 def vec_eval_cubic_spline_3(a, b, orders, coefs, points, out):
-
     d = a.shape[0]
     N = points.shape[0]
 
     for n in range(N):
-
         x0 = points[n, 0]
         x1 = points[n, 1]
         x2 = points[n, 2]
@@ -1806,12 +1796,10 @@ def vec_eval_cubic_spline_3(a, b, orders, coefs, points, out):
 
 @njit(cache=True)
 def vec_eval_cubic_spline_4(a, b, orders, coefs, points, out):
-
     d = a.shape[0]
     N = points.shape[0]
 
     for n in range(N):
-
         x0 = points[n, 0]
         x1 = points[n, 1]
         x2 = points[n, 2]
@@ -2566,7 +2554,6 @@ def vec_eval_cubic_spline_4(a, b, orders, coefs, points, out):
 
 @njit(cache=True)
 def eval_cubic_splines_1(a, b, orders, coefs, point, vals):
-
     n_vals = coefs.shape[1]
 
     M0 = orders[0]
@@ -2628,7 +2615,6 @@ def eval_cubic_splines_1(a, b, orders, coefs, point, vals):
 
 @njit(cache=True)
 def eval_cubic_splines_2(a, b, orders, coefs, point, vals):
-
     n_vals = coefs.shape[2]
 
     M0 = orders[0]
@@ -2762,7 +2748,6 @@ def eval_cubic_splines_2(a, b, orders, coefs, point, vals):
 
 @njit(cache=True)
 def eval_cubic_splines_3(a, b, orders, coefs, point, vals):
-
     n_vals = coefs.shape[3]
 
     M0 = orders[0]
@@ -3040,7 +3025,6 @@ def eval_cubic_splines_3(a, b, orders, coefs, point, vals):
 
 @njit(cache=True)
 def eval_cubic_splines_4(a, b, orders, coefs, point, vals):
-
     n_vals = coefs.shape[4]
 
     M0 = orders[0]
@@ -3750,7 +3734,6 @@ def eval_cubic_splines_4(a, b, orders, coefs, point, vals):
 
 @njit(cache=True)
 def vec_eval_cubic_splines_1(a, b, orders, coefs, points, vals):
-
     n_vals = coefs.shape[1]
     N = points.shape[0]
 
@@ -3759,7 +3742,6 @@ def vec_eval_cubic_splines_1(a, b, orders, coefs, points, vals):
     dinv0 = (orders[0] - 1.0) / (b[0] - a[0])
 
     for n in range(N):
-
         x0 = points[n, 0]
         u0 = (x0 - start0) * dinv0
         i0 = int(floor(u0))
@@ -3828,7 +3810,6 @@ def vec_eval_cubic_splines_1(a, b, orders, coefs, points, vals):
 
 @njit(cache=True)
 def vec_eval_cubic_splines_2(a, b, orders, coefs, points, vals):
-
     n_vals = coefs.shape[2]
     N = points.shape[0]
 
@@ -3840,7 +3821,6 @@ def vec_eval_cubic_splines_2(a, b, orders, coefs, points, vals):
     dinv1 = (orders[1] - 1.0) / (b[1] - a[1])
 
     for n in range(N):
-
         x0 = points[n, 0]
         x1 = points[n, 1]
         u0 = (x0 - start0) * dinv0
@@ -3990,7 +3970,6 @@ def vec_eval_cubic_splines_2(a, b, orders, coefs, points, vals):
 
 @njit(cache=True)
 def vec_eval_cubic_splines_3(a, b, orders, coefs, points, vals):
-
     n_vals = coefs.shape[3]
     N = points.shape[0]
 
@@ -4005,7 +3984,6 @@ def vec_eval_cubic_splines_3(a, b, orders, coefs, points, vals):
     dinv2 = (orders[2] - 1.0) / (b[2] - a[2])
 
     for n in range(N):
-
         x0 = points[n, 0]
         x1 = points[n, 1]
         x2 = points[n, 2]
@@ -4308,7 +4286,6 @@ def vec_eval_cubic_splines_3(a, b, orders, coefs, points, vals):
 
 @njit(cache=True)
 def vec_eval_cubic_splines_4(a, b, orders, coefs, points, vals):
-
     n_vals = coefs.shape[4]
     N = points.shape[0]
 
@@ -4326,7 +4303,6 @@ def vec_eval_cubic_splines_4(a, b, orders, coefs, points, vals):
     dinv3 = (orders[3] - 1.0) / (b[3] - a[3])
 
     for n in range(N):
-
         x0 = points[n, 0]
         x1 = points[n, 1]
         x2 = points[n, 2]
@@ -5070,7 +5046,6 @@ def vec_eval_cubic_splines_4(a, b, orders, coefs, points, vals):
 
 @njit(cache=True)
 def vec_eval_cubic_splines_G_1(a, b, orders, coefs, points, vals, dvals):
-
     n_vals = coefs.shape[1]
     N = points.shape[0]
 
@@ -5079,7 +5054,6 @@ def vec_eval_cubic_splines_G_1(a, b, orders, coefs, points, vals, dvals):
     dinv0 = (orders[0] - 1.0) / (b[0] - a[0])
 
     for n in range(N):
-
         x0 = points[n, 0]
         u0 = (x0 - start0) * dinv0
         i0 = int(floor(u0))
@@ -5179,7 +5153,6 @@ def vec_eval_cubic_splines_G_1(a, b, orders, coefs, points, vals, dvals):
 
 @njit(cache=True)
 def vec_eval_cubic_splines_G_2(a, b, orders, coefs, points, vals, dvals):
-
     n_vals = coefs.shape[2]
     N = points.shape[0]
 
@@ -5191,7 +5164,6 @@ def vec_eval_cubic_splines_G_2(a, b, orders, coefs, points, vals, dvals):
     dinv1 = (orders[1] - 1.0) / (b[1] - a[1])
 
     for n in range(N):
-
         x0 = points[n, 0]
         x1 = points[n, 1]
         u0 = (x0 - start0) * dinv0
@@ -5449,7 +5421,6 @@ def vec_eval_cubic_splines_G_2(a, b, orders, coefs, points, vals, dvals):
 
 @njit(cache=True)
 def vec_eval_cubic_splines_G_3(a, b, orders, coefs, points, vals, dvals):
-
     n_vals = coefs.shape[3]
     N = points.shape[0]
 
@@ -5464,7 +5435,6 @@ def vec_eval_cubic_splines_G_3(a, b, orders, coefs, points, vals, dvals):
     dinv2 = (orders[2] - 1.0) / (b[2] - a[2])
 
     for n in range(N):
-
         x0 = points[n, 0]
         x1 = points[n, 1]
         x2 = points[n, 2]
@@ -6216,7 +6186,6 @@ def vec_eval_cubic_splines_G_3(a, b, orders, coefs, points, vals, dvals):
 
 @njit(cache=True)
 def vec_eval_cubic_splines_G_4(a, b, orders, coefs, points, vals, dvals):
-
     n_vals = coefs.shape[4]
     N = points.shape[0]
 
@@ -6234,7 +6203,6 @@ def vec_eval_cubic_splines_G_4(a, b, orders, coefs, points, vals, dvals):
     dinv3 = (orders[3] - 1.0) / (b[3] - a[3])
 
     for n in range(N):
-
         x0 = points[n, 0]
         x1 = points[n, 1]
         x2 = points[n, 2]

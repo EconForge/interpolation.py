@@ -54,7 +54,6 @@ def test_complete_vector():
 
 
 def test_complete_derivative():
-
     # Test derivative vector
     z = np.array([1, 2, 3])
     sol_vec = np.array([0.0, 1.0, 0.0, 0.0, 2.0, 2.0, 3.0, 0.0, 0.0, 0.0])

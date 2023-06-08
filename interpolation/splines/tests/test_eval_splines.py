@@ -1,5 +1,4 @@
 def test_eval_splines():
-
     from interpolation.splines.eval_splines import eval_linear, eval_cubic
     from interpolation.multilinear.mlinterp import mlinterp
     import numpy as np
