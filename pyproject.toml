@@ -23,6 +23,8 @@ pytest = "^7.3.0"
 black = "^23.3.0"
 python-markdown-math = "^0.8"
 pymdown-extensions = "^9.11"
+mkdocs = "^1.4.3"
+
 
 [build-system]
 requires = ["poetry>=1.2"]
