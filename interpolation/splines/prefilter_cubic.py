@@ -1,6 +1,5 @@
 import numpy as np
 from numba import jit, njit
-from numba import generated_jit
 from numba.extending import overload
 
 

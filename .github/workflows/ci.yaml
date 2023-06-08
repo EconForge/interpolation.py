@@ -23,7 +23,7 @@ jobs:
           architecture: x64
 
       - name: Install Poetry
-        uses: Gr1N/setup-poetry@v7
+        uses: Gr1N/setup-poetry@v8
 
       - name: Install dependencies
         run: poetry install

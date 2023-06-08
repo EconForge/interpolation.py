@@ -98,20 +98,7 @@ def _eval_spline():
 def __eval_spline(
     grid, C, points, out=None, order=1, diff="None", extrap_mode="linear"
 ):
-    if not (
-        isinstance(order, numba.types.Literal)
-        and isinstance(diff, numba.types.Literal)
-        and isinstance(extrap_mode, numba.types.Literal)
-    ):
-
-        def ugly_workaround(
-            grid, C, points, out=None, order=1, diff="None", extrap_mode="linear"
-        ):
-            return (literally(order), literally(diff), literally(extrap_mode))
-
-        # def __eval_spline(grid, C, points, out=None, order=1, diff="None", extrap_mode='linear'):
-        #     return __eval_spline(grid, C, points, out=out, order=literally(order), diff=literally(diff), extrap_mode=literally(extrap_mode))
-
+    
     kk = (order).literal_value
     diffs = (diff).literal_value
     extrap_ = (extrap_mode).literal_value
@@ -170,6 +157,7 @@ def eval_spline(grid, C, points, out=None, order=1, diff="None", extrap_mode="li
 def _eval_linear():
     pass
 
+# TODO: now that constant propagation in numba works well enough we can remove the option_types
 
 from .option_types import options, t_CONSTANT, t_LINEAR, t_NEAREST
 
@@ -258,8 +246,8 @@ def __eval_cubic(grid, C, points, extrap_mode):
         extrap_ = literally("nearest")
     elif extrap_mode == t_CONSTANT:
         extrap_ = literally("constant")
-    elif extrap_mode == t_cubic:
-        extrap_ = literally("cubic")
+    elif extrap_mode == t_LINEAR:
+        extrap_ = literally("linear")
     else:
         return None
 
@@ -274,8 +262,8 @@ def __eval_cubic(grid, C, points, out, extrap_mode):
         extrap_ = literally("nearest")
     elif extrap_mode == t_CONSTANT:
         extrap_ = literally("constant")
-    elif extrap_mode == t_cubic:
-        extrap_ = literally("cubic")
+    elif extrap_mode == t_LINEAR:
+        extrap_ = literally("linear")
     else:
         return None
     return lambda grid, C, points, out, extrap_mode: eval_spline(
