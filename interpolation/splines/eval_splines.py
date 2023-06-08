@@ -98,7 +98,6 @@ def _eval_spline():
 def __eval_spline(
     grid, C, points, out=None, order=1, diff="None", extrap_mode="linear"
 ):
-    
     kk = (order).literal_value
     diffs = (diff).literal_value
     extrap_ = (extrap_mode).literal_value
@@ -156,6 +155,7 @@ def eval_spline(grid, C, points, out=None, order=1, diff="None", extrap_mode="li
 
 def _eval_linear():
     pass
+
 
 # TODO: now that constant propagation in numba works well enough we can remove the option_types
 
