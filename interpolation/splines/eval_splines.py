@@ -96,9 +96,9 @@ def _eval_spline():
 
 @overload(_eval_spline)
 def __eval_spline(
-    grid, C, points, out=None, order=1, diff="None", extrap_mode="linear"
+    grid, C, points, out=None, k=1, diff="None", extrap_mode="linear"
 ):
-    kk = (order).literal_value
+    kk = (k).literal_value
     diffs = (diff).literal_value
     extrap_ = (extrap_mode).literal_value
     d = len(grid)
@@ -140,12 +140,12 @@ def __eval_spline(
 
 
 @njit
-def eval_spline(grid, C, points, out=None, order=1, diff="None", extrap_mode="linear"):
+def eval_spline(grid, C, points, out=None, k=1, diff="None", extrap_mode="linear"):
     """Do I get a docstring ?"""
     dd = numba.literally(diff)
-    k = numba.literally(order)
+    k = numba.literally(k)
     extrap_ = numba.literally(extrap_mode)
-    return _eval_spline(grid, C, points, out=out, order=k, diff=dd, extrap_mode=extrap_)
+    return _eval_spline(grid, C, points, out=out, k=k, diff=dd, extrap_mode=extrap_)
 
 
 ###
@@ -166,7 +166,7 @@ from .option_types import options, t_CONSTANT, t_LINEAR, t_NEAREST
 def __eval_linear(grid, C, points):
     # print("We allocate with default extrapolation.")
     return lambda grid, C, points: eval_spline(
-        grid, C, points, order=1, extrap_mode="linear", diff="None"
+        grid, C, points, k=1, extrap_mode="linear", diff="None"
     )
 
 
@@ -183,7 +183,7 @@ def __eval_linear(grid, C, points, extrap_mode):
         return None
 
     return lambda grid, C, points, extrap_mode: eval_spline(
-        grid, C, points, order=1, diff="None", extrap_mode=extrap_
+        grid, C, points, k=1, diff="None", extrap_mode=extrap_
     )
 
 
@@ -199,14 +199,14 @@ def __eval_linear(grid, C, points, out, extrap_mode):
     else:
         return None
     return lambda grid, C, points, out, extrap_mode: eval_spline(
-        grid, C, points, out=out, order=1, diff="None", extrap_mode=extrap_
+        grid, C, points, out=out, k=1, diff="None", extrap_mode=extrap_
     )
 
 
 @overload(_eval_linear, **overload_options)
 def __eval_linear(grid, C, points, out):
     return lambda grid, C, points, out: eval_spline(
-        grid, C, points, out=out, order=1, diff="None", extrap_mode="linear"
+        grid, C, points, out=out, k=1, diff="None", extrap_mode="linear"
     )
 
 
@@ -233,7 +233,7 @@ def __eval_cubic(grid, C, points):
         grid,
         C,
         points,
-        order=literally(3),
+        k=literally(3),
         extrap_mode=literally("linear"),
         diff=literally("None"),
     )
@@ -252,7 +252,7 @@ def __eval_cubic(grid, C, points, extrap_mode):
         return None
 
     return lambda grid, C, points, extrap_mode: eval_spline(
-        grid, C, points, order=literally(3), diff=literally("None"), extrap_mode=extrap_
+        grid, C, points, k=literally(3), diff=literally("None"), extrap_mode=extrap_
     )
 
 
@@ -271,7 +271,7 @@ def __eval_cubic(grid, C, points, out, extrap_mode):
         C,
         points,
         out=out,
-        order=literally(3),
+        k=literally(3),
         diff=literally("None"),
         extrap_mode=extrap_,
     )
@@ -287,7 +287,7 @@ def __eval_cubic(grid, C, points, out):
         C,
         points,
         out=out,
-        order=literally(3),
+        k=literally(3),
         diff=literally("None"),
         extrap_mode=literally("linear"),
     )

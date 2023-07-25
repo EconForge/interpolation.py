@@ -25,7 +25,7 @@ class Check1DDerivatives(unittest.TestCase):
             y,
             eval_points[..., None],
             out=None,
-            order=1,
+            k=1,
             diff=str(((0,), (1,))),
             extrap_mode="linear",
         )
@@ -53,7 +53,7 @@ class Check1DDerivatives(unittest.TestCase):
             y,
             eval_points[..., None],
             out=None,
-            order=1,
+            k=1,
             diff=str(((0,), (1,))),
             extrap_mode="linear",
         )
@@ -81,7 +81,7 @@ class Check1DDerivatives(unittest.TestCase):
             y,
             eval_points[..., None],
             out=None,
-            order=1,
+            k=1,
             diff=str(((0,), (1,))),
             extrap_mode="linear",
         )
@@ -128,7 +128,7 @@ class Check2DDerivatives(unittest.TestCase):
             z,
             eval_points,
             out=None,
-            order=1,
+            k=1,
             diff=str(((0, 0), (1, 0), (0, 1), (1, 1))),
             extrap_mode="linear",
         )
@@ -167,7 +167,7 @@ class Check2DDerivatives(unittest.TestCase):
             z,
             eval_points,
             out=None,
-            order=1,
+            k=1,
             diff=str(((0, 0), (1, 0), (0, 1), (1, 1))),
             extrap_mode="linear",
         )

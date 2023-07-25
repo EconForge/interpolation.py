@@ -147,7 +147,7 @@ else:
 
 
 eval_template = """
-def eval_spline(grid, C, points, out=None, order=1, diff="None", extrap_mode='linear'):
+def eval_spline(grid, C, points, out=None, k=1, diff="None", extrap_mode='linear'):
     "This is my docstring"
 
     {{if vector_valued}}
@@ -291,7 +291,7 @@ def eval_spline(grid, C, points, out=None, order=1, diff="None", extrap_mode='li
 """
 
 eval_template_vectorized = """
-def eval_spline(grid, C, points, out=None, order=1, diff="None", extrap_mode='linear'):
+def eval_spline(grid, C, points, out=None, k=1, diff="None", extrap_mode='linear'):
     "This is my docstring"
 
     N = points.shape[0]
