@@ -14,9 +14,9 @@ maintainers = [
 license = "BSD-2-Clause"
 
 [tool.poetry.dependencies]
-python = ">=3.8, <3.11"
-numba = "^0.56.4"
-scipy = "<1.10.0"
+python = ">=3.9, <=3.12"
+numba = "^0.57"
+scipy = "^1.10"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.3.0"
