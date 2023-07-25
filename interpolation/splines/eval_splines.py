@@ -95,9 +95,7 @@ def _eval_spline():
 
 
 @overload(_eval_spline)
-def __eval_spline(
-    grid, C, points, out=None, k=1, diff="None", extrap_mode="linear"
-):
+def __eval_spline(grid, C, points, out=None, k=1, diff="None", extrap_mode="linear"):
     kk = (k).literal_value
     diffs = (diff).literal_value
     extrap_ = (extrap_mode).literal_value

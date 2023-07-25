@@ -58,9 +58,7 @@ def test_derivatives():
 
     k = 3
 
-    eval_spline(
-        grid, C, points[0, :], out=None, k=3, diff="None", extrap_mode="linear"
-    )
+    eval_spline(grid, C, points[0, :], out=None, k=3, diff="None", extrap_mode="linear")
 
     eval_spline(grid, C, points, out=None, k=k, diff="None", extrap_mode="linear")
     eval_spline(
@@ -70,9 +68,7 @@ def test_derivatives():
 
     orders = str(((0,), (1,)))
 
-    eval_spline(
-        grid, C, points[0, :], out=None, k=k, diff=orders, extrap_mode="linear"
-    )
+    eval_spline(grid, C, points[0, :], out=None, k=k, diff=orders, extrap_mode="linear")
     eval_spline(grid, C, points, out=None, k=k, diff=orders, extrap_mode="linear")
     eval_spline(
         grid, Cx, points[0, :], out=None, k=k, diff=orders, extrap_mode="linear"
