@@ -117,7 +117,6 @@ def test_multilinear():
 
     for t in tests:
         tt = [typeof(e) for e in t]
-        print(tt)
         rr = interp(*t)
 
         try:
