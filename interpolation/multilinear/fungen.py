@@ -23,10 +23,12 @@ t_array = numba.typeof(np.array([4.0, 3.9]))  # type of an unevenly spaced dimen
 def clamp(x, a, b):
     return min(b, max(a, x))
 
+def get_index(gc, x):
+    pass
 
 # returns the index of a 1d point along a 1d dimension
-@generated_jit(nopython=True)
-def get_index(gc, x):
+@overload(get_index)
+def _get_index(gc, x):
     if gc == t_coord:
         # regular coordinate
         def fun(gc, x):
