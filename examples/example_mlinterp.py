@@ -1,6 +1,5 @@
 import numpy as np
 
-from numba import generated_jit
 import ast
 
 C = ((0.1, 0.2), (0.1, 0.2))

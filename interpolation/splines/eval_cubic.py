@@ -1,5 +1,7 @@
 import numpy
 
+from numba import njit
+from numba.extending import overload
 from .eval_splines import eval_cubic
 
 ## the functions in this file provide backward compatibility calls
@@ -11,17 +13,25 @@ from .eval_splines import eval_cubic
 # Compatibility calls #
 #######################
 
-from numba import generated_jit
 from .codegen import source_to_function
 
 
-@generated_jit
-def get_grid(a, b, n, C):
+def _get_grid(a, b, n, C):
+    pass
+
+
+@overload(_get_grid)
+def ol_get_grid(a, b, n, C):
     d = C.ndim
     s = "({},)".format(str.join(", ", [f"(a[{k}],b[{k}],n[{k}])" for k in range(d)]))
     txt = "def get_grid(a,b,n,C): return {}".format(s)
     f = source_to_function(txt)
     return f
+
+
+@njit
+def get_grid(a, b, n, C):
+    return _get_grid(a, b, n, C)
 
 
 def eval_cubic_spline(a, b, orders, coefs, point):

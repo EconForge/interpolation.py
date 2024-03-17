@@ -84,7 +84,6 @@ def HermiteInterpolationVect(xvect, x: Vector, y: Vector, yp: Vector):
 
 from numba import njit, types
 from numba.extending import overload, register_jitable
-from numba import generated_jit
 
 
 def _hermite(x0, x, y, yp, out=None):
@@ -102,8 +101,12 @@ def _hermite(x0, x, y, yp, out=None):
 from numba.core.types.misc import NoneType as none
 
 
-@generated_jit
 def hermite(x0, x, y, yp, out=None):
+    pass
+
+
+@overload(hermite)
+def ol_hermite(x0, x, y, yp, out=None):
     try:
         n = x0.ndim
         if n == 1:

@@ -29,6 +29,7 @@ from .fungen import (
 )
 
 from numba import njit
+from numba.extending import overload
 from typing import Tuple
 
 from ..compat import UniTuple, Tuple, Float, Integer, Array
@@ -36,13 +37,16 @@ from ..compat import UniTuple, Tuple, Float, Integer, Array
 Scalar = (Float, Integer)
 
 import numpy as np
-from numba import generated_jit
 
 # logic of multilinear interpolation
 
 
-@generated_jit
 def mlinterp(grid, c, u):
+    pass
+
+
+@overload(mlinterp)
+def ol_mlinterp(grid, c, u):
     if isinstance(u, UniTuple):
 
         def mlininterp(grid: Tuple, c: Array, u: Tuple) -> float:
@@ -213,11 +217,12 @@ def {funname}(*args):
         return source
 
 
-from numba import generated_jit
-
-
-@generated_jit(nopython=True)
 def interp(*args):
+    pass
+
+
+@overload(interp)
+def ol_interp(*args):
     aa = args[0].types
 
     it = detect_types(aa)
