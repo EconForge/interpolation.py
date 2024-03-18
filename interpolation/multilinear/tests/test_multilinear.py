@@ -1,23 +1,29 @@
 from numpy import linspace, array
 from numpy.random import random
 from numba import typeof
+from numba import njit
 
 import numpy as np
 from ..fungen import get_index
 
 
+@njit
+def get_index_njit(gc, x):
+    return get_index(gc, x)
+
+
 def test_barycentric_indexes():
     # irregular grid
     gg = np.array([0.0, 1.0])
-    assert get_index(gg, -0.1) == (0, -0.1)
-    assert get_index(gg, 0.5) == (0, 0.5)
-    assert get_index(gg, 1.1) == (0, 1.1)
+    assert get_index_njit(gg, -0.1) == (0, -0.1)
+    assert get_index_njit(gg, 0.5) == (0, 0.5)
+    assert get_index_njit(gg, 1.1) == (0, 1.1)
 
     # regular grid
     gg = (0.0, 1.0, 2)
-    assert get_index(gg, -0.1) == (0, -0.1)
-    assert get_index(gg, 0.5) == (0, 0.5)
-    assert get_index(gg, 1.1) == (0, 1.1)
+    assert get_index_njit(gg, -0.1) == (0, -0.1)
+    assert get_index_njit(gg, 0.5) == (0, 0.5)
+    assert get_index_njit(gg, 1.1) == (0, 1.1)
 
 
 # 2d-vecev-scalar

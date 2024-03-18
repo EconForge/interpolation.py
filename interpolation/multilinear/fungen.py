@@ -1,7 +1,7 @@
 import numba
 import numpy as np
 from numba import float64, int64
-from numba import generated_jit, njit
+from numba import njit
 import ast
 
 from numba.extending import overload
@@ -25,8 +25,12 @@ def clamp(x, a, b):
 
 
 # returns the index of a 1d point along a 1d dimension
-@generated_jit(nopython=True)
 def get_index(gc, x):
+    pass
+
+
+@overload(get_index)
+def ol_get_index(gc, x):
     if gc == t_coord:
         # regular coordinate
         def fun(gc, x):
@@ -53,8 +57,12 @@ def get_index(gc, x):
 
 
 # returns number of dimension of a dimension
-@generated_jit(nopython=True)
 def get_size(gc):
+    pass
+
+
+@overload(get_size)
+def ol_get_size(gc):
     if gc == t_coord:
         # regular coordinate
         def fun(gc):
@@ -145,8 +153,12 @@ def _map(*args):
 # funzip(((1,2), (2,3), (4,3))) -> ((1,2,4),(2,3,3))
 
 
-@generated_jit(nopython=True)
 def funzip(t):
+    pass
+
+
+@overload(funzip)
+def ol_funzip(t):
     k = t.count
     assert len(set([e.count for e in t.types])) == 1
     l = t.types[0].count
@@ -169,8 +181,12 @@ def funzip(t):
 #####
 
 
-@generated_jit(nopython=True)
 def get_coeffs(X, I):
+    pass
+
+
+@overload(get_coeffs)
+def ol_get_coeffs(X, I):
     if X.ndim > len(I):
         print("not implemented yet")
     else:
@@ -218,8 +234,12 @@ def gen_tensor_reduction(X, symbs, inds=[]):
         return str.join(" + ", exprs)
 
 
-@generated_jit(nopython=True)
 def tensor_reduction(C, l):
+    pass
+
+
+@overload(tensor_reduction)
+def ol_tensor_reduction(C, l):
     d = len(l.types)
     ex = gen_tensor_reduction("C", ["l[{}]".format(i) for i in range(d)])
     dd = dict()
@@ -228,8 +248,12 @@ def tensor_reduction(C, l):
     return dd["tensor_reduction"]
 
 
-@generated_jit(nopython=True)
 def extract_row(a, n, tup):
+    pass
+
+
+@overload(extract_row)
+def ol_extract_row(a, n, tup):
     d = len(tup.types)
     dd = {}
     s = "def extract_row(a, n, tup): return ({},)".format(
@@ -240,8 +264,12 @@ def extract_row(a, n, tup):
 
 
 # find closest point inside the grid domain
-@generated_jit
 def project(grid, point):
+    pass
+
+
+@overload(project)
+def ol_project(grid, point):
     s = "def __project(grid, point):\n"
     d = len(grid.types)
     for i in range(d):

@@ -1,5 +1,4 @@
 import numpy as np
-from numba import jit, generated_jit
 from numpy import zeros
 from numpy import floor
 
@@ -19,7 +18,6 @@ from numpy import floor
 from interpolation.splines.codegen import get_code_spline, source_to_function
 from numba.types import UniTuple, float64, Array
 from interpolation.splines.codegen import source_to_function
-from numba import generated_jit
 
 
 from ..compat import Tuple, UniTuple
@@ -50,9 +48,12 @@ t_array_2d = [
 ### eval spline (main function)
 
 
-# @generated_jit(inline='always', nopython=True) # doens't work
-@generated_jit(nopython=True)
 def allocate_output(G, C, P, O):
+    pass
+
+
+@overload(allocate_output)
+def ol_allocate_output(G, C, P, O):
     if C.ndim == len(G) + 1:
         # vector valued
         if P.ndim == 2:
