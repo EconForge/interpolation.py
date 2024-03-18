@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "interpolation"
-version = "2.2.5"
+version = "2.2.6"
 readme = "README.md"
 description = "Interpolation in Python"
 authors = [
@@ -22,8 +22,8 @@ scipy = "^1.10"
 pytest = "^7.3.0"
 black = "^23.3.0"
 python-markdown-math = "^0.8"
-pymdown-extensions = "^9.11"
-mkdocs = "^1.4.3"
+pymdown-extensions = "^10.7"
+mkdocs = "^1.5.3"
 
 
 [build-system]
