@@ -41,11 +41,11 @@ import numpy as np
 # logic of multilinear interpolation
 
 
-def mlinterp(grid, c, u):
+def _mlinterp(grid, c, u):
     pass
 
 
-@overload(mlinterp)
+@overload(_mlinterp)
 def ol_mlinterp(grid, c, u):
     if isinstance(u, UniTuple):
 
@@ -74,6 +74,11 @@ def ol_mlinterp(grid, c, u):
     else:
         mlininterp = None
     return mlininterp
+
+
+@njit
+def mlinterp(grid, c, u):
+    return _mlinterp(grid, c, u)
 
 
 ### The rest of this file constrcts function `interp`
@@ -217,11 +222,11 @@ def {funname}(*args):
         return source
 
 
-def interp(*args):
+def _interp(*args):
     pass
 
 
-@overload(interp)
+@overload(_interp)
 def ol_interp(*args):
     aa = args[0].types
 
@@ -235,3 +240,8 @@ def ol_interp(*args):
     code = compile(tree, "<string>", "exec")
     eval(code, globals())
     return __mlinterp
+
+
+@njit
+def interp(*args):
+    return _interp(*args)
