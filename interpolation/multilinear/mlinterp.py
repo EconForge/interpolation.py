@@ -41,15 +41,15 @@ import numpy as np
 # logic of multilinear interpolation
 
 
-def mlinterp(grid, c, u):
+def _mlinterp(grid, c, u):
     pass
 
 
-@overload(mlinterp)
+@overload(_mlinterp)
 def ol_mlinterp(grid, c, u):
     if isinstance(u, UniTuple):
 
-        def mlininterp(grid: Tuple, c: Array, u: Tuple) -> float:
+        def mlininterp(grid, c, u):
             # get indices and barycentric coordinates
             tmp = fmap(get_index, grid, u)
             indices, barycenters = funzip(tmp)
@@ -59,7 +59,7 @@ def ol_mlinterp(grid, c, u):
 
     elif isinstance(u, Array) and u.ndim == 2:
 
-        def mlininterp(grid: Tuple, c: Array, u: Array) -> float:
+        def mlininterp(grid, c, u):
             N = u.shape[0]
             res = np.zeros(N)
             for n in range(N):
@@ -74,6 +74,11 @@ def ol_mlinterp(grid, c, u):
     else:
         mlininterp = None
     return mlininterp
+
+
+@njit
+def mlinterp(grid, c, u):
+    return _mlinterp(grid, c, u)
 
 
 ### The rest of this file constrcts function `interp`
@@ -217,15 +222,13 @@ def {funname}(*args):
         return source
 
 
-def interp(*args):
+def _interp(*args):
     pass
 
 
-@overload(interp)
+@overload(_interp)
 def ol_interp(*args):
-    aa = args[0].types
-
-    it = detect_types(aa)
+    it = detect_types(args)
     if it.d == 1 and it.eval == "point":
         it = itt(it.d, it.values, "cartesian")
     source = make_mlinterp(it, "__mlinterp")
@@ -235,3 +238,8 @@ def ol_interp(*args):
     code = compile(tree, "<string>", "exec")
     eval(code, globals())
     return __mlinterp
+
+
+@njit
+def interp(*args):
+    return _interp(*args)

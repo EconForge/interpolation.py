@@ -115,7 +115,10 @@ def test_mlinterp():
     pp = np.random.random((2000, 2))
 
     res0 = mlinterp((x1, x2), y, pp)
+    assert res0 is not None
+
     res0 = mlinterp((x1, x2), y, (0.1, 0.2))
+    assert res0 is not None
 
 
 def test_multilinear():
@@ -124,6 +127,8 @@ def test_multilinear():
     for t in tests:
         tt = [typeof(e) for e in t]
         rr = interp(*t)
+
+        assert rr is not None
 
         try:
             print(f"{tt}: {rr.shape}")
