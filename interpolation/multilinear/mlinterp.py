@@ -228,9 +228,7 @@ def _interp(*args):
 
 @overload(_interp)
 def ol_interp(*args):
-    aa = args[0].types
-
-    it = detect_types(aa)
+    it = detect_types(args)
     if it.d == 1 and it.eval == "point":
         it = itt(it.d, it.values, "cartesian")
     source = make_mlinterp(it, "__mlinterp")
